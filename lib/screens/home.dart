@@ -3,9 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/screens/satellite_info.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
 
 import '../repositories/countries_iso.dart';
+import '../widgets/custom_page_route.dart';
 import '../widgets/date.dart';
 
 class Home extends StatefulWidget {
@@ -99,6 +101,9 @@ class _HomeState extends State<Home> {
                                             itemBuilder:(context, index){
                                               return InkWell(
                                                 onTap: (){
+                                                  Navigator.of(context).push(
+                                                      CustomPageRoute(child: SatelliteInfo(satellites[index]))
+                                                  );
                                                 },
                                                 child: _buildList(context, index, satellites[index]),
                                               );
@@ -156,6 +161,9 @@ class _HomeState extends State<Home> {
                                             itemBuilder:(context, index){
                                               return InkWell(
                                                 onTap: (){
+                                                  Navigator.of(context).push(
+                                                      CustomPageRoute(child: SatelliteInfo(searchedSatellites[index]))
+                                                  );
                                                 },
                                                 child: _buildList(context, index, searchedSatellites[index]),
                                               );
