@@ -33,12 +33,13 @@ class _HomeState extends State<Home> {
     'FUTURE'
   ];
   List iso = ISO().iso;
-  bool decayed = false,launched=false,deployed=false;
+  bool decayed = false,launched=false,deployed=false,filter=false;
 
   @override
   void initState() {
     super.initState();
     _dropDownCountries();
+    checkFilter();
   }
 
   @override
@@ -359,7 +360,7 @@ class _HomeState extends State<Home> {
                         border: InputBorder.none,
                         hintStyle: TextStyle(color: ThemeColors.searchBarColor),
                         hintText: 'Search satellites',
-                        prefixIcon: Icon(Icons.search,color: ThemeColors.searchBarColor),
+                        prefixIcon: Icon(Icons.search,color: ThemeColors.primaryColor),
                         suffixIcon: _clear(context)
                     ),
                   ),
@@ -368,7 +369,7 @@ class _HomeState extends State<Home> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 0),
                   child: IconButton(
-                    icon: Icon(Icons.filter_list_rounded,color: ThemeColors.searchBarColor),
+                    icon: Icon(Icons.filter_list_rounded,color: filter ? ThemeColors.primaryColor : ThemeColors.searchBarColor),
                     onPressed: (){
                       showModalBottomSheet(
                           isDismissible: false,
@@ -543,6 +544,7 @@ class _HomeState extends State<Home> {
               height: 45,
               child: ElevatedButton(
                 onPressed: (){
+                  checkFilter();
                   context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed);
                   Navigator.pop(context);
                 },
@@ -554,6 +556,19 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
+  }
+
+  void checkFilter(){
+    if(decayed == false && deployed == false && launched == false && dropdownvalueCountries == 'ALL' && dropdownvalueStatus == 'ALL'){
+      setState(() {
+        filter=false;
+      });
+    }
+    else{
+      setState(() {
+        filter=true;
+      });
+    }
   }
 
 }
