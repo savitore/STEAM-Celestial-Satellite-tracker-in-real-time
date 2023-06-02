@@ -271,8 +271,6 @@ class _HomeState extends State<Home> {
             ),
             satellites.deployed.toString().isEmpty || satellites.deployed.toString() == 'null' ?
             Container()
-                : (satellites.launched.toString() != 'null') && parseDateString(satellites.launched!) == parseDateString(satellites.deployed!)
-                ? Container()
                 : Padding(
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                   child: Text('Deployed  -  ${parseDateString(satellites.deployed!)}',overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 15,color: ThemeColors.textPrimary)),
