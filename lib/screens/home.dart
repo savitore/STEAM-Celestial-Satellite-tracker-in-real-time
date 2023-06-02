@@ -4,6 +4,7 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_c
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/satellite_info.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/screens/settings.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/widgets/custom_page_route.dart';
 
@@ -20,6 +21,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
 
   TextEditingController _searchController = TextEditingController();
+  FocusNode _searchFocusNode = FocusNode();
   String dropdownvalueCountries = 'ALL';
   String dropdownvalueStatus = 'ALL';
   List<String> itemsCountries = [
@@ -40,6 +42,17 @@ class _HomeState extends State<Home> {
     super.initState();
     _dropDownCountries();
     checkFilter();
+    _searchFocusNode.addListener(() {
+      if (!_searchFocusNode.hasFocus) {
+        FocusScope.of(context).unfocus();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -72,6 +85,9 @@ class _HomeState extends State<Home> {
                       icon: IconButton(
                         icon: const Icon(Icons.settings),
                         onPressed: (){
+                          Navigator.of(context).push(
+                              CustomPageRoute(child: const Settings())
+                          );
                         },
                       )
                   )
@@ -213,7 +229,6 @@ class _HomeState extends State<Home> {
 
 
   Widget _buildList(BuildContext context, int index, SatelliteModel satellites){
-    String image = satellites.image.toString();
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(
@@ -328,6 +343,9 @@ class _HomeState extends State<Home> {
             icon: IconButton(
               icon: const Icon(Icons.settings),
               onPressed: (){
+                Navigator.of(context).push(
+                    CustomPageRoute(child: const Settings())
+                );
               },
             )
         ),
@@ -349,6 +367,7 @@ class _HomeState extends State<Home> {
               children: [
                 Flexible(
                   child: TextField(
+                    focusNode: _searchFocusNode,
                     controller: _searchController,
                     onChanged: (val){
                       context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,false,false,false);
@@ -375,8 +394,8 @@ class _HomeState extends State<Home> {
                           isDismissible: false,
                           backgroundColor: ThemeColors.backgroundColor,
                           context: context,
-                          builder: (contexte) => StatefulBuilder(
-                              builder: (BuildContext contexte, StateSetter _setState){
+                          builder: (_context) => StatefulBuilder(
+                              builder: (BuildContext _context, StateSetter _setState){
                                 return buildFilter(context,_setState);
                               }),
                           isScrollControlled: true,
