@@ -545,8 +545,8 @@ class _HomeState extends State<Home> {
               child: ElevatedButton(
                 onPressed: (){
                   checkFilter();
-                  context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed);
                   Navigator.pop(context);
+                  context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed);
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
                 child: Text('FILTER',style: TextStyle(color: ThemeColors.backgroundColor,fontSize: 18,letterSpacing: 5),),
