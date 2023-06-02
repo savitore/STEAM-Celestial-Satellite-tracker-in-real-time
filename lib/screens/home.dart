@@ -5,9 +5,9 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_s
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/satellite_info.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/widgets/custom_page_route.dart';
 
 import '../repositories/countries_iso.dart';
-import '../widgets/custom_page_route.dart';
 import '../widgets/date.dart';
 
 class Home extends StatefulWidget {
@@ -20,21 +20,41 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
 
   TextEditingController _searchController = TextEditingController();
+  String dropdownvalueCountries = 'ALL';
+  String dropdownvalueStatus = 'ALL';
+  List<String> itemsCountries = [
+    'ALL',
+  ];
+  List<String> itemsStatus = [
+    'ALL',
+    'ALIVE',
+    'DEAD',
+    'RE-ENTERED',
+    'FUTURE'
+  ];
+  List iso = ISO().iso;
+  bool decayed = false,launched=false,deployed=false;
+
+  @override
+  void initState() {
+    super.initState();
+    _dropDownCountries();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => SatelliteCubit(),
       child: BlocConsumer<SatelliteCubit, SatelliteState>(
-          listener: (context,state){
-            if(state is SatelliteErrorState){
-              SnackBar snackBar = SnackBar(
-                content: Text(state.error,style: TextStyle(color: ThemeColors.snackBarTextColor),),
-                backgroundColor: ThemeColors.snackBarBackgroundColor,
-              );
-              ScaffoldMessenger.of(context).showSnackBar(snackBar);
-            }
-          },
+        listener: (context,state){
+          if(state is SatelliteErrorState){
+            SnackBar snackBar = SnackBar(
+              content: Text(state.error,style: TextStyle(color: ThemeColors.snackBarTextColor),),
+              backgroundColor: ThemeColors.snackBarBackgroundColor,
+            );
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }
+        },
         builder: (context, state){
           if(state is SatelliteLoadingState){
             return Scaffold(
@@ -192,6 +212,7 @@ class _HomeState extends State<Home> {
 
 
   Widget _buildList(BuildContext context, int index, SatelliteModel satellites){
+    String image = satellites.image.toString();
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(
@@ -207,14 +228,10 @@ class _HomeState extends State<Home> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      satellites.name.toString(),
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 18),
-                    ),
-                  ],
+                Text(
+                  satellites.name.toString(),
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 18),
                 ),
                 Flexible(
                   flex: 1,
@@ -289,7 +306,7 @@ class _HomeState extends State<Home> {
       icon: const Icon(Icons.clear,color: Colors.grey),
       onPressed: (){
         _searchController.clear();
-        context.read<SatelliteCubit>().filterSearchData(_searchController.text);
+        context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,false,false,false);
       },
     );
   }
@@ -333,7 +350,7 @@ class _HomeState extends State<Home> {
                   child: TextField(
                     controller: _searchController,
                     onChanged: (val){
-                      context.read<SatelliteCubit>().filterSearchData(val);
+                      context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,false,false,false);
                     },
                     keyboardType: TextInputType.text,
                     cursorColor: ThemeColors.primaryColor,
@@ -353,6 +370,21 @@ class _HomeState extends State<Home> {
                   child: IconButton(
                     icon: Icon(Icons.filter_list_rounded,color: ThemeColors.searchBarColor),
                     onPressed: (){
+                      showModalBottomSheet(
+                          isDismissible: false,
+                          backgroundColor: ThemeColors.backgroundColor,
+                          context: context,
+                          builder: (contexte) => StatefulBuilder(
+                              builder: (BuildContext contexte, StateSetter _setState){
+                                return buildFilter(context,_setState);
+                              }),
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20)
+                              )
+                          )
+                      );
                     },
                   ),
                 )
@@ -369,6 +401,158 @@ class _HomeState extends State<Home> {
       width: (MediaQuery.of(context).size.width - textWidth - 40)*0.5,
       height: 0.5,
       color: ThemeColors.textPrimary,
+    );
+  }
+
+  void _dropDownCountries(){
+    for(int i=0;i<iso.length;i++){
+      Map<String, String> data = iso[i];
+      itemsCountries.add(data['Name'].toString());
+    }
+  }
+
+  Widget buildFilter(BuildContext context, StateSetter _setState){
+    return BlocProvider.value(
+      value: BlocProvider.of<SatelliteCubit>(context),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(25, 5, 25, 25),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 5,
+              width: 40,
+              decoration: BoxDecoration(
+                  color: ThemeColors.dividerColor,
+                  borderRadius: BorderRadius.circular(20)
+              ),
+            ),
+            const SizedBox(height: 30),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Country of Origin',style: TextStyle(fontWeight: FontWeight.w500,color: ThemeColors.primaryColor),),
+                    DropdownButton(
+                      // isExpanded: true,
+                        elevation: 4,
+                        value: dropdownvalueCountries,
+                        underline: Container(
+                            height: 1, color:ThemeColors.textPrimary),
+                        items: itemsCountries.map((String items){
+                          return DropdownMenuItem(
+                            value: items,
+                            child: SizedBox(
+                                width: MediaQuery.of(context).size.width*0.5,
+                                child: Text(items,overflow: TextOverflow.ellipsis,)),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          _setState(() {
+                            dropdownvalueCountries = newValue!;
+                          });
+                        }
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Status',style: TextStyle(fontWeight: FontWeight.w500,color: ThemeColors.primaryColor),),
+                    DropdownButton(
+                      // isExpanded: true,
+                        elevation: 4,
+                        value: dropdownvalueStatus,
+                        underline: Container(
+                            height: 1, color:ThemeColors.textPrimary),
+                        items: itemsStatus.map((String items){
+                          return DropdownMenuItem(
+                            value: items,
+                            child: SizedBox(
+                                width: MediaQuery.of(context).size.width*0.2,
+                                child: Text(items,overflow: TextOverflow.ellipsis,)),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          _setState(() {
+                            dropdownvalueStatus = newValue!;
+                          });
+                        }
+                    )
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Text('Decayed',style: TextStyle(color: ThemeColors.textPrimary),overflow: TextOverflow.visible),
+                    Checkbox(
+                      value: decayed,
+                      onChanged: (bool? value){
+                        _setState(() {
+                          decayed = value!;
+                        });
+                      },
+                      checkColor: ThemeColors.backgroundColor,
+                      activeColor: ThemeColors.primaryColor,
+                    )
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text('Launched',style: TextStyle(color: ThemeColors.textPrimary),overflow: TextOverflow.visible),
+                    Checkbox(
+                      value: launched,
+                      onChanged: (bool? value){
+                        _setState(() {
+                          launched = value!;
+                        });
+                      },
+                      checkColor: ThemeColors.backgroundColor,
+                      activeColor: ThemeColors.primaryColor,
+                    )
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text('Deployed',style: TextStyle(color: ThemeColors.textPrimary),overflow: TextOverflow.visible,),
+                    Checkbox(
+                      value: deployed,
+                      onChanged: (bool? value){
+                        _setState(() {
+                          deployed = value!;
+                        });
+                      },
+                      checkColor: ThemeColors.backgroundColor,
+                      activeColor: ThemeColors.primaryColor,
+                    )
+                  ],
+                )
+              ],
+            ),
+            const SizedBox(height: 10,),
+            SizedBox(
+              width: double.infinity,
+              height: 45,
+              child: ElevatedButton(
+                onPressed: (){
+                  context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed);
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
+                child: Text('FILTER',style: TextStyle(color: ThemeColors.backgroundColor,fontSize: 18,letterSpacing: 5),),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 

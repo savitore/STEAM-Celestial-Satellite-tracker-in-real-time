@@ -56,26 +56,42 @@ class SatelliteCubit extends Cubit<SatelliteState> {
     }
   }
 
-  Future<void> filterSearchData(String filterText) async {
+  Future<void> filterSearchData(String filterText, String country, String status, bool decayed, bool launched, bool deployed) async {
 
-    if (state is SatelliteLoadedState) {
-      final currentState = state as SatelliteLoadedState;
-      final filteredList = currentState.satellites.where((data) =>
-        data.name!.toLowerCase().contains(filterText.toLowerCase()) ||
-            data.noradCatId.toString().toLowerCase().contains(filterText.toLowerCase()) ||
-            data.satId!.toLowerCase().contains(filterText.toLowerCase()))
-            .toList();
-      emit(FilteredSatelliteState(filteredList));
+    List<SatelliteModel> filteredList = _satellites;
+    filteredList = filteredList.where((data) =>
+    data.name!.toLowerCase().contains(filterText.toLowerCase()) ||
+        data.noradCatId.toString().toLowerCase().contains(filterText.toLowerCase()) ||
+        data.satId!.toLowerCase().contains(filterText.toLowerCase()))
+        .toList();
+    if(country!='ALL'){
+      filteredList = filteredList.where((data) =>
+          data.countries.toString().toLowerCase().contains(country.toLowerCase()))
+          .toList();
+    }
+    if(status!='ALL'){
+      filteredList = filteredList.where((data) =>
+          data.status.toString().toLowerCase().contains(status.toLowerCase()))
+          .toList();
+    }
+    if(decayed==true){
+      filteredList = filteredList.where((data) =>
+      data.decayed.toString()!='null')
+          .toList();
+    }
+    if(launched==true){
+      filteredList = filteredList.where((data) =>
+      data.launched.toString()!='null')
+          .toList();
+    }
+    if(deployed==true){
+      filteredList = filteredList.where((data) =>
+      data.deployed.toString()!='null')
+          .toList();
     }
 
-    if (state is FilteredSatelliteState) {
-      final filteredList = _satellites.where((data) =>
-        data.name!.toLowerCase().contains(filterText.toLowerCase()) ||
-            data.noradCatId.toString().toLowerCase().contains(filterText.toLowerCase()) ||
-            data.satId!.toLowerCase().contains(filterText.toLowerCase()))
-            .toList();
-      emit(FilteredSatelliteState(filteredList));
-    }
+    emit(FilteredSatelliteState(filteredList));
 
   }
+
 }
