@@ -10,6 +10,7 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/widgets/custom_pa
 
 import '../repositories/countries_iso.dart';
 import '../widgets/date.dart';
+import '../widgets/shimmer.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -85,16 +86,68 @@ class _HomeState extends State<Home> {
                       icon: IconButton(
                         icon: const Icon(Icons.settings),
                         onPressed: (){
-                          Navigator.of(context).push(
-                              CustomPageRoute(child: const Settings())
-                          );
+                          // Navigator.of(context).push(
+                          //     CustomPageRoute(child: const Settings())
+                          // );
                         },
                       )
                   )
                 ],
               ),
-              body: const Center(
-                child: CircularProgressIndicator(),
+              body: SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    ShimmerEffect().shimmer(Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 5, 10, 10),
+                      child: Card(
+                        elevation: 2,
+                        child: Container(
+                          width: double.infinity,
+                          height: 50,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.grey), // Set the base color of the shimmer effect
+                        ),
+                      ),
+                    )),
+                    ShimmerEffect().shimmer(Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width*0.5-130,
+                            height: 1,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(width: 10,),
+                          Container(
+                            height: 10,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.grey),
+                            width: 200,
+                          ),
+                          const SizedBox(width: 10,),
+                          Container(
+                            width: MediaQuery.of(context).size.width*0.5-130,
+                            height: 1,
+                            color: Colors.grey,
+                          ),
+                        ],
+                      ),
+                    )),
+                    shimmerList(),
+                    shimmerList(),
+                    shimmerList(),
+                    shimmerList(),
+                    shimmerList(),
+                    shimmerList(),
+                    shimmerList(),
+                    shimmerList(),
+                    shimmerList(),
+                  ],
+                ),
               ),
             );
           }
@@ -219,8 +272,29 @@ class _HomeState extends State<Home> {
             );
           }
 
-          return const Center(
-            child: Text("An error occurred!"),
+          return Scaffold(
+            backgroundColor: ThemeColors.backgroundColor,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("An error occurred!",overflow: TextOverflow.visible,style: TextStyle(fontSize: 40,fontWeight: FontWeight.bold),),
+                  const SizedBox(height: 20,),
+                  SizedBox(
+                    height: 45,
+                    width: 150,
+                    child: ElevatedButton(
+                        onPressed: (){
+                          context.read<SatelliteCubit>().fetchData();
+                          context.read<SatelliteCubit>().emit(SatelliteLoadingState());
+                        },
+                        style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor),
+                        child: const Text('TRY AGAIN',style: TextStyle(fontSize: 20),),
+                    ),
+                  )
+                ],
+              ),
+            ),
           );
         },
       ),
@@ -352,61 +426,64 @@ class _HomeState extends State<Home> {
       bottom: AppBar(
         elevation: 0,
         backgroundColor: ThemeColors.backgroundCardColor,
-        title: Card(
-          color: ThemeColors.backgroundColor,
-          elevation: 2,
-          child: Container(
-            width: double.infinity,
-            height: 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                Flexible(
-                  child: TextField(
-                    focusNode: _searchFocusNode,
-                    controller: _searchController,
-                    onChanged: (val){
-                      context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,false,false,false);
-                    },
-                    keyboardType: TextInputType.text,
-                    cursorColor: ThemeColors.primaryColor,
-                    style: TextStyle(color: ThemeColors.textPrimary),
-                    decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintStyle: TextStyle(color: ThemeColors.searchBarColor),
-                        hintText: 'Search satellites',
-                        prefixIcon: Icon(Icons.search,color: ThemeColors.primaryColor),
-                        suffixIcon: _clear(context)
+        title: Padding(
+          padding: const EdgeInsets.only(bottom: 15),
+          child: Card(
+            color: ThemeColors.backgroundColor,
+            elevation: 2,
+            child: Container(
+              width: double.infinity,
+              height: 50,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  Flexible(
+                    child: TextField(
+                      focusNode: _searchFocusNode,
+                      controller: _searchController,
+                      onChanged: (val){
+                        context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,false,false,false);
+                      },
+                      keyboardType: TextInputType.text,
+                      cursorColor: ThemeColors.primaryColor,
+                      style: TextStyle(color: ThemeColors.textPrimary),
+                      decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(color: ThemeColors.searchBarColor),
+                          hintText: 'Search satellites',
+                          prefixIcon: Icon(Icons.search,color: ThemeColors.primaryColor),
+                          suffixIcon: _clear(context)
+                      ),
                     ),
                   ),
-                ),
-                Text('|',style: TextStyle(fontSize: 30,color: ThemeColors.searchBarColor),),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0),
-                  child: IconButton(
-                    icon: Icon(Icons.filter_list_rounded,color: filter ? ThemeColors.primaryColor : ThemeColors.searchBarColor),
-                    onPressed: (){
-                      showModalBottomSheet(
-                          isDismissible: false,
-                          backgroundColor: ThemeColors.backgroundColor,
-                          context: context,
-                          builder: (_context) => StatefulBuilder(
-                              builder: (BuildContext _context, StateSetter _setState){
-                                return buildFilter(context,_setState);
-                              }),
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(20)
-                              )
-                          )
-                      );
-                    },
-                  ),
-                )
-              ],
+                  Text('|',style: TextStyle(fontSize: 30,color: ThemeColors.searchBarColor),),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 0),
+                    child: IconButton(
+                      icon: Icon(Icons.filter_list_rounded,color: filter ? ThemeColors.primaryColor : ThemeColors.searchBarColor),
+                      onPressed: (){
+                        showModalBottomSheet(
+                            isDismissible: false,
+                            backgroundColor: ThemeColors.backgroundColor,
+                            context: context,
+                            builder: (_context) => StatefulBuilder(
+                                builder: (BuildContext _context, StateSetter _setState){
+                                  return buildFilter(context,_setState);
+                                }),
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(20)
+                                )
+                            )
+                        );
+                      },
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
@@ -568,6 +645,30 @@ class _HomeState extends State<Home> {
                 style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
                 child: Text('FILTER',style: TextStyle(color: ThemeColors.backgroundColor,fontSize: 18,letterSpacing: 5),),
               ),
+            ),
+            const SizedBox(height: 10,),
+            SizedBox(
+              width: double.infinity,
+              height: 45,
+              child: ElevatedButton(
+                onPressed: (){
+                  _setState(() {
+                    dropdownvalueCountries='ALL';
+                    dropdownvalueStatus='ALL';
+                    deployed=false;
+                    decayed=false;
+                    launched=false;
+                  });
+                  setState(() {
+
+                  });
+                  checkFilter();
+                  Navigator.pop(context);
+                  context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed);
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.secondaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
+                child: Text('CLEAR',style: TextStyle(color: ThemeColors.backgroundColor,fontSize: 18,letterSpacing: 5),),
+              ),
             )
           ],
         ),
@@ -586,6 +687,50 @@ class _HomeState extends State<Home> {
         filter=true;
       });
     }
+  }
+
+  Widget shimmerList() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+      child: Card(
+        elevation: 1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ShimmerEffect().shimmer(Container(
+                  height: 10,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey))),
+              const SizedBox(
+                height: 15,
+              ),
+              ShimmerEffect().shimmer(Container(
+                  height: 10,
+                  width: 200,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey))),
+              const SizedBox(
+                height: 20,
+              ),
+              ShimmerEffect().shimmer(Container(
+                  height: 10,
+                  width: 100,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey))),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
 }

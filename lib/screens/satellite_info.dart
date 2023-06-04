@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/colors.dart';
 import '../widgets/date.dart';
+import '../widgets/shimmer.dart';
 
 class SatelliteInfo extends StatefulWidget {
   final SatelliteModel satelliteModel;
@@ -50,17 +51,71 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               },
               builder: (context,state){
                 if(state is SatelliteLoadingState){
-                  return const Center(
-                    child: CircularProgressIndicator(),
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    child: SingleChildScrollView(
+                      physics: const NeverScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ShimmerEffect().shimmer(Container(
+                              height: 15,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.grey))),
+                          const SizedBox(height: 10,),
+                          ShimmerEffect().shimmer(Container(
+                              height: 15,
+                              width: 150,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.grey))),
+                          divider(),
+                          const SizedBox(height: 20,),
+                          widget.satelliteModel.image.toString().isEmpty ? Container() :
+                              ShimmerEffect().shimmer(Container(
+                                  height: 150,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.grey))),
+                          const SizedBox(height: 20,),
+                          shimmerTile(),
+                          shimmerTile(),
+                          shimmerTile(),
+                          shimmerTile(),
+                          shimmerTile(),
+                          ShimmerEffect().shimmer(Container(
+                              height: 15,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.grey))),
+                          const SizedBox(height: 10),
+                          ShimmerEffect().shimmer(Container(
+                              height: 50,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.grey))),
+                          const SizedBox(height: 30),
+                          shimmerTile(),
+                          shimmerTile(),
+                          shimmerTile(),
+                        ],
+                      ),
+                    ),
                   );
                 }
                 else if(state is SatelliteLoadedState){
                   return Container(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                     child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          SizedBox(height: 20,),
                           _buildSatelliteStatus(),
                           const SizedBox(height: 20),
                           _buildSatelliteImage(),
@@ -231,12 +286,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           ),
           overflow: TextOverflow.visible,
         ),
-        Container(
-          width: MediaQuery.of(context).size.width,
-          height: 1,
-          color: ThemeColors.dividerColor,
-          margin: const EdgeInsets.only(top: 16),
-        ),
+        divider(),
       ],
     );
   }
@@ -288,6 +338,38 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     if (await canLaunchUrl(websiteLaunchUri)) {
       await launchUrl(websiteLaunchUri, mode: LaunchMode.platformDefault);
     }
+  }
+
+  Widget divider(){
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: 1,
+      color: ThemeColors.dividerColor,
+      margin: const EdgeInsets.only(top: 16),
+    );
+  }
+
+  Widget shimmerTile(){
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ShimmerEffect().shimmer(Container(
+            height: 15,
+            width: 100,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.grey))),
+        const SizedBox(height: 10),
+        ShimmerEffect().shimmer(Container(
+            height: 15,
+            width: 150,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.grey))),
+        const SizedBox(height: 30)
+      ],
+    );
   }
 
 }
