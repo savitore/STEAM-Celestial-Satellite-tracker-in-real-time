@@ -318,13 +318,14 @@ class _HomeState extends State<Home> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  satellites.name.toString(),
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 18),
+                Flexible(
+                  child: Text(
+                    satellites.name.toString(),
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 18),
+                  ),
                 ),
                 Flexible(
-                  flex: 1,
                   child: Text(
                     satellites.status!.toUpperCase(),
                     style: TextStyle(
@@ -510,7 +511,7 @@ class _HomeState extends State<Home> {
     return BlocProvider.value(
       value: BlocProvider.of<SatelliteCubit>(context),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(25, 5, 25, 25),
+        padding: const EdgeInsets.fromLTRB(10, 5, 10, 15),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -585,50 +586,56 @@ class _HomeState extends State<Home> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Text('Decayed',style: TextStyle(color: ThemeColors.textPrimary),overflow: TextOverflow.visible),
-                    Checkbox(
-                      value: decayed,
-                      onChanged: (bool? value){
-                        _setState(() {
-                          decayed = value!;
-                        });
-                      },
-                      checkColor: ThemeColors.backgroundColor,
-                      activeColor: ThemeColors.primaryColor,
-                    )
-                  ],
+                Flexible(
+                  child: Row(
+                    children: [
+                      Flexible(child: Text('Decayed',style: TextStyle(color: ThemeColors.textPrimary),overflow: TextOverflow.visible)),
+                      Checkbox(
+                        value: decayed,
+                        onChanged: (bool? value){
+                          _setState(() {
+                            decayed = value!;
+                          });
+                        },
+                        checkColor: ThemeColors.backgroundColor,
+                        activeColor: ThemeColors.primaryColor,
+                      )
+                    ],
+                  ),
                 ),
-                Row(
-                  children: [
-                    Text('Launched',style: TextStyle(color: ThemeColors.textPrimary),overflow: TextOverflow.visible),
-                    Checkbox(
-                      value: launched,
-                      onChanged: (bool? value){
-                        _setState(() {
-                          launched = value!;
-                        });
-                      },
-                      checkColor: ThemeColors.backgroundColor,
-                      activeColor: ThemeColors.primaryColor,
-                    )
-                  ],
+                Flexible(
+                  child: Row(
+                    children: [
+                      Flexible(child:Text('Launched',style: TextStyle(color: ThemeColors.textPrimary),overflow: TextOverflow.visible)),
+                      Checkbox(
+                        value: launched,
+                        onChanged: (bool? value){
+                          _setState(() {
+                            launched = value!;
+                          });
+                        },
+                        checkColor: ThemeColors.backgroundColor,
+                        activeColor: ThemeColors.primaryColor,
+                      )
+                    ],
+                  ),
                 ),
-                Row(
-                  children: [
-                    Text('Deployed',style: TextStyle(color: ThemeColors.textPrimary),overflow: TextOverflow.visible,),
-                    Checkbox(
-                      value: deployed,
-                      onChanged: (bool? value){
-                        _setState(() {
-                          deployed = value!;
-                        });
-                      },
-                      checkColor: ThemeColors.backgroundColor,
-                      activeColor: ThemeColors.primaryColor,
-                    )
-                  ],
+                Flexible(
+                  child: Row(
+                    children: [
+                      Flexible(child: Text('Deployed',style: TextStyle(color: ThemeColors.textPrimary),overflow: TextOverflow.visible,)),
+                      Checkbox(
+                        value: deployed,
+                        onChanged: (bool? value){
+                          _setState(() {
+                            deployed = value!;
+                          });
+                        },
+                        checkColor: ThemeColors.backgroundColor,
+                        activeColor: ThemeColors.primaryColor,
+                      )
+                    ],
+                  ),
                 )
               ],
             ),
