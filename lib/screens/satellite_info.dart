@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/colors.dart';
@@ -18,6 +19,9 @@ class SatelliteInfo extends StatefulWidget {
 }
 
 class _SatelliteInfoState extends State<SatelliteInfo> {
+
+  bool tleExists = false;
+  late TLEModel tleModel;
 
   @override
   Widget build(BuildContext context) {
@@ -109,13 +113,14 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                   );
                 }
                 else if(state is SatelliteLoadedState){
+                  checkTLE(state.tle);
                   return Container(
                     padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                     child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 20,),
+                          const SizedBox(height: 20,),
                           _buildSatelliteStatus(),
                           const SizedBox(height: 20),
                           _buildSatelliteImage(),
@@ -228,8 +233,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
   Widget _buildTLE(List<String> tle){
-    int numLines = tle.length;
-    if(numLines == 4){
+    if(tleExists){
+      tleModel = TLEModel(line0: tle[0], line1: tle[1], line2: tle[2], satelliteId: widget.satelliteModel.satId!, noradId: widget.satelliteModel.noradCatId!, updated: widget.satelliteModel.updated!);
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -370,6 +375,17 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         const SizedBox(height: 30)
       ],
     );
+  }
+
+  void checkTLE(List<String> tle){
+    int numLines = tle.length;
+    if(numLines==4){
+      tleExists=true;
+    }
+  }
+
+  void viewSatellite(){
+    final tleCoord = tleModel.read();
   }
 
 }

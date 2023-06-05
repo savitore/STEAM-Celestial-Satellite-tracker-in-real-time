@@ -43,6 +43,7 @@ dependencies:
   intl: ^0.18.1
   url_launcher: ^6.1.5
   shimmer: ^3.0.0
+  sgp4_sdp4: ^0.1.0
 
 dev_dependencies:
   flutter_test:

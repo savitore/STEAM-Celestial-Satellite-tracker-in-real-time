@@ -264,6 +264,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.5"
+  sgp4_sdp4:
+    dependency: "direct main"
+    description:
+      name: sgp4_sdp4
+      sha256: "6e371a761e53229b4a463fe9a47ba9564ad11858213d69e5f52e56e5c4276886"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   shimmer:
     dependency: "direct main"
     description:
