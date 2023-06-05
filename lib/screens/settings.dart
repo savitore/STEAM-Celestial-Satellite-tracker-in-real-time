@@ -13,7 +13,7 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
 
-  bool val = false;
+  bool val = false,tools=false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,6 +46,7 @@ class _SettingsState extends State<Settings> {
                 leading: _buildIcon(Icons.dark_mode_outlined),
                 title: _buildTitle('Dark Mode'),
                 trailing: Switch(
+                  inactiveThumbColor: ThemeColors.secondaryColor,
                   activeColor: ThemeColors.primaryColor,
                   onChanged: (value){
                     setState(() {
@@ -58,7 +59,8 @@ class _SettingsState extends State<Settings> {
               _divider(),
               ListTile(
                   title: _buildTitle('Bluetooth Connection'),
-                  leading: _buildIcon(Icons.settings_bluetooth_outlined)
+                  leading: _buildIcon(Icons.settings_bluetooth_outlined),
+                  trailing: Icon(Icons.arrow_forward,color: ThemeColors.secondaryColor,),
               ),
               _divider(),
               ListTile(
@@ -69,13 +71,22 @@ class _SettingsState extends State<Settings> {
                 },
                 title: _buildTitle('LG Connection'),
                 leading: Image.asset('assets/lg.png',width: 20,height: 20,color: ThemeColors.primaryColor,),
-              ),
+                trailing: Icon(Icons.arrow_forward,color: ThemeColors.secondaryColor,),
+                ),
               _divider(),
               ListTile(
+                onTap: (){
+                  setState(() {
+                    tools=!tools;
+                  });
+                },
                 title: _buildTitle('LG Tools'),
-                leading: _buildIcon(Icons.settings_input_antenna)
+                leading: _buildIcon(Icons.settings_input_antenna),
+                trailing: tools ?
+                     Icon(Icons.keyboard_arrow_up,color: ThemeColors.primaryColor,) :
+                     Icon(Icons.keyboard_arrow_down,color: ThemeColors.secondaryColor,)
               ),
-              _divider()
+              tools ? showTools() : _divider()
             ],
           ),
         ),
@@ -97,6 +108,60 @@ class _SettingsState extends State<Settings> {
       height: 0.2,
       color: ThemeColors.dividerColor,
       margin: const EdgeInsets.only(left: 75),
+    );
+  }
+
+  Widget showTools(){
+    return Padding(
+      padding: const EdgeInsets.only(right: 10,left: 5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              buttonPrimary('SET SLAVES REFRESH'),
+              buttonSecondary('RELAUNCH'),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              buttonPrimary('RESET SLAVES REFRESH'),
+              buttonSecondary('REBOOT'),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              buttonPrimary('CLEAR KML + LOGOS'),
+              buttonSecondary('POWER OFF'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buttonPrimary(String text){
+    return SizedBox(
+      width: MediaQuery.of(context).size.width*0.5-20,
+      child: ElevatedButton(
+        onPressed: (){},
+        style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+        child: Text(text,style: TextStyle(color: ThemeColors.backgroundColor,overflow: TextOverflow.visible),),
+      ),
+    );
+  }
+
+  Widget buttonSecondary(String text){
+    return SizedBox(
+      width: MediaQuery.of(context).size.width*0.5-20,
+      child: ElevatedButton(
+        onPressed: (){},
+        style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.secondaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+        child: Text(text,style: TextStyle(color: ThemeColors.backgroundColor,overflow: TextOverflow.visible),),
+      ),
     );
   }
 }
