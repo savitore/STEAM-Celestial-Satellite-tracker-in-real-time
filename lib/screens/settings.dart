@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/lg_settings.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
 
+import '../services/ssh_service.dart';
 import '../widgets/custom_page_route.dart';
 
 class Settings extends StatefulWidget {
@@ -13,7 +17,30 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
 
-  bool val = false,tools=false;
+  bool val = false,tools=false,lgConnected=false;
+
+  SSHService get _sshService => GetIt.I<SSHService>();
+
+  Timer? timer;
+
+  @override
+  void initState() {
+    checkLGConnection();
+    timer = Timer(const Duration(seconds: 3),(){
+      checkLGConnection();
+    });
+    super.initState();
+  }
+
+  void checkLGConnection() async{
+    final result = await _sshService.connect();
+    if (result == 'session_connected'){
+      setState(() {
+        lgConnected=true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +86,7 @@ class _SettingsState extends State<Settings> {
               ListTile(
                   title: _buildTitle('Bluetooth Connection'),
                   leading: _buildIcon(Icons.settings_bluetooth_outlined),
-                  trailing: Icon(Icons.arrow_forward,),
+                  trailing: const Icon(Icons.arrow_forward,),
               ),
               _divider(),
               ListTile(
@@ -68,9 +95,15 @@ class _SettingsState extends State<Settings> {
                       CustomPageRoute(child: const LGSettings())
                   );
                 },
-                title: _buildTitle('LG Connection'),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildTitle('LG Connection'),
+                    lgConnected ? Text('CONNECTED',style: TextStyle(color: ThemeColors.success,fontSize: 12),): const SizedBox()
+                  ],
+                ),
                 leading: Image.asset('assets/lg.png',width: 20,height: 20,color: ThemeColors.primaryColor,),
-                trailing: Icon(Icons.arrow_forward,),
+                trailing: const Icon(Icons.arrow_forward,),
                 ),
               _divider(),
               ListTile(
@@ -83,7 +116,7 @@ class _SettingsState extends State<Settings> {
                 leading: _buildIcon(Icons.settings_input_antenna),
                 trailing: tools ?
                      Icon(Icons.keyboard_arrow_up,color: ThemeColors.primaryColor,) :
-                     Icon(Icons.keyboard_arrow_down,)
+                     const Icon(Icons.keyboard_arrow_down,)
               ),
               tools ? showTools() : _divider()
             ],
