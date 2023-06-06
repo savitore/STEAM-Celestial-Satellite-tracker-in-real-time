@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/lg_settings.dart';
@@ -20,12 +18,6 @@ class _SettingsState extends State<Settings> {
   bool val = false,tools=false,lgConnected=false;
 
   SSHService get _sshService => GetIt.I<SSHService>();
-
-  @override
-  void initState() {
-    checkLGConnection();
-    super.initState();
-  }
 
   void checkLGConnection() async{
     final result = await _sshService.connect();

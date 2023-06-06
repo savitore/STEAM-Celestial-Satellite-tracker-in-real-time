@@ -266,12 +266,11 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
           _connected = result == 'session_connected';
         });
 
-        // if (result == 'session_connected') {
+        if (result == 'session_connected') {
         //   await _lgService.setLogos();
-        // }
+        }
       }
     } on Exception catch (e) {
-      // ignore: avoid_print
       print('$e');
       if (!_canceled) {
         setState(() {
@@ -279,7 +278,6 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
         });
       }
     } catch (e) {
-      // ignore: avoid_print
       print('$e');
     } finally {
       setState(() {
