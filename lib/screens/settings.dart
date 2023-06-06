@@ -46,7 +46,6 @@ class _SettingsState extends State<Settings> {
                 leading: _buildIcon(Icons.dark_mode_outlined),
                 title: _buildTitle('Dark Mode'),
                 trailing: Switch(
-                  inactiveThumbColor: ThemeColors.secondaryColor,
                   activeColor: ThemeColors.primaryColor,
                   onChanged: (value){
                     setState(() {
@@ -60,7 +59,7 @@ class _SettingsState extends State<Settings> {
               ListTile(
                   title: _buildTitle('Bluetooth Connection'),
                   leading: _buildIcon(Icons.settings_bluetooth_outlined),
-                  trailing: Icon(Icons.arrow_forward,color: ThemeColors.secondaryColor,),
+                  trailing: Icon(Icons.arrow_forward,),
               ),
               _divider(),
               ListTile(
@@ -71,7 +70,7 @@ class _SettingsState extends State<Settings> {
                 },
                 title: _buildTitle('LG Connection'),
                 leading: Image.asset('assets/lg.png',width: 20,height: 20,color: ThemeColors.primaryColor,),
-                trailing: Icon(Icons.arrow_forward,color: ThemeColors.secondaryColor,),
+                trailing: Icon(Icons.arrow_forward,),
                 ),
               _divider(),
               ListTile(
@@ -84,7 +83,7 @@ class _SettingsState extends State<Settings> {
                 leading: _buildIcon(Icons.settings_input_antenna),
                 trailing: tools ?
                      Icon(Icons.keyboard_arrow_up,color: ThemeColors.primaryColor,) :
-                     Icon(Icons.keyboard_arrow_down,color: ThemeColors.secondaryColor,)
+                     Icon(Icons.keyboard_arrow_down,)
               ),
               tools ? showTools() : _divider()
             ],
