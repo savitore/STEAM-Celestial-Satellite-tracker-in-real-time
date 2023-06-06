@@ -44,6 +44,9 @@ dependencies:
   url_launcher: ^6.1.5
   shimmer: ^3.0.0
   sgp4_sdp4: ^0.1.0
+  ssh2: ^2.2.3
+  shared_preferences: ^2.1.1
+  get_it: ^7.6.0
 
 dev_dependencies:
   flutter_test:

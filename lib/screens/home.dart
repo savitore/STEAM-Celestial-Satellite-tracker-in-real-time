@@ -9,6 +9,7 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart
 import 'package:steam_celestial_satellite_tracker_in_real_time/widgets/custom_page_route.dart';
 
 import '../repositories/countries_iso.dart';
+import '../utils/snackbar.dart';
 import '../widgets/date.dart';
 import '../widgets/shimmer.dart';
 
@@ -63,11 +64,7 @@ class _HomeState extends State<Home> {
       child: BlocConsumer<SatelliteCubit, SatelliteState>(
         listener: (context,state){
           if(state is SatelliteErrorState){
-            SnackBar snackBar = SnackBar(
-              content: Text(state.error,style: TextStyle(color: ThemeColors.snackBarTextColor),),
-              backgroundColor: ThemeColors.snackBarBackgroundColor,
-            );
-            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            showSnackbar(context, state.error);
           }
         },
         builder: (context, state){

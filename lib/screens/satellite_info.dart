@@ -4,6 +4,7 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_i
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/utils/snackbar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/colors.dart';
@@ -46,11 +47,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             child: BlocConsumer<SatelliteInfoCubit, SatelliteInfoState>(
               listener: (context,state){
                 if(state is SatelliteErrorState){
-                  SnackBar snackBar = SnackBar(
-                    content: Text(state.error,style: TextStyle(color: ThemeColors.snackBarTextColor),),
-                    backgroundColor: ThemeColors.snackBarBackgroundColor,
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  showSnackbar(context, state.error);
                 }
               },
               builder: (context,state){
