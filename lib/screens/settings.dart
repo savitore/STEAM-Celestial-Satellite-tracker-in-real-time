@@ -21,20 +21,20 @@ class _SettingsState extends State<Settings> {
 
   SSHService get _sshService => GetIt.I<SSHService>();
 
-  Timer? timer;
-
   @override
   void initState() {
     checkLGConnection();
-    timer = Timer(const Duration(seconds: 3),(){
-      checkLGConnection();
-    });
     super.initState();
   }
 
   void checkLGConnection() async{
     final result = await _sshService.connect();
-    if (result == 'session_connected'){
+    if (result != 'session_connected'){
+      setState(() {
+        lgConnected=false;
+      });
+    }
+    else{
       setState(() {
         lgConnected=true;
       });
@@ -95,13 +95,7 @@ class _SettingsState extends State<Settings> {
                       CustomPageRoute(child: const LGSettings())
                   );
                 },
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildTitle('LG Connection'),
-                    lgConnected ? Text('CONNECTED',style: TextStyle(color: ThemeColors.success,fontSize: 12),): const SizedBox()
-                  ],
-                ),
+                title: _buildTitle('LG Connection'),
                 leading: Image.asset('assets/lg.png',width: 20,height: 20,color: ThemeColors.primaryColor,),
                 trailing: const Icon(Icons.arrow_forward,),
                 ),
@@ -112,7 +106,7 @@ class _SettingsState extends State<Settings> {
                     tools=!tools;
                   });
                 },
-                title: _buildTitle('LG Tools'),
+                title: Text('LG Tools',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20,fontWeight: tools ? FontWeight.bold : FontWeight.normal),overflow: TextOverflow.visible,),
                 leading: _buildIcon(Icons.settings_input_antenna),
                 trailing: tools ?
                      Icon(Icons.keyboard_arrow_up,color: ThemeColors.primaryColor,) :

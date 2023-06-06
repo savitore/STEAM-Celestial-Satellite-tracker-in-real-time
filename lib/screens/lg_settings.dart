@@ -48,6 +48,13 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
   }
 
   @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
           appBar: AppBar(
