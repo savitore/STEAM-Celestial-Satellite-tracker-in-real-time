@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/services/lg_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/lg_settings_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/local_storage_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/ssh_service.dart';
@@ -10,6 +11,7 @@ void setupServices() {
   GetIt.I.registerLazySingleton(() => LocalStorageService());
   GetIt.I.registerLazySingleton(() => LGSettingsService());
   GetIt.I.registerLazySingleton(() => SSHService());
+  GetIt.I.registerLazySingleton(() => LGService());
 }
 
 void main() async{

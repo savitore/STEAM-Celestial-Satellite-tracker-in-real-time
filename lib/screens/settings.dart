@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/lg_settings.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/utils/snackbar.dart';
 
+import '../services/lg_service.dart';
 import '../services/ssh_service.dart';
+import '../widgets/confirm_dialog.dart';
 import '../widgets/custom_page_route.dart';
 
 class Settings extends StatefulWidget {
@@ -15,11 +18,26 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
 
-  bool val = false,tools=false,lgConnected=false;
+  bool val = false, tools=false, lgConnected=false;
+  bool _settingRefresh = false, _resetingRefresh = false, _clearingKml = false, _rebooting = false, _relaunching = false, _shuttingDown = false;
 
   SSHService get _sshService => GetIt.I<SSHService>();
+  LGService get _lgService => GetIt.I<LGService>();
 
-  void checkLGConnection() async{
+  @override
+  void initState() {
+    checkLGConnection();
+    super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
+  }
+
+  Future<void> checkLGConnection() async{
     final result = await _sshService.connect();
     if (result != 'session_connected'){
       setState(() {
@@ -130,56 +148,365 @@ class _SettingsState extends State<Settings> {
   }
 
   Widget showTools(){
+    ButtonStyle style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)));
+    ButtonStyle _style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.secondaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)));
     return Padding(
-      padding: const EdgeInsets.only(right: 10,left: 5),
+      padding: const EdgeInsets.only(right: 10,left: 5,top: 10),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              buttonPrimary('SET SLAVES REFRESH'),
-              buttonSecondary('RELAUNCH'),
-            ],
+          ElevatedButton(
+              onPressed: () {
+                checkLGConnection();
+                if(!lgConnected){
+                  errorTaskButton();
+                }else{
+
+                  if (_settingRefresh) {
+                    return;
+                  }
+
+                  showDialog(
+                    context: context,
+                    builder: (context) => ConfirmDialog(
+                      title: 'Are you sure?',
+                      message:
+                      'The slaves solo KMLs will start to refresh each 2 seconds and all screens will be rebooted.',
+                      onCancel: () {
+                        Navigator.of(context).pop();
+                      },
+                      onConfirm: () async {
+                        Navigator.of(context).pop();
+
+                        setState(() {
+                          _settingRefresh = true;
+                        });
+
+                        try {
+                          await _lgService.setRefresh();
+                        } finally {
+                          setState(() {
+                            _settingRefresh = false;
+                          });
+                        }
+                      },
+                    ),
+                  );
+                }
+              },
+              style: style,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buttonText('SET SLAVES REFRESH'),
+                const SizedBox(
+                  width: 5,
+                ),
+                _settingRefresh
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor,),
+                      )
+                    : const SizedBox()
+              ],
+            ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              buttonPrimary('RESET SLAVES REFRESH'),
-              buttonSecondary('REBOOT'),
-            ],
+          const SizedBox(height: 5,),
+          ElevatedButton(
+            onPressed: (){
+              checkLGConnection();
+              if(!lgConnected){
+                errorTaskButton();
+              }else{
+
+                if (_resetingRefresh) {
+                  return;
+                }
+
+                showDialog(
+                  context: context,
+                  builder: (context) => ConfirmDialog(
+                    title: 'Are you sure?',
+                    message:
+                    'The slaves will stop refreshing and all screens will be rebooted.',
+                    onCancel: () {
+                      Navigator.of(context).pop();
+                    },
+                    onConfirm: () async {
+                      Navigator.of(context).pop();
+
+                      setState(() {
+                        _resetingRefresh = true;
+                      });
+
+                      try {
+                        await _lgService.resetRefresh();
+                      } finally {
+                        setState(() {
+                          _resetingRefresh = false;
+                        });
+                      }
+                    },
+                  ),
+                );
+              }
+            },
+            style: style,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buttonText('RESET SLAVES REFRESH'),
+                const SizedBox(
+                  width: 5,
+                ),
+                _resetingRefresh
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor),
+                      )
+                    : const SizedBox()
+              ],
+            ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              buttonPrimary('CLEAR KML + LOGOS'),
-              buttonSecondary('POWER OFF'),
-            ],
+          const SizedBox(height: 5,),
+          ElevatedButton(
+            onPressed: () async {
+              checkLGConnection();
+              if(!lgConnected){
+                errorTaskButton();
+              }else{
+
+                if (_clearingKml) {
+                  return;
+                }
+
+                setState(() {
+                  _clearingKml = true;
+                });
+
+                try {
+                  await _lgService.clearKml(keepLogos: false);
+                } finally {
+                  setState(() {
+                    _clearingKml = false;
+                  });
+                }
+              }
+            },
+            style: style,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buttonText('CLEAR KML + LOGOS'),
+                const SizedBox(
+                  width: 5,
+                ),
+                _clearingKml
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor),
+                      )
+                    : const SizedBox()
+              ],
+            ),
+          ),
+          const SizedBox(height: 5,),
+          ElevatedButton(
+            onPressed: () async {
+              checkLGConnection();
+              if(!lgConnected){
+                errorTaskButton();
+              }else{
+
+                if (_relaunching) {
+                  return;
+                }
+
+                showDialog(
+                  context: context,
+                  builder: (context) => ConfirmDialog(
+                    title: 'Are you sure?',
+                    message: 'All screens will be relaunched.',
+                    onCancel: () {
+                      Navigator.of(context).pop();
+                    },
+                    onConfirm: () async {
+                      Navigator.of(context).pop();
+
+                      setState(() {
+                        _relaunching = true;
+                      });
+
+                      try {
+                        await _lgService.relaunch();
+                      } finally {
+                        setState(() {
+                          _relaunching = false;
+                        });
+                      }
+                    },
+                  ),
+                );
+              }
+            },
+            style: _style,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buttonText('RELAUNCH'),
+                const SizedBox(
+                  width: 5,
+                ),
+                _relaunching
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor),
+                      )
+                    : const SizedBox()
+              ],
+            ),
+          ),
+          const SizedBox(height: 5,),
+          ElevatedButton(
+            onPressed: () async {
+              checkLGConnection();
+              if(!lgConnected){
+                errorTaskButton();
+              }else{
+
+                if (_rebooting) {
+                  return;
+                }
+
+                showDialog(
+                  context: context,
+                  builder: (context) => ConfirmDialog(
+                    title: 'Are you sure?',
+                    message: 'The system will be fully rebooted.',
+                    onCancel: () {
+                      Navigator.of(context).pop();
+                    },
+                    onConfirm: () async {
+                      Navigator.of(context).pop();
+
+                      setState(() {
+                        _rebooting = true;
+                      });
+
+                      try {
+                        await _lgService.reboot();
+                      } finally {
+                        setState(() {
+                          _rebooting = false;
+                        });
+                      }
+                    },
+                  ),
+                );
+              }
+            },
+            style: _style,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buttonText('REBOOT'),
+                const SizedBox(
+                  width: 5,
+                ),
+                _rebooting
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor),
+                      )
+                    : const SizedBox()
+              ],
+            ),
+          ),
+          const SizedBox(height: 5,),
+          ElevatedButton(
+            onPressed: () async {
+              checkLGConnection();
+              if(!lgConnected){
+                errorTaskButton();
+              }else{
+
+                if (_shuttingDown) {
+                  return;
+                }
+
+                showDialog(
+                  context: context,
+                  builder: (context) => ConfirmDialog(
+                    title: 'Are you sure?',
+                    message: 'The system will shutdown.',
+                    onCancel: () {
+                      Navigator.of(context).pop();
+                    },
+                    onConfirm: () async {
+                      Navigator.of(context).pop();
+
+                      setState(() {
+                        _shuttingDown = true;
+                      });
+
+                      try {
+                        await _lgService.shutdown();
+                        // setState(() {
+                        //   lgConnected = false;
+                        // });
+                      } finally {
+                        setState(() {
+                          _shuttingDown = false;
+                        });
+                      }
+                    },
+                  ),
+                );
+              }
+            },
+            style: _style,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buttonText('POWER OFF'),
+                const SizedBox(
+                  width: 5,
+                ),
+                _shuttingDown
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor),
+                      )
+                    : const SizedBox()
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget buttonPrimary(String text){
-    return SizedBox(
-      width: MediaQuery.of(context).size.width*0.5-20,
-      child: ElevatedButton(
-        onPressed: (){},
-        style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-        child: Text(text,style: TextStyle(color: ThemeColors.backgroundColor,overflow: TextOverflow.visible),),
+  Widget buttonText(String text){
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Text(
+        text,
+        style: TextStyle(
+            color: ThemeColors.backgroundColor,
+            overflow: TextOverflow.visible,
+            fontSize: 18,
+            fontWeight: FontWeight.w400),
       ),
     );
   }
 
-  Widget buttonSecondary(String text){
-    return SizedBox(
-      width: MediaQuery.of(context).size.width*0.5-20,
-      child: ElevatedButton(
-        onPressed: (){},
-        style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.secondaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-        child: Text(text,style: TextStyle(color: ThemeColors.backgroundColor,overflow: TextOverflow.visible),),
-      ),
-    );
+  void errorTaskButton(){
+    showSnackbar(context, 'Please connect to LG rig.');
   }
+
 }
