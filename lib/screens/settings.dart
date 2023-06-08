@@ -148,8 +148,8 @@ class _SettingsState extends State<Settings> {
   }
 
   Widget showTools(){
-    ButtonStyle style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)));
-    ButtonStyle _style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.secondaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)));
+    ButtonStyle style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.secondaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)));
+    ButtonStyle _style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.secondaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),side: BorderSide(color: ThemeColors.secondaryColor)));
     return Padding(
       padding: const EdgeInsets.only(right: 10,left: 5,top: 10),
       child: Column(
@@ -193,7 +193,7 @@ class _SettingsState extends State<Settings> {
                   );
                 }
               },
-              style: style,
+              style: _style,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -251,7 +251,7 @@ class _SettingsState extends State<Settings> {
                 );
               }
             },
-            style: style,
+            style: _style,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -294,7 +294,7 @@ class _SettingsState extends State<Settings> {
                 }
               }
             },
-            style: style,
+            style: _style,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -351,7 +351,7 @@ class _SettingsState extends State<Settings> {
                 );
               }
             },
-            style: _style,
+            style: style,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -408,7 +408,7 @@ class _SettingsState extends State<Settings> {
                 );
               }
             },
-            style: _style,
+            style: style,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -468,7 +468,7 @@ class _SettingsState extends State<Settings> {
                 );
               }
             },
-            style: _style,
+            style: style,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -496,8 +496,7 @@ class _SettingsState extends State<Settings> {
       padding: const EdgeInsets.all(12.0),
       child: Text(
         text,
-        style: TextStyle(
-            color: ThemeColors.backgroundColor,
+        style: const TextStyle(
             overflow: TextOverflow.visible,
             fontSize: 18,
             fontWeight: FontWeight.w400),
