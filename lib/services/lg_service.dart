@@ -1,6 +1,9 @@
 import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/ssh_service.dart';
 
+import '../models/kml/kml_entity.dart';
+import '../models/kml/screen_overlay_entity.dart';
+
 /// Service responsible for managing the data transfer between the app and the LG rig.
 class LGService {
   SSHService get _sshService => GetIt.I<SSHService>();
@@ -27,6 +30,51 @@ class LGService {
 
     // Gets the most right screen.
     return (screenAmount / 2).floor() + 1;
+  }
+
+  /// Sets the logos KML into the Liquid Galaxy rig. A KML [name] and [content]
+  /// may be passed, but it's not required.
+  Future<void> setLogos({
+    String name = 'SVT-logos',
+    String content = '<name>Logos</name>',
+  }) async {
+    final screenOverlay = ScreenOverlayEntity.logos();
+
+    final kml = KMLEntity(
+      name: name,
+      content: content,
+      screenOverlay: screenOverlay.tag,
+    );
+
+    try {
+      final result = await getScreenAmount();
+      if (result != null) {
+        screenAmount = int.parse(result);
+      }
+
+      await sendKMLToSlave(logoScreen, kml.body);
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+    }
+  }
+
+  /// Gets the Liquid Galaxy rig screen amount. Returns a [String] that
+  /// represents the screen amount.
+  Future<String?> getScreenAmount() async {
+    return _sshService
+        .execute("grep -oP '(?<=DHCP_LG_FRAMES_MAX=).*' personavars.txt");
+  }
+
+  /// Sends a KML [content] to the given slave [screen].
+  Future<void> sendKMLToSlave(int screen, String content) async {
+    try {
+      await _sshService
+          .execute("echo '$content' > /var/www/html/kml/slave_$screen.kml");
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+    }
   }
 
   /// Setups the Google Earth in slave screens to refresh every 2 seconds.
@@ -87,7 +135,26 @@ class LGService {
 
   /// Clears all `KMLs` from the Google Earth. The [keepLogos] keeps the logos after clearing (default to `true`).
   Future<void> clearKml({bool keepLogos = true}) async {
+    String query =
+        'echo "exittour=true" > /tmp/query.txt && > /var/www/html/kmls.txt';
 
+    for (var i = 2; i <= screenAmount; i++) {
+      String blankKml = KMLEntity.generateBlank('slave_$i');
+      query += " && echo '$blankKml' > /var/www/html/kml/slave_$i.kml";
+    }
+
+    if (keepLogos) {
+      final kml = KMLEntity(
+        name: 'SVT-logos',
+        content: '<name>Logos</name>',
+        screenOverlay: ScreenOverlayEntity.logos().tag,
+      );
+
+      query +=
+      " && echo '${kml.body}' > /var/www/html/kml/slave_$logoScreen.kml";
+    }
+
+    await _sshService.execute(query);
   }
 
   /// Relaunches the Liquid Galaxy system.
