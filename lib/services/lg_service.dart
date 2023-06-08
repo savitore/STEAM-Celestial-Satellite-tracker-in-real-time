@@ -14,6 +14,7 @@ class LGService {
 
   /// Property that defines the logo slave screen number according to the [screenAmount] property.
   int get logoScreen {
+
     if (screenAmount == 1) {
       return 1;
     }
@@ -24,6 +25,7 @@ class LGService {
 
   /// Property that defines the balloon slave screen number according to the [screenAmount] property.
   int get balloonScreen {
+
     if (screenAmount == 1) {
       return 1;
     }
@@ -32,12 +34,8 @@ class LGService {
     return (screenAmount / 2).floor() + 1;
   }
 
-  /// Sets the logos KML into the Liquid Galaxy rig. A KML [name] and [content]
-  /// may be passed, but it's not required.
-  Future<void> setLogos({
-    String name = 'SVT-logos',
-    String content = '<name>Logos</name>',
-  }) async {
+  /// Sets the logos KML into the Liquid Galaxy rig.
+  Future<void> setLogos({String name = 'SVT-logos', String content = '<name>Logos</name>'}) async {
     final screenOverlay = ScreenOverlayEntity.logos();
 
     final kml = KMLEntity(
@@ -54,13 +52,11 @@ class LGService {
 
       await sendKMLToSlave(logoScreen, kml.body);
     } catch (e) {
-      // ignore: avoid_print
       print(e);
     }
   }
 
-  /// Gets the Liquid Galaxy rig screen amount. Returns a [String] that
-  /// represents the screen amount.
+  /// Gets the Liquid Galaxy rig screen amount. Returns a [String] that represents the screen amount.
   Future<String?> getScreenAmount() async {
     return _sshService
         .execute("grep -oP '(?<=DHCP_LG_FRAMES_MAX=).*' personavars.txt");
