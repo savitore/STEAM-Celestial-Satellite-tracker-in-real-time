@@ -65,7 +65,6 @@ class SSHService {
   Future<void> upload(String filePath) async {
     await connect();
     String? result = await _client.connectSFTP();
-
     if (result == 'sftp_connected') {
       await _client.sftpUpload(
           path: filePath,

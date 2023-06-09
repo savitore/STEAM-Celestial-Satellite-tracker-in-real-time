@@ -7,7 +7,7 @@ class SatelliteInfoRepository{
 
   Future<String> fetchData(int norad) async{
     try{
-      Response response = await api.sendRequest.get(norad.toString()+"&FORMAT=TLE");
+      Response response = await api.sendRequest.get("$norad&FORMAT=TLE");
       return response.data;
     }
     catch(e) {

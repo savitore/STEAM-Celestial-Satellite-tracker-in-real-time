@@ -1,3 +1,6 @@
+import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/widgets/date.dart';
+
 class SatelliteModel {
   String? satId;
   int? noradCatId;
@@ -88,6 +91,51 @@ class SatelliteModel {
     data['is_frequency_violator'] = this.isFrequencyViolator;
     data['associated_satellites'] = this.associatedSatellites;
     return data;
+  }
+
+
+  /// Gets the balloon content from the current satellite.
+  String balloonContent() => '''
+    <b><font size="+2">$name <font color="#5D5D5D">(${status.toString().toUpperCase()})</font></font></b>
+    <br/><br/>
+    ${image.toString().isNotEmpty ? '<img height="200" src="https://db-satnogs.freetls.fastly.net/media/$image"><br/><br/>' : ''}
+    <b>NORAD ID:</b> $noradCatId
+    <br/>
+    <b>Alternames:</b> $names
+    <br/>
+    <b>Countries:</b> ${countries.toString().replaceAll('\r\n', ' | ')}
+    <br/>
+    <b>Operator:</b> $operator
+    <br/>
+    <b>Launched:</b> ${launched.toString() != 'null' ? parseDateHourString(launched.toString()) : 'Never'}
+    <br/>
+    <b>Deployed:</b> ${deployed.toString() != 'null' ? parseDateHourString(deployed.toString()) : 'Never'}
+    <br/>
+    <b>Decayed:</b> ${decayed.toString() != 'null' ? parseDateHourString(decayed.toString()) : 'Never'}
+  ''';
+
+
+  /// Gets the orbit coordinates from the current satellite.
+  /// Returns a [List] of coordinates with [lat], [lng] and [alt].
+  List<Map<String, double>> getOrbitCoordinates({double step = 3, required TLEModel tle}) {
+
+    List<Map<String, double>> coords = [];
+
+    double displacement = 3.3 - step / 361;
+    double spot = 0;
+
+    while (spot < 361) {
+      displacement += step / 361;
+      final tleCoords = tle.read(displacement: displacement / 24.0);
+      coords.add({
+        'lat': tleCoords['lat']!,
+        'lng': tleCoords['lng']!,
+        'altitude': tleCoords['alt']!
+      });
+      spot++;
+    }
+
+    return coords;
   }
 
 }
