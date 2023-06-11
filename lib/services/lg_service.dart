@@ -2,11 +2,17 @@ import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/ssh_service.dart';
 
 import '../models/kml/kml_entity.dart';
+import '../models/kml/look_at_entity.dart';
 import '../models/kml/screen_overlay_entity.dart';
+import 'file_service.dart';
 
 /// Service responsible for managing the data transfer between the app and the LG rig.
 class LGService {
+
   SSHService get _sshService => GetIt.I<SSHService>();
+  FileService get _fileService => GetIt.I<FileService>();
+
+  final String _url = 'http://lg1:81';
 
 
   /// Property that defines the slave screen number that has the logos. Defaults to `5`.
@@ -62,6 +68,36 @@ class LGService {
         .execute("grep -oP '(?<=DHCP_LG_FRAMES_MAX=).*' personavars.txt");
   }
 
+  /// Sends a the given [kml] to the Liquid Galaxy system.
+  Future<void> sendKml(KMLEntity kml,
+      {List<Map<String, String>> images = const []}) async {
+    final fileName = '${kml.name}.kml';
+
+    await clearKml();
+
+    for (var img in images) {
+      final image = await _fileService.createImage(img['name']!, img['path']!);
+      await _sshService.upload(image.path);
+    }
+
+    final kmlFile = await _fileService.createFile(fileName, kml.body);
+    await _sshService.upload(kmlFile.path);
+
+    await _sshService
+        .execute('echo "$_url/$fileName" > /var/www/html/kmls.txt');
+  }
+
+  /// Sends and starts a `tour` into the Google Earth.
+  Future<void> sendTour(String tourKml, String tourName) async {
+    final fileName = '$tourName.kml';
+
+    final kmlFile = await _fileService.createFile(fileName, tourKml);
+    await _sshService.upload(kmlFile.path);
+
+    await _sshService
+        .execute('echo "\n$_url/$fileName" >> /var/www/html/kmls.txt');
+  }
+
   /// Sends a KML [content] to the given slave [screen].
   Future<void> sendKMLToSlave(int screen, String content) async {
     try {
@@ -71,6 +107,16 @@ class LGService {
       // ignore: avoid_print
       print(e);
     }
+  }
+
+  /// Puts the given [content] into the `/tmp/query.txt` file.
+  Future<void> query(String content) async {
+    await _sshService.execute('echo "$content" > /tmp/query.txt');
+  }
+
+  /// Uses the [query] method to fly to some place in Google Earth according to the given [lookAt].
+  Future<void> flyTo(LookAtEntity lookAt) async {
+    await query('flytoview=${lookAt.linearTag}');
   }
 
   /// Setups the Google Earth in slave screens to refresh every 2 seconds.
@@ -121,7 +167,6 @@ class LGService {
       try {
         await _sshService.execute(query);
       } catch (e) {
-        // ignore: avoid_print
         print(e);
       }
     }
