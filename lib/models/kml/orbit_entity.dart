@@ -1,4 +1,3 @@
-
 import 'look_at_entity.dart';
 
 /// Class that defines the `orbit` entity, which contains its properties and

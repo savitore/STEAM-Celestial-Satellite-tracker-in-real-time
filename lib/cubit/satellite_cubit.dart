@@ -38,10 +38,12 @@ class SatelliteCubit extends Cubit<SatelliteState> {
         if (_countries.length == 1) {
           satellites[i].countries = satellites[i].countries! + _countries[0];
         } else {
-          for (int l = 0; l < _countries.length; l++) {
+          for (int l = 0; l < _countries.length-1; l++) {
             satellites[i].countries =
-                '${satellites[i].countries! + _countries[l]},';
+                '${satellites[i].countries! + _countries[l]}, ';
           }
+          satellites[i].countries =
+          satellites[i].countries! + _countries[_countries.length-1];
         }
       }
       _satellites = satellites;

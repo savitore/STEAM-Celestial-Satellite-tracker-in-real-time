@@ -11,7 +11,6 @@ class LineEntity {
   double drawOrder;
 
   /// Property that defines the line `altitude mode`.
-  ///
   /// Defaults to `relativeToGround`.
   String altitudeMode;
 

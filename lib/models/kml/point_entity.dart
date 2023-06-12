@@ -29,18 +29,6 @@ class PointEntity {
   });
 
   /// Property that defines the point `tag` according to its current properties.
-  ///
-  /// Example
-  /// ```
-  /// Point point = Point(lat: 30, lng: -74, altitude: 600)
-  /// point.tag => '''
-  ///   <Point>
-  ///     <gx:drawOrder>1</gx:drawOrder>
-  ///     <gx:altitudeMode>relativeToGround</gx:altitudeMode>
-  ///     <coordinates>-74,30,600</coordinates>
-  ///   </Point>
-  /// '''
-  /// ```
   String get tag => '''
       <Point>
         <gx:drawOrder>$drawOrder</gx:drawOrder>

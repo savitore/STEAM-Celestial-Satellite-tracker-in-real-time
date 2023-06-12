@@ -1,4 +1,3 @@
-
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/kml/point_entity.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/kml/tour_entity.dart';
 

@@ -20,7 +20,6 @@ class LookAtEntity {
   String heading;
 
   /// Property that defines the look at `altitude mode`.
-  ///
   /// Defaults to `relativeToGround`.
   String altitudeMode;
 
