@@ -205,7 +205,7 @@ class _SettingsState extends State<Settings> {
                     ? SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor,),
+                        child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.secondaryColor,),
                       )
                     : const SizedBox()
               ],
@@ -263,7 +263,7 @@ class _SettingsState extends State<Settings> {
                     ? SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor),
+                        child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.secondaryColor),
                       )
                     : const SizedBox()
               ],
@@ -306,7 +306,7 @@ class _SettingsState extends State<Settings> {
                     ? SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor),
+                        child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.secondaryColor),
                       )
                     : const SizedBox()
               ],
