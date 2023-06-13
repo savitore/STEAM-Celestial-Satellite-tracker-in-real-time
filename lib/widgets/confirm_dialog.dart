@@ -9,36 +9,39 @@ class ConfirmDialog extends StatelessWidget {
     required this.title,
     required this.message,
     required this.onConfirm,
+    required this.buttonText
   }) : super(key: key);
 
   final String title;
   final String message;
   final Function onConfirm;
   final Function? onCancel;
+  final String buttonText;
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       elevation: 0,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             title,
-            style: TextStyle(color: ThemeColors.primaryColor),
+            style: TextStyle(color: ThemeColors.textPrimary),
           ),
         ],
       ),
       backgroundColor: ThemeColors.backgroundColor,
       content: Text(
         message,
-        style: TextStyle(color: ThemeColors.textPrimary),
+        style: TextStyle(color: ThemeColors.textSecondary),
       ),
       actions: [
         TextButton(
           child: Text(
-            'CANCEL',
-            style: TextStyle(color: ThemeColors.alert),
+            'Cancel',
+            style: TextStyle(color: ThemeColors.primaryColor),
           ),
           onPressed: () {
             if (onCancel != null) {
@@ -48,8 +51,8 @@ class ConfirmDialog extends StatelessWidget {
         ),
         TextButton(
           child: Text(
-            'YES',
-            style: TextStyle(color: ThemeColors.success),
+            buttonText,
+            style: TextStyle(color: ThemeColors.primaryColor),
           ),
           onPressed: () {
             onConfirm();

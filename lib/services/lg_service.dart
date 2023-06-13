@@ -98,6 +98,16 @@ class LGService {
         .execute('echo "\n$_url/$fileName" >> /var/www/html/kmls.txt');
   }
 
+  /// Uses the [query] method to play some tour in Google Earth according to the given [tourName].
+  Future<void> startTour(String tourName) async {
+    await query('playtour=$tourName');
+  }
+
+  /// Uses the [query] method to stop all tours in Google Earth.
+  Future<void> stopTour() async {
+    await query('exittour=true');
+  }
+
   /// Sends a KML [content] to the given slave [screen].
   Future<void> sendKMLToSlave(int screen, String content) async {
     try {

@@ -189,6 +189,7 @@ class _SettingsState extends State<Settings> {
                           });
                         }
                       },
+                      buttonText: 'Yes',
                     ),
                   );
                 }
@@ -207,7 +208,7 @@ class _SettingsState extends State<Settings> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.secondaryColor,),
                       )
-                    : const SizedBox()
+                    : const Icon(Icons.av_timer_rounded)
               ],
             ),
           ),
@@ -247,6 +248,7 @@ class _SettingsState extends State<Settings> {
                         });
                       }
                     },
+                    buttonText: 'Yes',
                   ),
                 );
               }
@@ -265,7 +267,7 @@ class _SettingsState extends State<Settings> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.secondaryColor),
                       )
-                    : const SizedBox()
+                    : const Icon(Icons.timer_off_rounded)
               ],
             ),
           ),
@@ -308,7 +310,7 @@ class _SettingsState extends State<Settings> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.secondaryColor),
                       )
-                    : const SizedBox()
+                    : const Icon(Icons.cleaning_services_rounded)
               ],
             ),
           ),
@@ -347,6 +349,7 @@ class _SettingsState extends State<Settings> {
                         });
                       }
                     },
+                    buttonText: 'Relaunch',
                   ),
                 );
               }
@@ -365,7 +368,7 @@ class _SettingsState extends State<Settings> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor),
                       )
-                    : const SizedBox()
+                    : const Icon(Icons.reset_tv_rounded)
               ],
             ),
           ),
@@ -404,6 +407,7 @@ class _SettingsState extends State<Settings> {
                         });
                       }
                     },
+                    buttonText: 'Reboot',
                   ),
                 );
               }
@@ -422,7 +426,7 @@ class _SettingsState extends State<Settings> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor),
                       )
-                    : const SizedBox()
+                    : const Icon(Icons.restart_alt_rounded)
               ],
             ),
           ),
@@ -455,15 +459,13 @@ class _SettingsState extends State<Settings> {
 
                       try {
                         await _lgService.shutdown();
-                        // setState(() {
-                        //   lgConnected = false;
-                        // });
                       } finally {
                         setState(() {
                           _shuttingDown = false;
                         });
                       }
                     },
+                    buttonText: 'Power Off',
                   ),
                 );
               }
@@ -482,7 +484,7 @@ class _SettingsState extends State<Settings> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor),
                       )
-                    : const SizedBox()
+                    : const Icon(Icons.power_settings_new_rounded)
               ],
             ),
           ),

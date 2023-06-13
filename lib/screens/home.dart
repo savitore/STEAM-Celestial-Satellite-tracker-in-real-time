@@ -450,7 +450,7 @@ class _HomeState extends State<Home> {
                       decoration: InputDecoration(
                           border: InputBorder.none,
                           hintStyle: TextStyle(color: ThemeColors.searchBarColor),
-                          hintText: 'Search satellites',
+                          hintText: 'Search satellites..',
                           prefixIcon: Icon(Icons.search,color: ThemeColors.primaryColor),
                           suffixIcon: _clear(context)
                       ),
