@@ -13,7 +13,6 @@ class ThemeColors {
   static Color snackBarBackgroundColor = const Color(0xFFF44336);
   static Color snackBarTextColor = const Color(0xFFFFFFFF);
   static Color searchBarColor = const Color(0xFF9E9E9E);
-  static Color websiteColor =  const Color(0xFF448AFF);
   static Color success = const Color(0xFF2FDF75);
   static Color warning = const Color(0xFFFFC061);
   static Color alert = const Color(0xFFED576B);

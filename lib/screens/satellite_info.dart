@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
@@ -7,6 +8,12 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/snackbar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../models/kml/kml_entity.dart';
+import '../models/kml/look_at_entity.dart';
+import '../models/kml/placemark_entity.dart';
+import '../services/lg_service.dart';
+import '../services/satellite_service.dart';
+import '../services/ssh_service.dart';
 import '../utils/colors.dart';
 import '../widgets/date.dart';
 import '../widgets/shimmer.dart';
@@ -21,8 +28,35 @@ class SatelliteInfo extends StatefulWidget {
 
 class _SatelliteInfoState extends State<SatelliteInfo> {
 
-  bool tleExists = false;
+  SatelliteService get _satelliteService => GetIt.I<SatelliteService>();
+  LGService get _lgService => GetIt.I<LGService>();
+  SSHService get _sshService => GetIt.I<SSHService>();
+
+  bool tleExists = false, lgConnected=false, _satelliteBalloonVisible = true,_viewingLG=false,_orbit=false, _simulate=false;
   late TLEModel tleModel;
+  double _orbitPeriod=3;
+
+  PlacemarkEntity? _satellitePlacemark;
+
+  @override
+  void initState() {
+    checkLGConnection();
+    super.initState();
+  }
+
+  Future<void> checkLGConnection() async{
+    final result = await _sshService.connect();
+    if (result != 'session_connected'){
+      setState(() {
+        lgConnected=false;
+      });
+    }
+    else{
+      setState(() {
+        lgConnected=true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +155,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                           _buildSatelliteStatus(),
                           const SizedBox(height: 20),
                           _buildSatelliteImage(),
+                          _buildVisualise(context),
+                          _buildVisualisingInLG(),
                           _buildTitle('Satellite ID', widget.satelliteModel.satId.toString()),
                           _buildTitle('NORAD ID', widget.satelliteModel.noradCatId.toString()),
                           _buildTitle('NORAD Follow ID', widget.satelliteModel.noradFollowId.toString()),
@@ -168,7 +204,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   Widget _buildWebsite(String title, String web){
     Color? color = ThemeColors.textPrimary;
     if(widget.satelliteModel.websiteValid()){
-        color = ThemeColors.websiteColor;
+        color = ThemeColors.secondaryColor;
     }
     if(web.isEmpty || web == 'null' ){
       return Container();
@@ -293,6 +329,249 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     );
   }
 
+  Widget _buildVisualise(BuildContext context){
+    return tleExists ?
+    Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 45,
+              width: MediaQuery.of(context).size.width*0.5-20,
+              child: ElevatedButton(
+                  onPressed: (){
+
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: ThemeColors.backgroundColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        bottomLeft: Radius.circular(30)
+                      ),
+                        side: BorderSide(color: ThemeColors.primaryColor)
+                    )
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset('assets/3d.png',width: 20,height: 20,color: ThemeColors.primaryColor,),
+                      const SizedBox(width: 10),
+                      Text('VIEW IN 3D',style: TextStyle(color: ThemeColors.primaryColor),),
+                    ],
+                  )
+              ),
+            ),
+            SizedBox(
+              height: 45,
+              width: MediaQuery.of(context).size.width*0.5-20,
+              child: ElevatedButton(
+                  onPressed: (){
+                    if(_viewingLG){
+                      _lgService.clearKml();
+                      setState(() {
+                        _viewingLG=false;
+                        _simulate=false;
+                        _orbit=false;
+                        _orbitPeriod=3;
+                        _satelliteBalloonVisible=true;
+                      });
+                    }
+                    else {
+                      viewSatellite(context, widget.satelliteModel,
+                          _satelliteBalloonVisible);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: !_viewingLG  ? ThemeColors.backgroundColor : ThemeColors.primaryColor,
+                      foregroundColor: _viewingLG  ? ThemeColors.backgroundColor : ThemeColors.primaryColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(30),
+                              bottomRight: Radius.circular(30)
+                          ),
+                          side: BorderSide(color: ThemeColors.primaryColor)
+                      ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.travel_explore_rounded,color: _viewingLG  ? ThemeColors.backgroundColor : ThemeColors.primaryColor,),
+                      const SizedBox(width: 10),
+                      Text(_viewingLG ? 'STOP VIEWING' : 'VIEW IN LG',),
+                    ],
+                  )
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 30),
+      ],
+    ) :
+    const SizedBox();
+  }
+
+  Widget _buildVisualisingInLG(){
+    return _viewingLG ?
+    Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextButton.icon(
+                  onPressed: (){
+
+                    setState(() {
+                      _orbit=!_orbit;
+                      _simulate=false;
+                      _satelliteBalloonVisible=true;
+                      _orbitPeriod=3;
+                    });
+                    if(_orbit){
+                      _lgService.startTour('Orbit');
+                    }else{
+                      _lgService.stopTour();
+                      viewSatellite(context, widget.satelliteModel, true);
+                    }
+
+                  },
+                  icon: Icon(!_orbit ? Icons.flip_camera_android_rounded
+                      : Icons.stop_rounded,
+                    color: ThemeColors.primaryColor,),
+                  label: Text(_orbit ? 'STOP ORBIT' : 'ORBIT',style: TextStyle(color: ThemeColors.textPrimary,fontWeight: FontWeight.bold),)
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Balloon visibility',
+                    style: TextStyle(
+                      color: ThemeColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Switch(
+                    value: _satelliteBalloonVisible,
+                    activeColor: ThemeColors.primaryColor,
+                    onChanged: (value) {
+                      setState(() {
+                        _orbit = false;
+                        _simulate = false;
+                        _satelliteBalloonVisible=value;
+                      });
+                      viewSatellite(
+                        context,
+                        widget.satelliteModel,
+                        value,
+                        updatePosition: false,
+                      );
+                    },
+                  )
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                   Text(
+                    'Orbit period (h)',
+                    style: TextStyle(
+                      color: ThemeColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        disabledActiveTrackColor: Colors.grey,
+                        disabledThumbColor: Colors.grey.shade400,
+                        disabledInactiveTrackColor:
+                        Colors.grey.withOpacity(0.5),
+                      ),
+                      child: Slider(
+                        value: _orbitPeriod,
+                        min: 1,
+                        max: 12,
+                        divisions: 120,
+                        activeColor:
+                        ThemeColors.primaryColor.withOpacity(0.8),
+                        thumbColor: ThemeColors.primaryColor,
+                        inactiveColor: Colors.grey.withOpacity(0.8),
+                        label: _orbitPeriod.toStringAsFixed(1),
+                        onChanged: (value) {
+                          setState(() {
+                            _orbitPeriod = value;
+                          });
+                        },
+                        onChangeEnd: (value) {
+                          setState(() {
+                            _orbitPeriod = value;
+                            _orbit = false;
+                            _simulate = false;
+                          });
+
+                          viewSatellite(
+                            context,
+                            widget.satelliteModel,
+                            _satelliteBalloonVisible,
+                            orbitPeriod: value,
+                            updatePosition: false,
+                          );
+
+                        },
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton.icon(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.all(0),
+                      tapTargetSize: MaterialTapTargetSize.padded,
+                      alignment: Alignment.centerRight,
+                      minimumSize: const Size(120, 24),
+                    ),
+                    icon: Icon(
+                      !_simulate
+                          ? Icons.rocket_launch_rounded
+                          : Icons.stop_rounded,
+                      color: ThemeColors.primaryColor,
+                    ),
+                    label: Text(
+                      _simulate ? 'STOP SIMULATION' : 'SIMULATE',
+                      style: TextStyle(
+                        color: ThemeColors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    onPressed: () async {
+
+                      setState(() {
+                        _orbit = false;
+                        _simulate = !_simulate;
+                      });
+                      if (_simulate) {
+                        _lgService.startTour('SimulationTour');
+                      } else {
+                        _lgService.stopTour();
+                      }
+                    },
+                  )
+                ],
+              )
+            ],
+          ),
+        ) :
+        const SizedBox();
+  }
+
   /// Gets the status data from the current [satellite].
   Map<String, dynamic> _getStatusData() {
     switch (widget.satelliteModel.status) {
@@ -381,8 +660,93 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     }
   }
 
-  void viewSatellite(){
-    final tleCoord = tleModel.read();
+  Future<void> viewSatellite(BuildContext context, SatelliteModel satellite, bool showBalloon,
+      {double orbitPeriod = 2.8, bool updatePosition = true})
+  async {
+
+    if(lgConnected==false){
+      showSnackbar(context, 'Connection failed!');
+    }
+    else{
+
+      try {
+        final tleCoord = tleModel.read();
+
+        final placemark = _satelliteService.buildPlacemark(
+          satellite,
+          tleModel,
+          showBalloon,
+          orbitPeriod,
+          lookAt: _satellitePlacemark != null && !updatePosition
+              ? _satellitePlacemark!.lookAt
+              : null,
+          updatePosition: updatePosition,
+        );
+
+        setState(() {
+          _satellitePlacemark = placemark;
+        });
+
+        final kml = KMLEntity(
+          name: satellite.name.toString().replaceAll(
+              RegExp(r'[^a-zA-Z0-9]'), ''),
+          content: placemark.tag,
+        );
+
+        await _lgService.sendKml(
+          kml,
+          images: [
+            {
+              'name': 'satellite.png',
+              'path': 'assets/satellite.png',
+            }
+          ],
+        );
+
+        if (_lgService.balloonScreen == _lgService.logoScreen) {
+          await _lgService.setLogos(
+            name: 'SVT-logos-balloon',
+            content: '''
+            <name>Logos-Balloon</name>
+            ${placemark.balloonOnlyTag}
+          ''',
+          );
+        } else {
+          final kmlBalloon = KMLEntity(
+            name: 'SVT-balloon',
+            content: placemark.balloonOnlyTag,
+          );
+
+          await _lgService.sendKMLToSlave(
+            _lgService.balloonScreen,
+            kmlBalloon.body,
+          );
+        }
+
+        if (updatePosition) {
+          await _lgService.flyTo(LookAtEntity(
+            lat: tleCoord['lat']!,
+            lng: tleCoord['lng']!,
+            altitude: tleCoord['alt']!,
+            range: '4000000',
+            tilt: '60',
+            heading: '0',
+          ));
+        }
+
+        final orbit = _satelliteService.buildOrbit(satellite, tleModel);
+        await _lgService.sendTour(orbit, 'Orbit');
+        setState(() {
+          _viewingLG=true;
+        });
+      } on Exception catch (_) {
+        showSnackbar(context, 'Connection failed');
+      } catch (_) {
+        showSnackbar(context, 'Connection failed!!');
+      }
+
+    }
+
   }
 
 }

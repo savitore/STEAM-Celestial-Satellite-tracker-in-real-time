@@ -10,7 +10,7 @@ class SatelliteRepository{
     try{
       Response response = await api.sendRequest.get("");
       List<dynamic> dataMaps = response.data;
-      return dataMaps.map((map) => SatelliteModel.fromJson(map as Map<String, dynamic>)).toList().reversed.toList();
+      return dataMaps.map((map) => SatelliteModel.fromJson(map as Map<String, dynamic>)).toList();
     }
     catch(e) {
       throw e;
