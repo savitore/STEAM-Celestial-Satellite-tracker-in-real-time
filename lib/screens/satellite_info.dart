@@ -202,10 +202,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
   Widget _buildWebsite(String title, String web){
-    Color? color = ThemeColors.textPrimary;
-    if(widget.satelliteModel.websiteValid()){
-        color = ThemeColors.secondaryColor;
-    }
     if(web.isEmpty || web == 'null' ){
       return Container();
     }
@@ -218,10 +214,56 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         InkWell(
             onTap: (){
               if(widget.satelliteModel.websiteValid()){
-                _openLink();
+                showDialog(context: context, builder: (context) => AlertDialog(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  elevation: 0,
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Are you sure?',
+                        style: TextStyle(color: ThemeColors.textPrimary),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: ThemeColors.backgroundColor,
+                  content: RichText(
+                      text: TextSpan(
+                        text: 'You will be redirected to ',
+                        style: TextStyle(color: ThemeColors.textSecondary,fontSize: 18),
+                        children: [
+                          TextSpan(
+                            text: widget.satelliteModel.website.toString(),
+                            style: TextStyle(color: ThemeColors.textPrimary,fontSize: 18,fontWeight: FontWeight.w500),
+                          )
+                        ]
+                      )
+                  ),
+                  actions: [
+                    TextButton(
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(color: ThemeColors.primaryColor),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    TextButton(
+                      child: Text(
+                        'Yes',
+                        style: TextStyle(color: ThemeColors.primaryColor),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _openLink();
+                      },
+                    ),
+                  ],
+                ));
               }
             },
-            child: Text(web,style: TextStyle(color: color,fontSize: 20),overflow: TextOverflow.visible,)
+            child: Text(web,style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20,fontWeight: widget.satelliteModel.websiteValid() ? FontWeight.w500 : FontWeight.normal),overflow: TextOverflow.visible,)
         ),
         const SizedBox(height: 30)
       ],
@@ -406,7 +448,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             ),
           ],
         ),
-        const SizedBox(height: 30),
+        const SizedBox(height: 20),
       ],
     ) :
     const SizedBox();
@@ -614,10 +656,10 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   // Opens the satellite `website`.
   void _openLink() async {
-    final Uri websiteLaunchUri = Uri.parse(widget.satelliteModel.website.toString());
+    final Uri _url = Uri.parse(widget.satelliteModel.website.toString());
 
-    if (await canLaunchUrl(websiteLaunchUri)) {
-      await launchUrl(websiteLaunchUri, mode: LaunchMode.platformDefault);
+    if (!await launchUrl(_url)) {
+      throw Exception('Could not launch $_url');
     }
   }
 
