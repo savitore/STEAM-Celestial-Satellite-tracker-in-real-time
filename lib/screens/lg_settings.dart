@@ -201,7 +201,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
           _ipController.text = settings.ip;
         });
 
-        _checkConnection();
+        // _checkConnection();
         return;
       }
 
@@ -215,7 +215,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
         _ipController.text = ips.first.addresses.first.address;
       });
 
-      _checkConnection();
+      // _checkConnection();
     } on Exception {
       setState(() {
         _ipController.text = '';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/screens/bt_settings.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/lg_settings.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/snackbar.dart';
@@ -94,6 +95,11 @@ class _SettingsState extends State<Settings> {
               ),
               _divider(),
               ListTile(
+                  onTap: (){
+                    Navigator.of(context).push(
+                        CustomPageRoute(child: const BTSettings())
+                    );
+                  },
                   title: _buildTitle('Bluetooth Connection'),
                   leading: _buildIcon(Icons.settings_bluetooth_outlined),
                   trailing: const Icon(Icons.arrow_forward,),
