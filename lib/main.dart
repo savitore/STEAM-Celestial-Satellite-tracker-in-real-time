@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/screens/splash.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/file_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/lg_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/lg_settings_service.dart';
@@ -47,7 +48,7 @@ class MyApp extends StatelessWidget{
 
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Home(),
+      home: SplashScreenPage(),
     );
   }
 }

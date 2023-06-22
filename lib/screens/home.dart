@@ -83,9 +83,9 @@ class _HomeState extends State<Home> {
                       icon: IconButton(
                         icon: const Icon(Icons.settings),
                         onPressed: (){
-                          // Navigator.of(context).push(
-                          //     CustomPageRoute(child: const Settings())
-                          // );
+                          Navigator.of(context).push(
+                              CustomPageRoute(child: const Settings())
+                          );
                         },
                       )
                   )
