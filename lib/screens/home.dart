@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
@@ -26,6 +27,7 @@ class _HomeState extends State<Home> {
   FocusNode _searchFocusNode = FocusNode();
   String dropdownvalueCountries = 'ALL';
   String dropdownvalueStatus = 'ALL';
+  String dropdownvalueOperators = 'ALL';
   List<String> itemsCountries = [
     'ALL',
   ];
@@ -36,13 +38,15 @@ class _HomeState extends State<Home> {
     'RE-ENTERED',
     'FUTURE'
   ];
+  List<String> itemsOperators = [];
   List iso = ISO().iso;
-  bool decayed = false,launched=false,deployed=false,filter=false;
+  bool decayed = false, launched=false, deployed=false, filter=false;
 
   @override
   void initState() {
     super.initState();
     _dropDownCountries();
+    _dropDownOperators();
     checkFilter();
     _searchFocusNode.addListener(() {
       if (!_searchFocusNode.hasFocus) {
@@ -392,7 +396,7 @@ class _HomeState extends State<Home> {
       icon: const Icon(Icons.clear,color: Colors.grey),
       onPressed: (){
         _searchController.clear();
-        context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,false,false,false);
+        context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,false,false,false, dropdownvalueOperators);
       },
     );
   }
@@ -442,7 +446,7 @@ class _HomeState extends State<Home> {
                       focusNode: _searchFocusNode,
                       controller: _searchController,
                       onChanged: (val){
-                        context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,false,false,false);
+                        context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,false,false,false,dropdownvalueOperators);
                       },
                       keyboardType: TextInputType.text,
                       cursorColor: ThemeColors.primaryColor,
@@ -504,6 +508,15 @@ class _HomeState extends State<Home> {
     }
   }
 
+  Future<void> _dropDownOperators() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    itemsOperators.add('ALL');
+    for(int i=0;i<prefs.getStringList('operators')!.length;i++){
+      itemsOperators.add(prefs.getStringList('operators')![i]);
+    }
+    print(prefs.getStringList('operators'));
+  }
+
   Widget buildFilter(BuildContext context, StateSetter _setState){
     return BlocProvider.value(
       value: BlocProvider.of<SatelliteCubit>(context),
@@ -513,47 +526,47 @@ class _HomeState extends State<Home> {
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Container(
-                  height: 5,
-                  width: 40,
-                  decoration: BoxDecoration(
-                      color: ThemeColors.dividerColor,
-                      borderRadius: BorderRadius.circular(20)
+                Center(
+                  child: Container(
+                    height: 5,
+                    width: 40,
+                    decoration: BoxDecoration(
+                        color: ThemeColors.dividerColor,
+                        borderRadius: BorderRadius.circular(20)
+                    ),
                   ),
                 ),
                 const SizedBox(height: 30),
+                Text('Country of Origin',style: TextStyle(fontWeight: FontWeight.w500,color: ThemeColors.primaryColor),),
+                DropdownButton(
+                  // isExpanded: true,
+                    elevation: 4,
+                    value: dropdownvalueCountries,
+                    underline: Container(
+                        height: 1, color:ThemeColors.textPrimary),
+                    items: itemsCountries.map((String items){
+                      return DropdownMenuItem(
+                        value: items,
+                        child: SizedBox(
+                            width: MediaQuery.of(context).size.width-50,
+                            child: Text(items,overflow: TextOverflow.ellipsis,)),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      _setState(() {
+                        dropdownvalueCountries = newValue!;
+                        checkFilter();
+                      });
+                    }
+                ),
+                const SizedBox(height: 30,),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Country of Origin',style: TextStyle(fontWeight: FontWeight.w500,color: ThemeColors.primaryColor),),
-                        DropdownButton(
-                          // isExpanded: true,
-                            elevation: 4,
-                            value: dropdownvalueCountries,
-                            underline: Container(
-                                height: 1, color:ThemeColors.textPrimary),
-                            items: itemsCountries.map((String items){
-                              return DropdownMenuItem(
-                                value: items,
-                                child: SizedBox(
-                                    width: MediaQuery.of(context).size.width*0.5,
-                                    child: Text(items,overflow: TextOverflow.ellipsis,)),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              _setState(() {
-                                dropdownvalueCountries = newValue!;
-                                checkFilter();
-                              });
-                            }
-                        ),
-                      ],
-                    ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -568,13 +581,40 @@ class _HomeState extends State<Home> {
                               return DropdownMenuItem(
                                 value: items,
                                 child: SizedBox(
-                                    width: MediaQuery.of(context).size.width*0.2,
+                                    width: MediaQuery.of(context).size.width*0.3,
                                     child: Text(items,overflow: TextOverflow.ellipsis,)),
                               );
                             }).toList(),
                             onChanged: (String? newValue) {
                               _setState(() {
                                 dropdownvalueStatus = newValue!;
+                                checkFilter();
+                              });
+                            }
+                        )
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Operators',style: TextStyle(fontWeight: FontWeight.w500,color: ThemeColors.primaryColor),),
+                        DropdownButton(
+                          // isExpanded: true,
+                            elevation: 4,
+                            value: dropdownvalueOperators,
+                            underline: Container(
+                                height: 1, color:ThemeColors.textPrimary),
+                            items: itemsOperators.map((String items){
+                              return DropdownMenuItem(
+                                value: items,
+                                child: SizedBox(
+                                    width: MediaQuery.of(context).size.width*0.3,
+                                    child: Text(items,overflow: TextOverflow.ellipsis,)),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              _setState(() {
+                                dropdownvalueOperators = newValue!;
                                 checkFilter();
                               });
                             }
@@ -664,6 +704,7 @@ class _HomeState extends State<Home> {
                       _setState(() {
                         dropdownvalueCountries='ALL';
                         dropdownvalueStatus='ALL';
+                        dropdownvalueOperators='ALL';
                         deployed=false;
                         decayed=false;
                         launched=false;
@@ -673,7 +714,7 @@ class _HomeState extends State<Home> {
                       });
                       checkFilter();
                       Navigator.pop(context);
-                      context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed);
+                      context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed,dropdownvalueOperators);
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.backgroundColor,elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),side: const BorderSide(color: Colors.black12))),
                     child: Text('Clear Filters',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 18),),
@@ -686,7 +727,16 @@ class _HomeState extends State<Home> {
                     onPressed: (){
                       checkFilter();
                       Navigator.pop(context);
-                      context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed);
+                      if(filter) {
+                        context.read<SatelliteCubit>().filterSearchData(
+                            _searchController.text,
+                            dropdownvalueCountries,
+                            dropdownvalueStatus,
+                            decayed,
+                            launched,
+                            deployed,
+                            dropdownvalueOperators);
+                      }
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
                     child: Text('Filter Satellites',style: TextStyle(color: ThemeColors.backgroundColor,fontSize: 18),),
@@ -701,7 +751,7 @@ class _HomeState extends State<Home> {
   }
 
   void checkFilter(){
-    if(decayed == false && deployed == false && launched == false && dropdownvalueCountries == 'ALL' && dropdownvalueStatus == 'ALL'){
+    if(decayed == false && deployed == false && launched == false && dropdownvalueCountries == 'ALL' && dropdownvalueStatus == 'ALL' && dropdownvalueOperators=='ALL'){
       setState(() {
         filter=false;
       });

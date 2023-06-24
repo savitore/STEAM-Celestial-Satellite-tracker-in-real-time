@@ -1,5 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
@@ -46,9 +47,22 @@ class SatelliteCubit extends Cubit<SatelliteState> {
           satellites[i].countries! + _countries[_countries.length-1];
         }
       }
+      satellites.sort((a,b) => a.name.toString().toLowerCase().compareTo(b.name.toString().toLowerCase()));
       _satellites = satellites;
+      List<String> operators = [];
+      for(int i=0; i<satellites.length;i++){
+        operators.add(satellites[i].operator.toString());
+      }
+      Set<String> unique = operators.toSet();
+      operators =unique.toList();
+      operators.remove('None');
+      operators.sort((a,b) => a.compareTo(b));
+      operators.add('None');
+
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setStringList('operators', operators);
       emit(SatelliteLoadedState(satellites));
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       final connectivityResult = await (Connectivity().checkConnectivity());
       if (connectivityResult == ConnectivityResult.none) {
         emit(SatelliteErrorState('Check your internet connection!'));
@@ -58,7 +72,8 @@ class SatelliteCubit extends Cubit<SatelliteState> {
     }
   }
 
-  Future<void> filterSearchData(String filterText, String country, String status, bool decayed, bool launched, bool deployed) async {
+
+  Future<void> filterSearchData(String filterText, String country, String status, bool decayed, bool launched, bool deployed, String operator) async {
 
     List<SatelliteModel> filteredList = _satellites;
     filteredList = filteredList.where((data) =>
@@ -74,6 +89,11 @@ class SatelliteCubit extends Cubit<SatelliteState> {
     if(status!='ALL'){
       filteredList = filteredList.where((data) =>
           data.status.toString().toLowerCase().contains(status.toLowerCase()))
+          .toList();
+    }
+    if(operator!='ALL'){
+      filteredList = filteredList.where((data) =>
+          data.operator.toString().contains(operator))
           .toList();
     }
     if(decayed==true){

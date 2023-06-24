@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/screens/zoomed_screen.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/snackbar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -32,7 +34,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   LGService get _lgService => GetIt.I<LGService>();
   SSHService get _sshService => GetIt.I<SSHService>();
 
-  bool tleExists = false, lgConnected=false, _satelliteBalloonVisible = true,_viewingLG=false,_orbit=false, _simulate=false;
+  bool tleExists = false, lgConnected=false, _satelliteBalloonVisible = true,_viewingLG=false,_orbit=false, _simulate=false, websiteDialog=true,checkbox=false;
   late TLEModel tleModel;
   double _orbitPeriod=3;
 
@@ -41,6 +43,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   @override
   void initState() {
     checkLGConnection();
+    checkWebsiteDialog();
     super.initState();
   }
 
@@ -214,53 +217,122 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         InkWell(
             onTap: (){
               if(widget.satelliteModel.websiteValid()){
-                showDialog(context: context, builder: (context) => AlertDialog(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  elevation: 0,
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Are you sure?',
-                        style: TextStyle(color: ThemeColors.textPrimary),
-                      ),
-                    ],
-                  ),
-                  backgroundColor: ThemeColors.backgroundColor,
-                  content: RichText(
-                      text: TextSpan(
-                        text: 'You will be redirected to ',
-                        style: TextStyle(color: ThemeColors.textSecondary,fontSize: 18),
-                        children: [
-                          TextSpan(
-                            text: widget.satelliteModel.website.toString(),
-                            style: TextStyle(color: ThemeColors.textPrimary,fontSize: 18,fontWeight: FontWeight.w500),
-                          )
-                        ]
-                      )
-                  ),
-                  actions: [
-                    TextButton(
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(color: ThemeColors.primaryColor),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    TextButton(
-                      child: Text(
-                        'Yes',
-                        style: TextStyle(color: ThemeColors.primaryColor),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        _openLink();
-                      },
-                    ),
-                  ],
-                ));
+                if(websiteDialog) {
+                  showDialog(context: context, builder: (context) =>
+                      StatefulBuilder(
+                        builder: (context, _setState) =>
+                            AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              elevation: 0,
+                              title: Row(
+                                mainAxisAlignment: MainAxisAlignment
+                                    .spaceBetween,
+                                children: [
+                                  Text(
+                                    'Are you sure?',
+                                    style: TextStyle(
+                                        color: ThemeColors.textPrimary),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: ThemeColors.backgroundColor,
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  RichText(
+                                      text: TextSpan(
+                                          text: 'You will be redirected to ',
+                                          style: TextStyle(
+                                              color: ThemeColors.textSecondary,
+                                              fontSize: 18),
+                                          children: [
+                                            TextSpan(
+                                              text: widget.satelliteModel
+                                                  .website.toString(),
+                                              style: TextStyle(
+                                                  color: ThemeColors
+                                                      .textPrimary,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w500),
+                                            )
+                                          ]
+                                      )
+                                  ),
+                                  const SizedBox(height: 20,),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      TextButton(
+                                        child: Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                              color: ThemeColors.primaryColor,
+                                              fontSize: 17),
+                                        ),
+                                        onPressed: () async {
+                                          if(checkbox){
+                                            final SharedPreferences prefs = await SharedPreferences
+                                                .getInstance();
+                                            prefs.setBool(
+                                                'wesiteDialog', false);
+                                            setState(() {
+                                              websiteDialog=false;
+                                            });
+                                          }
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: Text(
+                                          'Yes',
+                                          style: TextStyle(
+                                              color: ThemeColors.primaryColor,
+                                              fontSize: 17),
+                                        ),
+                                        onPressed: () async {
+                                          if(checkbox){
+                                            final SharedPreferences prefs = await SharedPreferences
+                                                .getInstance();
+                                            prefs.setBool(
+                                                'wesiteDialog', false);
+                                            setState(() {
+                                              websiteDialog=false;
+                                            });
+                                          }
+                                          Navigator.of(context).pop();
+                                          _openLink();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Checkbox(
+                                          checkColor: ThemeColors
+                                              .backgroundColor,
+                                          activeColor: ThemeColors.primaryColor,
+                                          value: checkbox,
+                                          onChanged: (bool? value) {
+                                            _setState(() {
+                                              checkbox = value!;
+                                            });
+                                          }),
+                                      Text('Do not show again',
+                                        style: TextStyle(
+                                            color: ThemeColors.textPrimary,
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 18),)
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                      ));
+                }
+                else{
+                  _openLink();
+                }
               }
             },
             child: Text(web,style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20,fontWeight: widget.satelliteModel.websiteValid() ? FontWeight.w500 : FontWeight.normal),overflow: TextOverflow.visible,)
@@ -298,9 +370,19 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       child: Center(
           child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: Image.network(
-                'https://db-satnogs.freetls.fastly.net/media/$image',
-                // width: 180,
+              child: InkWell(
+                onTap: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ZoomedScreen(image: 'https://db-satnogs.freetls.fastly.net/media/$image'),
+                    ),
+                  );
+                },
+                child: Image.network(
+                  'https://db-satnogs.freetls.fastly.net/media/$image',
+                  // width: 180,
+                ),
               ),
             ),
       ),
@@ -700,6 +782,13 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     if(numLines==4){
       tleExists=true;
     }
+  }
+
+  Future<void> checkWebsiteDialog() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      websiteDialog = prefs.getBool('wesiteDialog')!;
+    });
   }
 
   Future<void> viewSatellite(BuildContext context, SatelliteModel satellite, bool showBalloon,
