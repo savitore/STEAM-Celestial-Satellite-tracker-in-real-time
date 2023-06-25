@@ -40,7 +40,7 @@ class _HomeState extends State<Home> {
   ];
   List<String> itemsOperators = [];
   List iso = ISO().iso;
-  bool decayed = false, launched=false, deployed=false, filter=false;
+  bool decayed = false, launched=false, deployed=false, filter=false,sort=false;
 
   @override
   void initState() {
@@ -210,6 +210,7 @@ class _HomeState extends State<Home> {
                   )
                 ],
               ),
+              bottomNavigationBar: bottomRow(context,state),
             );
           }
           else if(state is FilteredSatelliteState){
@@ -270,6 +271,7 @@ class _HomeState extends State<Home> {
                   )
                 ],
               ),
+              bottomNavigationBar: bottomRow(context,state),
             );
           }
 
@@ -343,7 +345,7 @@ class _HomeState extends State<Home> {
             Container()
                 : Padding(
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: Text('Launched  -  ${parseDateString(satellites.launched!)}',overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 15,color: ThemeColors.textPrimary)),
+                  child: Text('${checkLaunch(satellites.launched!)}  -  ${parseDateString(satellites.launched!)}',overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 15,color: ThemeColors.textPrimary)),
             ),
             satellites.deployed.toString().isEmpty || satellites.deployed.toString() == 'null' ?
             Container()
@@ -425,66 +427,55 @@ class _HomeState extends State<Home> {
         ),
         const SizedBox(width: 5)
       ],
-      bottom: AppBar(
-        elevation: 0,
-        backgroundColor: ThemeColors.backgroundCardColor,
-        title: Padding(
-          padding: const EdgeInsets.only(bottom: 15),
-          child: Card(
-            color: ThemeColors.backgroundColor,
-            elevation: 2,
-            child: Container(
-              width: double.infinity,
-              height: 50,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  Flexible(
-                    child: TextField(
-                      focusNode: _searchFocusNode,
-                      controller: _searchController,
-                      onChanged: (val){
-                        context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,false,false,false,dropdownvalueOperators);
-                      },
-                      keyboardType: TextInputType.text,
-                      cursorColor: ThemeColors.primaryColor,
-                      style: TextStyle(color: ThemeColors.textPrimary),
-                      decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintStyle: TextStyle(color: ThemeColors.searchBarColor),
-                          hintText: 'Search satellites..',
-                          prefixIcon: Icon(Icons.search,color: ThemeColors.primaryColor),
-                          suffixIcon: _clear(context)
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(66.0),
+        child: AppBar(
+          elevation: 0,
+          backgroundColor: ThemeColors.backgroundCardColor,
+          title: Padding(
+            padding: const EdgeInsets.only(bottom: 15),
+            child: Card(
+              color: ThemeColors.backgroundColor,
+              elevation: 2,
+              child: Container(
+                width: double.infinity,
+                height: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: TextField(
+                        focusNode: _searchFocusNode,
+                        controller: _searchController,
+                        onChanged: (val){
+                          context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,false,false,false,dropdownvalueOperators);
+                        },
+                        keyboardType: TextInputType.text,
+                        cursorColor: ThemeColors.primaryColor,
+                        style: TextStyle(color: ThemeColors.textPrimary),
+                        decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(color: ThemeColors.searchBarColor),
+                            hintText: 'Search satellites..',
+                            prefixIcon: Icon(Icons.search,color: ThemeColors.primaryColor),
+                            suffixIcon: _clear(context)
+                        ),
                       ),
                     ),
-                  ),
-                  Text('|',style: TextStyle(fontSize: 30,color: ThemeColors.searchBarColor),),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 0),
-                    child: IconButton(
-                      icon: Icon(Icons.filter_list_rounded,color: filter ? ThemeColors.primaryColor : ThemeColors.searchBarColor),
-                      onPressed: (){
-                        showModalBottomSheet(
-                            isDismissible: true,
-                            backgroundColor: ThemeColors.backgroundColor,
-                            context: context,
-                            builder: (_context) => StatefulBuilder(
-                                builder: (BuildContext _context, StateSetter _setState){
-                                  return buildFilter(context,_setState);
-                                }),
-                            isScrollControlled: true,
-                            shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(20)
-                                )
-                            )
-                        );
-                      },
-                    ),
-                  )
-                ],
+                    // Text('|',style: TextStyle(fontSize: 30,color: ThemeColors.searchBarColor),),
+                    // Padding(
+                    //   padding: const EdgeInsets.symmetric(horizontal: 0),
+                    //   child: IconButton(
+                    //     icon: Icon(Icons.filter_list_rounded,color: filter ? ThemeColors.primaryColor : ThemeColors.searchBarColor),
+                    //     onPressed: (){
+                    //
+                    //     },
+                    //   ),
+                    // )
+                  ],
+                ),
               ),
             ),
           ),
@@ -750,6 +741,86 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Widget bottomRow(BuildContext context,SatelliteState state){
+    return BottomAppBar(
+      padding: const EdgeInsets.symmetric(vertical: 15),
+      color: ThemeColors.backgroundColor,
+      elevation: 5,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          GestureDetector(
+              onTap: (){},
+              child: Row(
+                children: [
+                  const Icon(Icons.sort_rounded,color: Colors.black54,),
+                  const SizedBox(width: 10,),
+                  const Text('SORT',style: TextStyle(color: Colors.black54),),
+                  sort ?
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0,left: 5),
+                    child: Container(
+                      width: 5.0,
+                      height: 5.0,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: ThemeColors.primaryColor
+                      ),
+                    ),
+                  ) :
+                  const SizedBox()
+                ],
+              )
+          ),
+          Container(
+            width: 0.5,
+            height: 20,
+            color: Colors.black54,
+          ),
+          GestureDetector(
+              onTap: (){
+                showModalBottomSheet(
+                    isDismissible: true,
+                    backgroundColor: ThemeColors.backgroundColor,
+                    context: context,
+                    builder: (_context) => StatefulBuilder(
+                        builder: (BuildContext _context, StateSetter _setState){
+                          return buildFilter(context,_setState);
+                        }),
+                    isScrollControlled: true,
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20)
+                        )
+                    )
+                );
+              },
+              child: Row(
+                children: [
+                  const Icon(Icons.filter_list,color: Colors.black54,),
+                  const SizedBox(width: 10,),
+                  const Text('FILTER',style: TextStyle(color: Colors.black54),),
+                  filter ?
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0,left: 5),
+                    child: Container(
+                      width: 5.0,
+                      height: 5.0,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: ThemeColors.primaryColor
+                      ),
+                    ),
+                  ) :
+                  const SizedBox()
+                ],
+              )
+          ),
+        ],
+      ),
+    );
+  }
+
   void checkFilter(){
     if(decayed == false && deployed == false && launched == false && dropdownvalueCountries == 'ALL' && dropdownvalueStatus == 'ALL' && dropdownvalueOperators=='ALL'){
       setState(() {
@@ -761,6 +832,14 @@ class _HomeState extends State<Home> {
         filter=true;
       });
     }
+  }
+
+  String checkLaunch(String _datetime){
+    String current = DateTime.now().toString();
+    if(current.compareTo(_datetime)<0){
+      return 'Launching On';
+    }
+    return 'Launched';
   }
 
   Widget shimmerList() {
