@@ -626,22 +626,19 @@ class _HomeState extends State<Home> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
+            padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Center(
-                  child: Container(
-                    height: 5,
-                    width: 40,
-                    decoration: BoxDecoration(
-                        color: ThemeColors.dividerColor,
-                        borderRadius: BorderRadius.circular(20)
-                    ),
-                  ),
+                Text('Filters',style: TextStyle(fontSize: 16,color: ThemeColors.textPrimary),),
+                const SizedBox(height: 10),
+                Divider(
+                  thickness: 0.5,
+                  height: 0.5,
+                  color: Colors.grey[500],
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20,),
                 Text('Country of Origin',style: TextStyle(fontWeight: FontWeight.w500,color: ThemeColors.primaryColor),),
                 DropdownButton(
                   // isExpanded: true,
@@ -923,11 +920,6 @@ class _HomeState extends State<Home> {
                           return buildFilter(context,_setState);
                         }),
                     isScrollControlled: true,
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20)
-                        )
-                    )
                 );
               },
               child: Row(
