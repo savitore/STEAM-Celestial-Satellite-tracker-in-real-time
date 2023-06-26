@@ -41,6 +41,7 @@ class _HomeState extends State<Home> {
   List<String> itemsOperators = [];
   List iso = ISO().iso;
   bool decayed = false, launched=false, deployed=false, filter=false,sort=false;
+  bool featured=true, launchNew=false, launchOld=false;
 
   @override
   void initState() {
@@ -398,7 +399,7 @@ class _HomeState extends State<Home> {
       icon: const Icon(Icons.clear,color: Colors.grey),
       onPressed: (){
         _searchController.clear();
-        context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,false,false,false, dropdownvalueOperators);
+        context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed, dropdownvalueOperators,featured,launchNew,launchOld);
       },
     );
   }
@@ -450,7 +451,7 @@ class _HomeState extends State<Home> {
                         focusNode: _searchFocusNode,
                         controller: _searchController,
                         onChanged: (val){
-                          context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,false,false,false,dropdownvalueOperators);
+                          context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed,dropdownvalueOperators,featured,launchNew,launchOld);
                         },
                         keyboardType: TextInputType.text,
                         cursorColor: ThemeColors.primaryColor,
@@ -506,6 +507,116 @@ class _HomeState extends State<Home> {
       itemsOperators.add(prefs.getStringList('operators')![i]);
     }
     print(prefs.getStringList('operators'));
+  }
+
+  Widget buildSort(BuildContext context, StateSetter _setState){
+    return BlocProvider.value(
+        value: BlocProvider.of<SatelliteCubit>(context),
+      child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Text('SORT BY',style: TextStyle(fontSize: 16,color: ThemeColors.textPrimary),),
+            ),
+            const SizedBox(height: 10,),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Divider(
+                thickness: 0.5,
+                height: 0.5,
+                color: Colors.grey[500],
+              ),
+            ),
+            const SizedBox(height: 10,),
+            InkWell(
+              onTap: (){
+                _setState(() {
+                  featured=true;
+                  launchNew=false;
+                  launchOld=false;
+                  sort=false;
+                  Navigator.pop(context);
+                  context.read<SatelliteCubit>().filterSearchData(
+                      _searchController.text,
+                      dropdownvalueCountries,
+                      dropdownvalueStatus,
+                      decayed,
+                      launched,
+                      deployed,
+                      dropdownvalueOperators,
+                      featured,
+                      launchNew,
+                      launchOld);
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 15),
+                  width: double.infinity ,
+                  child: sortItem('Featured', featured)
+              ),
+            ),
+            InkWell(
+              onTap: (){
+                _setState(() {
+                  featured=false;
+                  launchNew=true;
+                  launchOld=false;
+                  sort=true;
+                  Navigator.pop(context);
+                  context.read<SatelliteCubit>().filterSearchData(
+                      _searchController.text,
+                      dropdownvalueCountries,
+                      dropdownvalueStatus,
+                      decayed,
+                      launched,
+                      deployed,
+                      dropdownvalueOperators,
+                      featured,
+                      launchNew,
+                      launchOld);
+                });
+              },
+              child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 15),
+                  width: double.infinity ,
+                  child: sortItem('Launch date - New to Old', launchNew)
+              ),
+            ),
+            InkWell(
+              onTap: (){
+                _setState(() {
+                  featured=false;
+                  launchNew=false;
+                  launchOld=true;
+                  sort=true;
+                  Navigator.pop(context);
+                  context.read<SatelliteCubit>().filterSearchData(
+                      _searchController.text,
+                      dropdownvalueCountries,
+                      dropdownvalueStatus,
+                      decayed,
+                      launched,
+                      deployed,
+                      dropdownvalueOperators,
+                      featured,
+                      launchNew,
+                      launchOld);
+                });
+              },
+              child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 15),
+                  width: double.infinity ,
+                  child: sortItem('Launch date - Old to New', launchOld)
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget buildFilter(BuildContext context, StateSetter _setState){
@@ -705,7 +816,17 @@ class _HomeState extends State<Home> {
                       });
                       checkFilter();
                       Navigator.pop(context);
-                      context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed,dropdownvalueOperators);
+                      context.read<SatelliteCubit>().filterSearchData(
+                          _searchController.text,
+                          dropdownvalueCountries,
+                          dropdownvalueStatus,
+                          decayed,
+                          launched,
+                          deployed,
+                          dropdownvalueOperators,
+                          featured,
+                          launchNew,
+                          launchOld);
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.backgroundColor,elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),side: const BorderSide(color: Colors.black12))),
                     child: Text('Clear Filters',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 18),),
@@ -726,7 +847,10 @@ class _HomeState extends State<Home> {
                             decayed,
                             launched,
                             deployed,
-                            dropdownvalueOperators);
+                            dropdownvalueOperators,
+                            featured,
+                            launchNew,
+                            launchOld);
                       }
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
@@ -750,7 +874,18 @@ class _HomeState extends State<Home> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           GestureDetector(
-              onTap: (){},
+              onTap: (){
+                showModalBottomSheet(
+                    isDismissible: true,
+                    backgroundColor: ThemeColors.backgroundColor,
+                    context: context,
+                    builder: (_context) => StatefulBuilder(
+                        builder: (BuildContext _context, StateSetter _setState){
+                          return buildSort(context,_setState);
+                        }),
+                    isScrollControlled: true,
+                );
+              },
               child: Row(
                 children: [
                   const Icon(Icons.sort_rounded,color: Colors.black54,),
@@ -819,6 +954,10 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
+  }
+
+  Widget sortItem(String message, bool check){
+    return Text(message,style: TextStyle(fontSize: 16,color: check ? ThemeColors.primaryColor : ThemeColors.textSecondary),);
   }
 
   void checkFilter(){

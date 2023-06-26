@@ -73,7 +73,7 @@ class SatelliteCubit extends Cubit<SatelliteState> {
   }
 
 
-  Future<void> filterSearchData(String filterText, String country, String status, bool decayed, bool launched, bool deployed, String operator) async {
+  Future<void> filterSearchData(String filterText, String country, String status, bool decayed, bool launched, bool deployed, String operator, bool featured, bool launchNew, bool launchOld) async {
 
     List<SatelliteModel> filteredList = _satellites;
     filteredList = filteredList.where((data) =>
@@ -111,9 +111,17 @@ class SatelliteCubit extends Cubit<SatelliteState> {
       data.deployed.toString()!='null')
           .toList();
     }
+    if(featured){
+      filteredList.sort((a,b) => a.name.toString().toLowerCase().compareTo(b.name.toString().toLowerCase()));
+    }else if(launchNew){
+      filteredList.sort((b,a) => a.launched.toString().toLowerCase().compareTo(b.launched.toString().toLowerCase()));
+    }else if(launchOld){
+      filteredList.sort((a,b) => a.launched.toString().toLowerCase().compareTo(b.launched.toString().toLowerCase()));
+    }
 
     emit(FilteredSatelliteState(filteredList));
 
   }
+
 
 }

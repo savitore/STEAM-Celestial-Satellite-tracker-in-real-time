@@ -56,7 +56,7 @@ class ScreenOverlayEntity {
   factory ScreenOverlayEntity.logos() {
     return ScreenOverlayEntity(
       name: 'LogoSO',
-      icon: 'https://i.imgur.com/p3uiWAy.png',
+      icon: 'https://ibb.co/tM427N1',
       overlayX: 0,
       overlayY: 1,
       screenX: 0.02,
