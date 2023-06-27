@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/zoomed_screen.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/services/local_storage_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/snackbar.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/utils/storage_keys.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/kml/kml_entity.dart';
@@ -33,6 +34,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   SatelliteService get _satelliteService => GetIt.I<SatelliteService>();
   LGService get _lgService => GetIt.I<LGService>();
   SSHService get _sshService => GetIt.I<SSHService>();
+  LocalStorageService get _localStorageService => GetIt.I<LocalStorageService>();
 
   bool tleExists = false, lgConnected=false, _satelliteBalloonVisible = true,_viewingLG=false,_orbit=false, _simulate=false, websiteDialog=true,checkbox=false;
   late TLEModel tleModel;
@@ -205,141 +207,160 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
   Widget _buildWebsite(String title, String web){
-    if(web.isEmpty || web == 'null' ){
-      return Container();
-    }
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title,style: TextStyle(fontSize: 18,color: ThemeColors.textSecondary)),
-        const SizedBox(height: 10),
-        InkWell(
-            onTap: (){
-              if(widget.satelliteModel.websiteValid()){
-                if(websiteDialog) {
-                  showDialog(context: context, builder: (context) =>
-                      StatefulBuilder(
-                        builder: (context, _setState) =>
-                            AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              elevation: 0,
-                              title: Row(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .spaceBetween,
-                                children: [
-                                  Text(
-                                    'Are you sure?',
-                                    style: TextStyle(
-                                        color: ThemeColors.textPrimary),
-                                  ),
-                                ],
-                              ),
-                              backgroundColor: ThemeColors.backgroundColor,
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  RichText(
-                                      text: TextSpan(
-                                          text: 'You will be redirected to ',
+    return web.isEmpty || web == 'null'
+        ? Container()
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: TextStyle(
+                      fontSize: 18, color: ThemeColors.textSecondary)),
+              const SizedBox(height: 10),
+              InkWell(
+                  onTap: () {
+                    if (widget.satelliteModel.websiteValid()) {
+                      if (websiteDialog) {
+                        showDialog(
+                            context: context,
+                            builder: (context) => StatefulBuilder(
+                                  builder: (context, _setState) => AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    elevation: 0,
+                                    title: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Open Link',
                                           style: TextStyle(
-                                              color: ThemeColors.textSecondary,
-                                              fontSize: 18),
+                                              color: ThemeColors.textPrimary),
+                                        ),
+                                      ],
+                                    ),
+                                    backgroundColor:
+                                        ThemeColors.backgroundColor,
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        RichText(
+                                            text: TextSpan(
+                                                text:
+                                                    'You will be redirected to ',
+                                                style: TextStyle(
+                                                    color: ThemeColors
+                                                        .textSecondary,
+                                                    fontSize: 18),
+                                                children: [
+                                              TextSpan(
+                                                text: widget
+                                                    .satelliteModel.website
+                                                    .toString(),
+                                                style: TextStyle(
+                                                    color:
+                                                        ThemeColors.textPrimary,
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              )
+                                            ])),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
                                           children: [
-                                            TextSpan(
-                                              text: widget.satelliteModel
-                                                  .website.toString(),
+                                            TextButton(
+                                              child: Text(
+                                                'Cancel',
+                                                style: TextStyle(
+                                                    color: ThemeColors
+                                                        .primaryColor,
+                                                    fontSize: 17),
+                                              ),
+                                              onPressed: () {
+                                                if (checkbox) {
+                                                  _localStorageService.setItem(
+                                                      StorageKeys.website,
+                                                      false);
+                                                  setState(() {
+                                                    websiteDialog = false;
+                                                  });
+                                                }
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                            TextButton(
+                                              child: Text(
+                                                'Yes',
+                                                style: TextStyle(
+                                                    color: ThemeColors
+                                                        .primaryColor,
+                                                    fontSize: 17),
+                                              ),
+                                              onPressed: () {
+                                                if (checkbox) {
+                                                  _localStorageService.setItem(
+                                                      StorageKeys.website,
+                                                      false);
+                                                  setState(() {
+                                                    websiteDialog = false;
+                                                  });
+                                                }
+                                                Navigator.of(context).pop();
+                                                _openLink();
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Checkbox(
+                                                checkColor:
+                                                    ThemeColors.backgroundColor,
+                                                activeColor:
+                                                    ThemeColors.primaryColor,
+                                                value: checkbox,
+                                                onChanged: (bool? value) {
+                                                  _setState(() {
+                                                    checkbox = value!;
+                                                  });
+                                                }),
+                                            Text(
+                                              'Do not show again',
                                               style: TextStyle(
-                                                  color: ThemeColors
-                                                      .textPrimary,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w500),
+                                                  color:
+                                                      ThemeColors.textPrimary,
+                                                  fontWeight: FontWeight.w400,
+                                                  fontSize: 18),
                                             )
-                                          ]
-                                      )
-                                  ),
-                                  const SizedBox(height: 20,),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      TextButton(
-                                        child: Text(
-                                          'Cancel',
-                                          style: TextStyle(
-                                              color: ThemeColors.primaryColor,
-                                              fontSize: 17),
+                                          ],
                                         ),
-                                        onPressed: () async {
-                                          if(checkbox){
-                                            final SharedPreferences prefs = await SharedPreferences
-                                                .getInstance();
-                                            prefs.setBool(
-                                                'wesiteDialog', false);
-                                            setState(() {
-                                              websiteDialog=false;
-                                            });
-                                          }
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: Text(
-                                          'Yes',
-                                          style: TextStyle(
-                                              color: ThemeColors.primaryColor,
-                                              fontSize: 17),
-                                        ),
-                                        onPressed: () async {
-                                          if(checkbox){
-                                            final SharedPreferences prefs = await SharedPreferences
-                                                .getInstance();
-                                            prefs.setBool(
-                                                'wesiteDialog', false);
-                                            setState(() {
-                                              websiteDialog=false;
-                                            });
-                                          }
-                                          Navigator.of(context).pop();
-                                          _openLink();
-                                        },
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                  Row(
-                                    children: [
-                                      Checkbox(
-                                          checkColor: ThemeColors
-                                              .backgroundColor,
-                                          activeColor: ThemeColors.primaryColor,
-                                          value: checkbox,
-                                          onChanged: (bool? value) {
-                                            _setState(() {
-                                              checkbox = value!;
-                                            });
-                                          }),
-                                      Text('Do not show again',
-                                        style: TextStyle(
-                                            color: ThemeColors.textPrimary,
-                                            fontWeight: FontWeight.w400,
-                                            fontSize: 18),)
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                      ));
-                }
-                else{
-                  _openLink();
-                }
-              }
-            },
-            child: Text(web,style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20,fontWeight: widget.satelliteModel.websiteValid() ? FontWeight.w500 : FontWeight.normal),overflow: TextOverflow.visible,)
-        ),
-        const SizedBox(height: 30)
-      ],
-    );
+                                ));
+                      } else {
+                        _openLink();
+                      }
+                    }
+                  },
+                  child: Text(
+                    web,
+                    style: TextStyle(
+                        color: ThemeColors.textPrimary,
+                        fontSize: 20,
+                        fontWeight: widget.satelliteModel.websiteValid()
+                            ? FontWeight.w500
+                            : FontWeight.normal),
+                    overflow: TextOverflow.visible,
+                  )),
+              const SizedBox(height: 30)
+            ],
+          );
   }
 
   Widget _buildDate(String title, String date){
@@ -361,32 +382,32 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   Widget _buildSatelliteImage() {
     final image = widget.satelliteModel.image;
-
-    if (image.toString().isEmpty) {
-      return Container();
-    }
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Center(
-          child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: InkWell(
-                onTap: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ZoomedScreen(image: 'https://db-satnogs.freetls.fastly.net/media/$image'),
-                    ),
-                  );
-                },
-                child: Image.network(
-                  'https://db-satnogs.freetls.fastly.net/media/$image',
-                  // width: 180,
+    return image.toString().isEmpty
+        ? Container()
+        : Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ZoomedScreen(
+                            image:
+                                'https://db-satnogs.freetls.fastly.net/media/$image'),
+                      ),
+                    );
+                  },
+                  child: Image.network(
+                    'https://db-satnogs.freetls.fastly.net/media/$image',
+                    // width: 180,
+                  ),
                 ),
               ),
             ),
-      ),
-    );
+          );
   }
 
   Widget _buildTLE(List<String> tle){
@@ -784,11 +805,12 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     }
   }
 
-  Future<void> checkWebsiteDialog() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      websiteDialog = prefs.getBool('wesiteDialog')!;
+  void checkWebsiteDialog(){
+    if(_localStorageService.hasItem(StorageKeys.website)) {
+      setState(() {
+      websiteDialog = _localStorageService.getItem(StorageKeys.website);
     });
+    }
   }
 
   Future<void> viewSatellite(BuildContext context, SatelliteModel satellite, bool showBalloon,
@@ -796,7 +818,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   async {
 
     if(lgConnected==false){
-      showSnackbar(context, 'Connection failed!');
+      showSnackbar(context, 'Connection failed');
     }
     else{
 
@@ -873,7 +895,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       } on Exception catch (_) {
         showSnackbar(context, 'Connection failed');
       } catch (_) {
-        showSnackbar(context, 'Connection failed!!');
+        showSnackbar(context, 'Connection failed');
       }
 
     }

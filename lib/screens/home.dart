@@ -7,7 +7,6 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/satellite_info.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/settings.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
-import 'package:steam_celestial_satellite_tracker_in_real_time/widgets/custom_page_route.dart';
 
 import '../repositories/countries_iso.dart';
 import '../utils/snackbar.dart';
@@ -87,10 +86,11 @@ class _HomeState extends State<Home> {
                       onPressed: (){},
                       icon: IconButton(
                         icon: const Icon(Icons.settings),
-                        onPressed: (){
-                          Navigator.of(context).push(
-                              CustomPageRoute(child: const Settings())
-                          );
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const Settings()));
                         },
                       )
                   )
@@ -193,9 +193,10 @@ class _HomeState extends State<Home> {
                                             itemBuilder:(context, index){
                                               return InkWell(
                                                 onTap: (){
-                                                  Navigator.of(context).push(
-                                                      CustomPageRoute(child: SatelliteInfo(satellites[index]))
-                                                  );
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) => SatelliteInfo(satellites[index])));
                                                 },
                                                 child: _buildList(context, index, satellites[index]),
                                               );
@@ -254,9 +255,10 @@ class _HomeState extends State<Home> {
                                             itemBuilder:(context, index){
                                               return InkWell(
                                                 onTap: (){
-                                                  Navigator.of(context).push(
-                                                      CustomPageRoute(child: SatelliteInfo(searchedSatellites[index]))
-                                                  );
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) => SatelliteInfo(searchedSatellites[index])));
                                                 },
                                                 child: _buildList(context, index, searchedSatellites[index]),
                                               );
@@ -404,7 +406,8 @@ class _HomeState extends State<Home> {
     );
   }
 
-  SliverAppBar sliverAppBar(BuildContext context,SatelliteState state){
+  SliverAppBar sliverAppBar(BuildContext context,SatelliteState state)
+  {
     return SliverAppBar(
       floating: true,
       pinned: true,
@@ -416,15 +419,24 @@ class _HomeState extends State<Home> {
       title: const Text('STEAM Celestial Satellite tracker'),
       actions: [
         IconButton(
-            onPressed: (){},
-            icon: IconButton(
-              icon: const Icon(Icons.settings),
+              icon: const Tooltip(
+                  message: 'Refresh',
+                  child: Icon(Icons.refresh_rounded)
+              ),
               onPressed: (){
-                Navigator.of(context).push(
-                    CustomPageRoute(child: const Settings())
-                );
+                context.read<SatelliteCubit>().fetchData(refresh: true);
+                context.read<SatelliteCubit>().emit(SatelliteLoadingState());
               },
-            )
+            ),
+        IconButton(
+              icon: const Tooltip(
+                  message: 'Settings',
+                  child: Icon(Icons.settings)
+              ),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const Settings()));
+          },
         ),
         const SizedBox(width: 5)
       ],
@@ -434,16 +446,13 @@ class _HomeState extends State<Home> {
           elevation: 0,
           backgroundColor: ThemeColors.backgroundCardColor,
           title: Padding(
-            padding: const EdgeInsets.only(bottom: 15),
+            padding: const EdgeInsets.only(bottom:15),
             child: Card(
               color: ThemeColors.backgroundColor,
               elevation: 2,
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
                 height: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                ),
                 child: Row(
                   children: [
                     Flexible(
@@ -503,10 +512,10 @@ class _HomeState extends State<Home> {
   Future<void> _dropDownOperators() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     itemsOperators.add('ALL');
-    for(int i=0;i<prefs.getStringList('operators')!.length;i++){
-      itemsOperators.add(prefs.getStringList('operators')![i]);
+    List<String>? items = prefs.getStringList('operators');
+    for(int i=0;i<items!.length;i++){
+      itemsOperators.add(items![i]);
     }
-    print(prefs.getStringList('operators'));
   }
 
   Widget buildSort(BuildContext context, StateSetter _setState){
@@ -631,7 +640,7 @@ class _HomeState extends State<Home> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text('Filters',style: TextStyle(fontSize: 16,color: ThemeColors.textPrimary),),
+                Text('FILTERS',style: TextStyle(fontSize: 16,color: ThemeColors.textPrimary),),
                 const SizedBox(height: 10),
                 Divider(
                   thickness: 0.5,
@@ -826,7 +835,7 @@ class _HomeState extends State<Home> {
                           launchOld);
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.backgroundColor,elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),side: const BorderSide(color: Colors.black12))),
-                    child: Text('Clear Filters',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 18),),
+                    child: Text('CLEAR',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 16),),
                   ),
                 ) :
                 const SizedBox(),
@@ -851,7 +860,7 @@ class _HomeState extends State<Home> {
                       }
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                    child: Text('Filter Satellites',style: TextStyle(color: ThemeColors.backgroundColor,fontSize: 18),),
+                    child: Text('APPLY',style: TextStyle(color: ThemeColors.backgroundColor,fontSize: 16),),
                   ),
                 ),
               ],

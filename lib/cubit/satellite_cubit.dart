@@ -16,10 +16,10 @@ class SatelliteCubit extends Cubit<SatelliteState> {
   SatelliteRepository satelliteRepository = SatelliteRepository();
   late List<SatelliteModel> _satellites;
 
-  void fetchData() async {
+  void fetchData({bool refresh=false}) async {
 
     try {
-      List<SatelliteModel> satellites = await satelliteRepository.fetchData();
+      List<SatelliteModel> satellites = await satelliteRepository.fetchData(refresh: refresh) as List<SatelliteModel>;
       List iso = ISO().iso;
       for (int i = 0; i < satellites.length; i++) {
         String countries = satellites[i].countries.toString();
@@ -111,12 +111,21 @@ class SatelliteCubit extends Cubit<SatelliteState> {
       data.deployed.toString()!='null')
           .toList();
     }
-    if(featured){
-      filteredList.sort((a,b) => a.name.toString().toLowerCase().compareTo(b.name.toString().toLowerCase()));
-    }else if(launchNew){
-      filteredList.sort((b,a) => a.launched.toString().toLowerCase().compareTo(b.launched.toString().toLowerCase()));
-    }else if(launchOld){
-      filteredList.sort((a,b) => a.launched.toString().toLowerCase().compareTo(b.launched.toString().toLowerCase()));
+    if (featured) {
+      filteredList.sort((a, b) => a.name
+          .toString()
+          .toLowerCase()
+          .compareTo(b.name.toString().toLowerCase()));
+    } else if (launchNew) {
+      filteredList.sort((b, a) => a.launched
+          .toString()
+          .toLowerCase()
+          .compareTo(b.launched.toString().toLowerCase()));
+    } else if (launchOld) {
+      filteredList.sort((a, b) => a.launched
+          .toString()
+          .toLowerCase()
+          .compareTo(b.launched.toString().toLowerCase()));
     }
 
     emit(FilteredSatelliteState(filteredList));

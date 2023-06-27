@@ -8,7 +8,6 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/utils/snackbar.da
 import '../services/lg_service.dart';
 import '../services/ssh_service.dart';
 import '../widgets/confirm_dialog.dart';
-import '../widgets/custom_page_route.dart';
 
 class Settings extends StatefulWidget {
   const Settings({Key? key}) : super(key: key);
@@ -96,8 +95,9 @@ class _SettingsState extends State<Settings> {
               _divider(),
               ListTile(
                   onTap: (){
-                    Navigator.of(context).push(
-                        CustomPageRoute(child: const BTSettings())
+                    Navigator.push(
+                      context,
+                        MaterialPageRoute(builder: (context)=> const BTSettings())
                     );
                   },
                   title: _buildTitle('Bluetooth Connection'),
@@ -107,8 +107,9 @@ class _SettingsState extends State<Settings> {
               _divider(),
               ListTile(
                 onTap: (){
-                  Navigator.of(context).push(
-                      CustomPageRoute(child: const LGSettings())
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context)=> const LGSettings())
                   );
                 },
                 title: _buildTitle('LG Connection'),

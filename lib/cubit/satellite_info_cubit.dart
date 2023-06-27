@@ -1,9 +1,11 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../repositories/satellite_info_repository.dart';
+import '../services/ssh_service.dart';
 
 class SatelliteInfoCubit extends Cubit<SatelliteInfoState>{
   int norad;
@@ -12,6 +14,7 @@ class SatelliteInfoCubit extends Cubit<SatelliteInfoState>{
   }
 
   SatelliteInfoRepository satelliteInfoRepository = SatelliteInfoRepository();
+  SSHService get _sshService => GetIt.I<SSHService>();
 
   void fetchData(int norad) async {
     try{
@@ -19,7 +22,7 @@ class SatelliteInfoCubit extends Cubit<SatelliteInfoState>{
       List<String> tleLines =tle.split('\n');
       emit(SatelliteLoadedState(tleLines));
     }
-    on DioError catch(e) {
+    on DioException catch(e) {
       final connectivityResult = await (Connectivity().checkConnectivity());
       if(connectivityResult == ConnectivityResult.none){
         emit(SatelliteErrorState('Check your internet connection!'));
