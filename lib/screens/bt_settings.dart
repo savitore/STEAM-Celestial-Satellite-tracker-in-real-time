@@ -231,7 +231,7 @@ class _BTSettingsState extends State<BTSettings> {
                 ),
                 ElevatedButton(
                     onPressed: (){
-                      send('1');
+                      send();
                     },
                     child: Text('Send')),
               ],
@@ -351,7 +351,8 @@ class _BTSettingsState extends State<BTSettings> {
     }
   }
 
-  Future send(String _data) async {
+  Future send() async {
+    String _data = "OBJECT 1" + "\n" + "0 333 9883 3888" + "\n" +"988 27873 3737783";
     List<int> bytes = utf8.encode(_data);
     Uint8List data = Uint8List.fromList(bytes);
     _connection?.output.add(data);

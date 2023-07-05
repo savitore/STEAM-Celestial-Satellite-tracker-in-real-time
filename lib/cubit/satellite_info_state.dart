@@ -4,7 +4,8 @@ class SatelliteLoadingState extends SatelliteInfoState{}
 
 class SatelliteLoadedState extends SatelliteInfoState{
   final List<String> tle;
-  SatelliteLoadedState(this.tle);
+  final String TLE;
+  SatelliteLoadedState({required this.tle, required this.TLE});
 }
 
 class SatelliteErrorState extends SatelliteInfoState{

@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:get_it/get_it.dart';
@@ -45,13 +47,172 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   double _orbitPeriod=3;
 
   PlacemarkEntity? _satellitePlacemark;
+
+  BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
+  List<BluetoothDevice> _devicesList = [];
   BluetoothConnection? _connection;
+  // To track whether the device is still connected to Bluetooth
+  bool get isConnected => _connection != null && _connection!.isConnected;
+  BluetoothDevice? _device;
+  int? _deviceState;
+  bool isDisconnecting = false,_connected=false;
+  bool _isButtonUnavailable = false;
+  final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
 
   @override
   void initState() {
     checkLGConnection();
     checkWebsiteDialog();
+    FlutterBluetoothSerial.instance.state.then((state) {
+      setState(() {
+        _bluetoothState = state;
+      });
+    });
+    _deviceState=0;
+
+    enableBluetooth();
+
+    // Listen for further state changes
+    FlutterBluetoothSerial.instance
+        .onStateChanged()
+        .listen((BluetoothState state) {
+      setState(() {
+        _bluetoothState = state;
+        if (_bluetoothState == BluetoothState.STATE_OFF) {
+          _isButtonUnavailable = true;
+        }
+        getPairedDevices();
+      });
+    });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // Avoid memory leak and disconnect
+    if (isConnected) {
+      isDisconnecting = true;
+      _connection?.dispose();
+      _connection = null;
+    }
+    super.dispose();
+  }
+
+  // Request Bluetooth permission from the user
+  Future<bool> enableBluetooth() async {
+    // Retrieving the current Bluetooth state
+    _bluetoothState = await FlutterBluetoothSerial.instance.state;
+
+    // If the bluetooth is off, then turn it on first
+    // and then retrieve the devices that are paired.
+    if (_bluetoothState == BluetoothState.STATE_OFF) {
+      await FlutterBluetoothSerial.instance.requestEnable();
+      await getPairedDevices();
+      return true;
+    } else {
+      await getPairedDevices();
+    }
+    return false;
+  }
+
+  // For retrieving and storing the paired devices
+  // in a list.
+  Future<void> getPairedDevices() async {
+    List<BluetoothDevice> devices = [];
+
+    // To get the list of paired devices
+    try {
+      devices = await _bluetooth.getBondedDevices();
+    } on PlatformException {
+      if (kDebugMode) {
+        print("Error");
+      }
+    }
+
+    // It is an error to call [setState] unless [mounted] is true.
+    if (!mounted) {
+      return;
+    }
+
+    // Store the [devices] list in the [_devicesList] for accessing
+    // the list outside this class
+    setState(() {
+      _devicesList = devices;
+    });
+  }
+
+  // Create the List of devices to be shown in Dropdown Menu
+  List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
+    List<DropdownMenuItem<BluetoothDevice>> items = [];
+    if (_devicesList.isEmpty) {
+      items.add(const DropdownMenuItem(
+        child: Text('NONE'),
+      ));
+    } else {
+      for (var device in _devicesList) {
+        print(device.name);
+        items.add(DropdownMenuItem(
+          value: device,
+          child: Text(device.name!),
+        ));
+      }
+    }
+    return items;
+  }
+
+// Method to connect to bluetooth
+  void _connect() async {
+    setState(() {
+      _isButtonUnavailable = true;
+    });
+    if (_device == null) {
+      showSnackbar(context,'No device selected');
+    } else {
+      if (!isConnected) {
+        await BluetoothConnection.toAddress(_device?.address)
+            .then((connection) {
+          print('Connected to the device');
+          _connection = connection;
+          setState(() {
+            _connected = true;
+          });
+
+          _connection?.input?.listen(null).onDone(() {
+            if (isDisconnecting) {
+              print('Disconnecting locally!');
+            } else {
+              print('Disconnected remotely!');
+            }
+            if (this.mounted) {
+              setState(() {});
+            }
+          });
+        }).catchError((error) {
+          print('Cannot connect, exception occurred');
+          print(error);
+        });
+        showSnackbar(context,'Device connected');
+
+        setState(() => _isButtonUnavailable = false);
+      }
+    }
+  }
+
+  // Method to disconnect bluetooth
+  void _disconnect() async {
+    setState(() {
+      _isButtonUnavailable = true;
+      _deviceState = 0;
+    });
+
+    await _connection?.close();
+    showSnackbar(context,'Device disconnected');
+    if (!_connection!.isConnected) {
+      setState(() {
+        _connected = false;
+        _isButtonUnavailable = false;
+      });
+    }
   }
 
   Future<void> checkLGConnection() async{
@@ -165,7 +326,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                           _buildSatelliteStatus(),
                           const SizedBox(height: 20),
                           _buildSatelliteImage(),
-                          _buildVisualise(context),
+                          _buildVisualise(context,state.TLE),
                           _buildVisualisingInLG(),
                           _buildTitle('Satellite ID', widget.satelliteModel.satId.toString()),
                           _buildTitle('NORAD ID', widget.satelliteModel.noradCatId.toString()),
@@ -479,7 +640,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     );
   }
 
-  Widget _buildVisualise(BuildContext context){
+  Widget _buildVisualise(BuildContext context, String TLE){
     return tleExists ?
     Column(
       children: [
@@ -491,12 +652,17 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               width: MediaQuery.of(context).size.width*0.5-20,
               child: ElevatedButton(
                   onPressed: (){
-                    String _data ="d";
-                    try{
-                      send(_data);
-                    }catch(e){
-                      showSnackbar(context, 'Error: ');
-                    }
+                    showModalBottomSheet(
+                      isDismissible: true,
+                      enableDrag: false,
+                      backgroundColor: ThemeColors.backgroundColor,
+                      context: context,
+                      builder: (_context) => StatefulBuilder(
+                          builder: (BuildContext _context, StateSetter _setState){
+                            return BTConnection(context,_setState,TLE);
+                          }),
+                      isScrollControlled: true,
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: ThemeColors.backgroundColor,
@@ -565,6 +731,157 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       ],
     ) :
     const SizedBox();
+  }
+
+
+  Widget BTConnection(BuildContext context, StateSetter _setState, String TLE){
+    print(TLE);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              const Expanded(
+                child: Text(
+                  'Enable Bluetooth',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              Switch(
+                value: _bluetoothState.isEnabled,
+                onChanged: (bool value) {
+                  future() async {
+                    if (value) {
+                      await FlutterBluetoothSerial.instance
+                          .requestEnable();
+                    } else {
+                      await FlutterBluetoothSerial.instance
+                          .requestDisable();
+                    }
+
+                    await getPairedDevices();
+                    _isButtonUnavailable = false;
+
+                    if (_connected) {
+                      _disconnect();
+                    }
+                  }
+
+                  future().then((_) {
+                    _setState(() {});
+                  });
+                },
+                activeColor: ThemeColors.primaryColor,
+              )
+            ],
+          ),
+          const SizedBox(height: 5,),
+          Divider(
+            thickness: 0.5,
+            height: 5,
+            color: Colors.grey[500],
+          ),
+          const SizedBox(height: 20,),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "PAIRED DEVICES",
+                style: TextStyle(fontSize: 20, color: ThemeColors.textPrimary),
+              ),
+              InkWell(
+                onTap: () async{
+                  await getPairedDevices().then((_) {
+                    showSnackbar(context,'Device list refreshed');
+                  });
+                },
+                child: Row(
+                  children: [
+                    Icon(Icons.refresh,color: ThemeColors.textSecondary,size: 16,),
+                    const SizedBox(width: 5),
+                    Text('Refresh',style: TextStyle(color: ThemeColors.textSecondary),),
+                  ],
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 5,),
+          Visibility(
+            visible: _isButtonUnavailable &&
+                _bluetoothState == BluetoothState.STATE_ON,
+            child: const LinearProgressIndicator(
+              backgroundColor: Colors.yellow,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+            ),
+          ),
+          const SizedBox(height: 5,),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                DropdownButton(
+                  items: _getDeviceItems(),
+                  onChanged: (value) =>
+                      _setState(() => _device = value),
+                  value: _devicesList.isNotEmpty ? _device : null,
+                ),
+                ElevatedButton(
+                  onPressed: _isButtonUnavailable
+                      ? null
+                      : _connected ? _disconnect :
+                      (){
+                    _connect();
+                    send(TLE);
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
+                  ),
+                  child: Text(_connected ? 'Disconnect' : 'Connect & View'),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 100,),
+          RichText(
+              text: TextSpan(
+                  text: 'Note: ',
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: ThemeColors.primaryColor
+                  ),
+                  children: [
+                    TextSpan(
+                      text: 'If you cannot find the device in the list, please pair the device by going to the bluetooth settings.',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: ThemeColors.textPrimary,
+                      ),
+                    )
+                  ]
+              )
+          ),
+          const SizedBox(height: 10,),
+          ElevatedButton(
+              onPressed: (){
+                FlutterBluetoothSerial.instance.openSettings();
+              },
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),side: BorderSide(color: ThemeColors.primaryColor))
+              ),
+              child: const Text('Bluetooth Settings')
+          )
+        ],
+      ),
+    );
   }
 
   Widget _buildVisualisingInLG(){
@@ -914,7 +1231,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
 
   Future send(String _data) async {
-    // String dataToSend = 'Hello, Arduino!'; // Replace with the string you want to send
     List<int> bytes = utf8.encode(_data);
     Uint8List data = Uint8List.fromList(bytes);
     _connection?.output.add(data);

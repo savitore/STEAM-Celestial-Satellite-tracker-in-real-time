@@ -19,7 +19,7 @@ class SatelliteInfoCubit extends Cubit<SatelliteInfoState>{
     try{
       String tle = await satelliteInfoRepository.fetchData(norad);
       List<String> tleLines =tle.split('\n');
-      emit(SatelliteLoadedState(tleLines));
+      emit(SatelliteLoadedState(tle: tleLines,TLE: tle));
     }
     on DioException catch(e) {
       final connectivityResult = await (Connectivity().checkConnectivity());
