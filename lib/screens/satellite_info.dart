@@ -735,12 +735,17 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
 
   Widget BTConnection(BuildContext context, StateSetter _setState, String TLE){
-    print(TLE);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 10, 10, 20),
+      padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Row(
+            children: [
+              Text('Select a Device',style: TextStyle(color: ThemeColors.primaryColor,fontWeight: FontWeight.bold,fontSize: 27),overflow: TextOverflow.visible,),
+            ],
+          ),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
@@ -815,9 +820,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           Visibility(
             visible: _isButtonUnavailable &&
                 _bluetoothState == BluetoothState.STATE_ON,
-            child: const LinearProgressIndicator(
+            child: LinearProgressIndicator(
               backgroundColor: Colors.yellow,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+              valueColor: AlwaysStoppedAnimation<Color>(ThemeColors.secondaryColor),
             ),
           ),
           const SizedBox(height: 5,),

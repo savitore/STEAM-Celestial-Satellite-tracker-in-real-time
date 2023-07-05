@@ -73,12 +73,11 @@ class _SettingsState extends State<Settings> {
               ),
               ListTile(
                 onTap: (){
-                  Navigator.push(
-                              context,
-                                MaterialPageRoute(builder: (context)=> About())
-                            );
-                },
+                  Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => About()));
+                  },
                   title: _buildTitle('About'),
+                  trailing: const Icon(Icons.arrow_forward),
                   leading: _buildIcon(Icons.info_outline),
               ),
               Padding(
