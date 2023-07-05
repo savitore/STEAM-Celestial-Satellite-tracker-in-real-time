@@ -7,6 +7,7 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart
 
 import '../models/lg_settings_entity.dart';
 import '../models/ssh_entity.dart';
+import '../services/lg_service.dart';
 import '../services/lg_settings_service.dart';
 import '../services/ssh_service.dart';
 import '../utils/snackbar.dart';
@@ -28,7 +29,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
 
   LGSettingsService get _settingsService => GetIt.I<LGSettingsService>();
   SSHService get _sshService => GetIt.I<SSHService>();
-  // LGService get _lgService => GetIt.I<LGService>();
+  LGService get _lgService => GetIt.I<LGService>();
 
   final _ipController = TextEditingController();
   final _portController = TextEditingController();
@@ -263,11 +264,11 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
 
       if (!_canceled) {
         setState(() {
-          _connected = result == 'session_connected';
+          _connected = result == '';
         });
 
-        if (result == 'session_connected') {
-        //   await _lgService.setLogos();
+        if (result == '') {
+          await _lgService.setLogos();
         }
       }
     } on Exception catch (e) {

@@ -97,7 +97,7 @@ class _SettingsState extends State<Settings> {
                   onTap: (){
                     Navigator.push(
                       context,
-                        MaterialPageRoute(builder: (context)=> const BTSettings())
+                        MaterialPageRoute(builder: (context)=> BTSettings())
                     );
                   },
                   title: _buildTitle('Bluetooth Connection'),

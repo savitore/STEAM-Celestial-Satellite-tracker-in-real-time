@@ -44,13 +44,13 @@ dependencies:
   url_launcher: ^6.1.11
   shimmer: ^3.0.0
   sgp4_sdp4: ^0.1.0
-  ssh2: ^2.2.3
   shared_preferences: ^2.1.1
   get_it: ^7.6.0
   path_provider: 2.0.15
   flutter_bluetooth_serial: ^0.4.0
   photo_view: ^0.14.0
   share_plus: ^7.0.2
+  dartssh2: ^2.8.2
 
 dev_dependencies:
   flutter_test:

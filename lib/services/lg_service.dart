@@ -64,8 +64,8 @@ class LGService {
 
   /// Gets the Liquid Galaxy rig screen amount. Returns a [String] that represents the screen amount.
   Future<String?> getScreenAmount() async {
-    return _sshService
-        .execute("grep -oP '(?<=DHCP_LG_FRAMES_MAX=).*' personavars.txt");
+    // return _sshService
+    //     .execute("grep -oP '(?<=DHCP_LG_FRAMES_MAX=).*' personavars.txt");
   }
 
   /// Sends a the given [kml] to the Liquid Galaxy system.
@@ -77,11 +77,11 @@ class LGService {
 
     for (var img in images) {
       final image = await _fileService.createImage(img['name']!, img['path']!);
-      await _sshService.upload(image.path);
+      await _sshService.upload(image,'');
     }
 
     final kmlFile = await _fileService.createFile(fileName, kml.body);
-    await _sshService.upload(kmlFile.path);
+    await _sshService.upload(kmlFile,'sendKml');
 
     await _sshService
         .execute('echo "$_url/$fileName" > /var/www/html/kmls.txt');
@@ -92,7 +92,7 @@ class LGService {
     final fileName = '$tourName.kml';
 
     final kmlFile = await _fileService.createFile(fileName, tourKml);
-    await _sshService.upload(kmlFile.path);
+    await _sshService.upload(kmlFile,'sendTour');
 
     await _sshService
         .execute('echo "\n$_url/$fileName" >> /var/www/html/kmls.txt');
@@ -131,7 +131,7 @@ class LGService {
 
   /// Setups the Google Earth in slave screens to refresh every 2 seconds.
   Future<void> setRefresh() async {
-    final pw = _sshService.client.passwordOrKey;
+    final pw = _sshService.client?.onPasswordRequest;
 
     const search = '<href>##LG_PHPIFACE##kml\\/slave_{{slave}}.kml<\\/href>';
     const replace =
@@ -161,7 +161,7 @@ class LGService {
 
   /// Setups the Google Earth in slave screens to stop refreshing.
   Future<void> resetRefresh() async {
-    final pw = _sshService.client.passwordOrKey;
+    final pw = _sshService.client?.onPasswordRequest;
 
     const search =
         '<href>##LG_PHPIFACE##kml\\/slave_{{slave}}.kml<\\/href><refreshMode>onInterval<\\/refreshMode><refreshInterval>2<\\/refreshInterval>';
@@ -210,8 +210,8 @@ class LGService {
 
   /// Relaunches the Liquid Galaxy system.
   Future<void> relaunch() async {
-    final pw = _sshService.client.passwordOrKey;
-    final user = _sshService.client.username;
+    final pw = _sshService.client?.onPasswordRequest;
+    final user = _sshService.client?.username;
 
     for (var i = screenAmount; i >= 1; i--) {
       try {
@@ -241,7 +241,7 @@ fi
 
   /// Reboots the Liquid Galaxy system.
   Future<void> reboot() async {
-    final pw = _sshService.client.passwordOrKey;
+    final pw = _sshService.client?.onPasswordRequest;
 
     for (var i = screenAmount; i >= 1; i--) {
       try {
@@ -256,7 +256,7 @@ fi
 
   /// Shuts down the Liquid Galaxy system.
   Future<void> shutdown() async {
-    final pw = _sshService.client.passwordOrKey;
+    final pw = _sshService.client?.onPasswordRequest;
 
     for (var i = screenAmount; i >= 1; i--) {
       try {

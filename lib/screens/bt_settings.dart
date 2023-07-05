@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -53,11 +57,11 @@ class _BTSettingsState extends State<BTSettings> {
   @override
   void dispose() {
     // Avoid memory leak and disconnect
-    if (isConnected) {
-      isDisconnecting = true;
-      _connection?.dispose();
-      _connection = null;
-    }
+    // if (isConnected) {
+    //   isDisconnecting = true;
+    //   _connection?.dispose();
+    //   _connection = null;
+    // }
 
     super.dispose();
   }
@@ -84,11 +88,14 @@ class _BTSettingsState extends State<BTSettings> {
   Future<void> getPairedDevices() async {
     List<BluetoothDevice> devices = [];
 
+
     // To get the list of paired devices
     try {
       devices = await _bluetooth.getBondedDevices();
     } on PlatformException {
-      print("Error");
+      if (kDebugMode) {
+        print("Error");
+      }
     }
 
     // It is an error to call [setState] unless [mounted] is true.
@@ -103,42 +110,6 @@ class _BTSettingsState extends State<BTSettings> {
     });
   }
 
-  // void _startDiscovery() {
-  //   FlutterBluetoothSerial.instance.startDiscovery().listen((result) {
-  //     setState(() {
-  //       BluetoothDevice device = result.device;
-  //       _devicesList.add(device);
-  //     });
-  //   });
-  // }
-  //
-  // void _cancelDiscovery() {
-  //   FlutterBluetoothSerial.instance.cancelDiscovery();
-  // }
-
-  // void _connectToDevice(BluetoothDevice device) async {
-  //   if (_connection != null && _connection!.isConnected) {
-  //     await _connection!.close();
-  //   }
-  //
-  //   // Establish connection
-  //   try {
-  //     _connection = await BluetoothConnection.toAddress(device.address);
-  //     print('Connected to the device!');
-  //   } catch (e) {
-  //     print('Connection failed: $e');
-  //   }
-  //
-  // }
-
-  // Future<void> _disconnectFromDevice() async {
-  //   if (_connection != null && _connection!.isConnected) {
-  //     await _connection!.close();
-  //     print('Disconnected from the device!');
-  //   }
-  // }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -148,148 +119,160 @@ class _BTSettingsState extends State<BTSettings> {
         backgroundColor: ThemeColors.primaryColor,
         title: const Text('Bluetooth Connection'),
       ),
-      body: Column(
-        children: <Widget>[
-          ElevatedButton.icon(
-            icon: const Icon(
-              Icons.refresh,
-              color: Colors.white,
-            ),
-            label: const Text(
-              "Refresh",
-              style: TextStyle(
-                color: Colors.white,fontSize: 20,fontWeight: FontWeight.w700,
-              ),
-            ),
-            onPressed: () async {
-              await getPairedDevices().then((_) {
-                showSnackbar(context,'Device list refreshed');
-              });
-            },
-          ),
-          Visibility(
-            visible: _isButtonUnavailable &&
-                _bluetoothState == BluetoothState.STATE_ON,
-            child: const LinearProgressIndicator(
-              backgroundColor: Colors.yellow,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                const Expanded(
-                  child: Text(
-                    'Enable Bluetooth',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    const Expanded(
+                      child: Text(
+                        'Enable Bluetooth',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
+                    Switch(
+                      value: _bluetoothState.isEnabled,
+                      onChanged: (bool value) {
+                        future() async {
+                          if (value) {
+                            await FlutterBluetoothSerial.instance
+                                .requestEnable();
+                          } else {
+                            await FlutterBluetoothSerial.instance
+                                .requestDisable();
+                          }
+
+                          await getPairedDevices();
+                          _isButtonUnavailable = false;
+
+                          if (_connected) {
+                            _disconnect();
+                          }
+                        }
+
+                        future().then((_) {
+                          setState(() {});
+                        });
+                      },
+                      activeColor: ThemeColors.primaryColor,
+                    )
+                  ],
+                ),
+                const SizedBox(height: 5,),
+                Divider(
+                  thickness: 0.5,
+                  height: 5,
+                  color: Colors.grey[500],
+                ),
+                const SizedBox(height: 20,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "PAIRED DEVICES",
+                      style: TextStyle(fontSize: 20, color: ThemeColors.textPrimary),
+                    ),
+                    InkWell(
+                      onTap: () async{
+                        await getPairedDevices().then((_) {
+                          showSnackbar(context,'Device list refreshed');
+                        });
+                      },
+                      child: Row(
+                        children: [
+                          Icon(Icons.refresh,color: ThemeColors.textSecondary,size: 16,),
+                          const SizedBox(width: 5),
+                          Text('Refresh',style: TextStyle(color: ThemeColors.textSecondary),),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 5,),
+                Visibility(
+                  visible: _isButtonUnavailable &&
+                      _bluetoothState == BluetoothState.STATE_ON,
+                  child: const LinearProgressIndicator(
+                    backgroundColor: Colors.yellow,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
                   ),
                 ),
-                Switch(
-                  value: _bluetoothState.isEnabled,
-                  onChanged: (bool value) {
-                    future() async {
-                      if (value) {
-                        await FlutterBluetoothSerial.instance
-                            .requestEnable();
-                      } else {
-                        await FlutterBluetoothSerial.instance
-                            .requestDisable();
-                      }
-
-                      await getPairedDevices();
-                      _isButtonUnavailable = false;
-
-                      if (_connected) {
-                        _disconnect();
-                      }
-                    }
-
-                    future().then((_) {
-                      setState(() {});
-                    });
-                  },
-                )
+                const SizedBox(height: 5,),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      DropdownButton(
+                        items: _getDeviceItems(),
+                        onChanged: (value) =>
+                            setState(() => _device = value),
+                        value: _devicesList.isNotEmpty ? _device : null,
+                      ),
+                      ElevatedButton(
+                        onPressed: _isButtonUnavailable
+                            ? null
+                            : _connected ? _disconnect : _connect,
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
+                        ),
+                        child: Text(_connected ? 'Disconnect' : 'Connect'),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton(
+                    onPressed: (){
+                      send('1');
+                    },
+                    child: Text('Send')),
               ],
             ),
-          ),
-          Stack(
-            children: <Widget>[
-              Column(
-                children: <Widget>[
-                  const Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: Text(
-                      "PAIRED DEVICES",
-                      style: TextStyle(fontSize: 24, color: Colors.blue),
-                      textAlign: TextAlign.center,
-                    ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                    text: TextSpan(
+                  text: 'Note: ',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: ThemeColors.primaryColor
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        const Text(
-                          'Device:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        DropdownButton(
-                          items: _getDeviceItems(),
-                          onChanged: (value) =>
-                              setState(() => _device = value),
-                          value: _devicesList.isNotEmpty ? _device : null,
-                        ),
-                        ElevatedButton(
-                          onPressed: _isButtonUnavailable
-                              ? null
-                              : _connected ? _disconnect : _connect,
-                          child:
-                          Text(_connected ? 'Disconnect' : 'Connect'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(height: 20,),
-                ],
-              ),
-              Container(color: Colors.blue),
-            ],
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Text(
-                      "NOTE: If you cannot find the device in the list, please pair the device by going to the bluetooth settings",
+                  children: [
+                    TextSpan(
+                      text: 'If you cannot find the device in the list, please pair the device by going to the bluetooth settings.',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: Colors.red,
+                        color: ThemeColors.textPrimary,
                       ),
-                    ),
-                    const SizedBox(height: 15),
-                    ElevatedButton(
-                      child: const Text("Bluetooth Settings"),
-                      onPressed: () {
-                        FlutterBluetoothSerial.instance.openSettings();
-                      },
-                    ),
-                  ],
+                    )
+                  ]
+                )
                 ),
-              ),
+                const SizedBox(height: 10,),
+                ElevatedButton(
+                    onPressed: (){
+                      FlutterBluetoothSerial.instance.openSettings();
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),side: BorderSide(color: ThemeColors.primaryColor))
+                    ),
+                    child: const Text('Bluetooth Settings')
+                )
+              ],
             ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -303,6 +286,7 @@ class _BTSettingsState extends State<BTSettings> {
       ));
     } else {
       for (var device in _devicesList) {
+        print(device.name);
         items.add(DropdownMenuItem(
           value: device,
           child: Text(device.name!),
@@ -365,6 +349,14 @@ class _BTSettingsState extends State<BTSettings> {
         _isButtonUnavailable = false;
       });
     }
+  }
+
+  Future send(String _data) async {
+    List<int> bytes = utf8.encode(_data);
+    Uint8List data = Uint8List.fromList(bytes);
+    _connection?.output.add(data);
+    await _connection?.output.allSent;
+    print(data);
   }
 
 }

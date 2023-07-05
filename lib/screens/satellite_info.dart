@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
@@ -41,6 +45,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   double _orbitPeriod=3;
 
   PlacemarkEntity? _satellitePlacemark;
+  BluetoothConnection? _connection;
 
   @override
   void initState() {
@@ -51,14 +56,14 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   Future<void> checkLGConnection() async{
     final result = await _sshService.connect();
-    if (result != 'session_connected'){
+    if (result == 'connected'){
       setState(() {
-        lgConnected=false;
+        lgConnected=true;
       });
     }
     else{
       setState(() {
-        lgConnected=true;
+        lgConnected=false;
       });
     }
   }
@@ -486,7 +491,12 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               width: MediaQuery.of(context).size.width*0.5-20,
               child: ElevatedButton(
                   onPressed: (){
-
+                    String _data ="d";
+                    try{
+                      send(_data);
+                    }catch(e){
+                      showSnackbar(context, 'Error: ');
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: ThemeColors.backgroundColor,
@@ -900,6 +910,16 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
     }
 
+  }
+
+
+  Future send(String _data) async {
+    // String dataToSend = 'Hello, Arduino!'; // Replace with the string you want to send
+    List<int> bytes = utf8.encode(_data);
+    Uint8List data = Uint8List.fromList(bytes);
+    _connection?.output.add(data);
+    await _connection?.output.allSent;
+    print(data);
   }
 
 }

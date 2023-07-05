@@ -1,5 +1,7 @@
+import 'dart:io';
+
 import 'package:get_it/get_it.dart';
-import 'package:ssh2/ssh2.dart';
+import 'package:dartssh2/dartssh2.dart';
 
 import '../models/ssh_entity.dart';
 import 'lg_settings_service.dart';
@@ -9,19 +11,40 @@ class SSHService {
   LGSettingsService get _settingsService => GetIt.I<LGSettingsService>();
 
   /// Property that defines the SSH client instance.
-  late SSHClient _client;
+  SSHClient? _client;
 
   /// Property that defines the SSH client instance.
-  SSHClient get client => _client;
+  SSHClient? get client => _client;
+
+  bool isAuthenticated=false;
+  String result='';
 
   /// Sets a client with the given [ssh] info.
-  void setClient(SSHEntity ssh) {
-    _client = SSHClient(
-      host: ssh.host,
-      port: ssh.port,
-      username: ssh.username,
-      passwordOrKey: ssh.passwordOrKey,
-    );
+  Future<String?> setClient(SSHEntity ssh) async {
+    try{
+      final socket = await SSHSocket.connect(ssh.host, ssh.port);
+      String? password;
+      _client = SSHClient(
+          socket,
+          username: ssh.username,
+          onPasswordRequest: (){
+            password = ssh.passwordOrKey;
+            return password;
+          },
+        keepAliveInterval: const Duration(seconds: 3600),
+        onAuthenticated: (){
+            isAuthenticated=true;
+        }
+      );
+      await Future.delayed(const Duration(seconds: 10));
+      if(isAuthenticated){
+      }else{
+        throw Exception('SSH authentication failed');
+      }
+    }catch(e){
+      result = "Failed to connect to the SSH server: $e";
+    }
+    return result;
   }
 
   void init() {
@@ -35,41 +58,51 @@ class SSHService {
   }
 
   /// Connects to the current client, executes a command into it and then disconnects.
-  Future<String?> execute(String command) async {
+  Future<SSHSession?> execute(String command) async {
     String? result = await connect();
 
-    String? execResult;
+    SSHSession? execResult;
 
-    if (result == 'session_connected') {
-      execResult = await _client.execute(command);
-    }
+    // if (result == '') {
+      execResult = await _client?.execute(command);
+    // }
 
-    await disconnect();
+    disconnect();
     return execResult;
   }
 
   /// Connects to a machine using the current client.
   Future<String?> connect() async {
-    return _client.connect();
+    final settings = _settingsService.getSettings();
+    setClient(SSHEntity(
+      username: settings.username,
+      host: settings.ip,
+      passwordOrKey: settings.password,
+      port: settings.port,
+    ));
+    print(result);
+    return result;
   }
 
   /// Disconnects from the a machine using the current client.
-  Future<SSHClient> disconnect() async {
-    await _client.disconnect();
+  SSHClient? disconnect()  {
+    _client?.close();
     return _client;
   }
 
   /// Connects to the current client through SFTP, uploads a file into it and then disconnects.
-  Future<void> upload(String filePath) async {
-    await connect();
-    String? result = await _client.connectSFTP();
-    if (result == 'sftp_connected') {
-      await _client.sftpUpload(
-          path: filePath,
-          toPath: '/var/www/html',
-          callback: (progress) {
-            print('Sent $progress');
-          });
-    }
+  Future<void> upload(File inputFile, String filename) async {
+    // await connect();
+    double anyKindofProgressBar;
+    final sftp = await _client?.sftp();
+    // String? result = await _client.connectSFTP();
+    final file = await sftp?.open('/var/www/html/$filename',
+    mode: SftpFileOpenMode.truncate |
+        SftpFileOpenMode.create |
+        SftpFileOpenMode.write);
+    var fileSize = await inputFile.length();
+    await file?.write(inputFile.openRead().cast(), onProgress: (progress){
+      anyKindofProgressBar = progress/fileSize;
+    });
   }
 }

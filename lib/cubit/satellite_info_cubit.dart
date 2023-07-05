@@ -14,7 +14,6 @@ class SatelliteInfoCubit extends Cubit<SatelliteInfoState>{
   }
 
   SatelliteInfoRepository satelliteInfoRepository = SatelliteInfoRepository();
-  SSHService get _sshService => GetIt.I<SSHService>();
 
   void fetchData(int norad) async {
     try{

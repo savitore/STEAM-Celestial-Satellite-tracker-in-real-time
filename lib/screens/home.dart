@@ -396,16 +396,6 @@ class _HomeState extends State<Home> {
     return textPainter.size.width;
   }
 
-  IconButton? _clear(BuildContext context){
-    return _searchController.text.isEmpty ? null : IconButton(
-      icon: const Icon(Icons.clear,color: Colors.grey),
-      onPressed: (){
-        _searchController.clear();
-        context.read<SatelliteCubit>().filterSearchData(_searchController.text,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed, dropdownvalueOperators,featured,launchNew,launchOld);
-      },
-    );
-  }
-
   SliverAppBar sliverAppBar(BuildContext context,SatelliteState state)
   {
     return SliverAppBar(
@@ -470,7 +460,6 @@ class _HomeState extends State<Home> {
                             hintStyle: TextStyle(color: ThemeColors.searchBarColor),
                             hintText: 'Search satellites..',
                             prefixIcon: Icon(Icons.search,color: ThemeColors.primaryColor),
-                            suffixIcon: _clear(context)
                         ),
                       ),
                     ),
@@ -871,18 +860,19 @@ class _HomeState extends State<Home> {
     );
   }
 
+
   Widget bottomRow(BuildContext context,SatelliteState state){
     return BottomAppBar(
-      padding: const EdgeInsets.symmetric(vertical: 15),
       color: ThemeColors.backgroundColor,
       elevation: 5,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          GestureDetector(
+          InkWell(
               onTap: (){
                 showModalBottomSheet(
                     isDismissible: true,
+                    enableDrag: false,
                     backgroundColor: ThemeColors.backgroundColor,
                     context: context,
                     builder: (_context) => StatefulBuilder(
@@ -892,25 +882,30 @@ class _HomeState extends State<Home> {
                     isScrollControlled: true,
                 );
               },
-              child: Row(
-                children: [
-                  const Icon(Icons.sort_rounded,color: Colors.black54,),
-                  const SizedBox(width: 10,),
-                  const Text('SORT',style: TextStyle(color: Colors.black54),),
-                  sort ?
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0,left: 5),
-                    child: Container(
-                      width: 5.0,
-                      height: 5.0,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: ThemeColors.primaryColor
+              child: Container(
+                width: MediaQuery.of(context).size.width*0.5-0.25,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.sort_rounded,color: Colors.black54,),
+                    const SizedBox(width: 10,),
+                    const Text('SORT',style: TextStyle(color: Colors.black54),),
+                    sort ?
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0,left: 5),
+                      child: Container(
+                        width: 5.0,
+                        height: 5.0,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: ThemeColors.primaryColor
+                        ),
                       ),
-                    ),
-                  ) :
-                  const SizedBox()
-                ],
+                    ) :
+                    const SizedBox()
+                  ],
+                ),
               )
           ),
           Container(
@@ -918,10 +913,11 @@ class _HomeState extends State<Home> {
             height: 20,
             color: Colors.black54,
           ),
-          GestureDetector(
+          InkWell(
               onTap: (){
                 showModalBottomSheet(
                     isDismissible: true,
+                    enableDrag: false,
                     backgroundColor: ThemeColors.backgroundColor,
                     context: context,
                     builder: (_context) => StatefulBuilder(
@@ -931,25 +927,30 @@ class _HomeState extends State<Home> {
                     isScrollControlled: true,
                 );
               },
-              child: Row(
-                children: [
-                  const Icon(Icons.filter_list,color: Colors.black54,),
-                  const SizedBox(width: 10,),
-                  const Text('FILTER',style: TextStyle(color: Colors.black54),),
-                  filter ?
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0,left: 5),
-                    child: Container(
-                      width: 5.0,
-                      height: 5.0,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: ThemeColors.primaryColor
+              child: Container(
+                width: MediaQuery.of(context).size.width*0.5-0.25,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.filter_list,color: Colors.black54,),
+                    const SizedBox(width: 10,),
+                    const Text('FILTER',style: TextStyle(color: Colors.black54),),
+                    filter ?
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0,left: 5),
+                      child: Container(
+                        width: 5.0,
+                        height: 5.0,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: ThemeColors.primaryColor
+                        ),
                       ),
-                    ),
-                  ) :
-                  const SizedBox()
-                ],
+                    ) :
+                    const SizedBox()
+                  ],
+                ),
               )
           ),
         ],
