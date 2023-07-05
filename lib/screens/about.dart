@@ -152,10 +152,10 @@ class About extends StatelessWidget {
                     child: Column(
                       children: [
                         _buildSectionTitle('Author'),
-                        const Text(
+                        Text(
                           'Krishna Agrawal',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: ThemeColors.textPrimary,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -253,8 +253,8 @@ class About extends StatelessWidget {
                               Text(
                                 mentor,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.black,
+                                style: TextStyle(
+                                  color: ThemeColors.textPrimary,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -406,7 +406,7 @@ class About extends StatelessWidget {
     return Text(
       title,
       style: TextStyle(
-        color: ThemeColors.textPrimary,
+        color: ThemeColors.secondaryColor,
         fontSize: 16,
         fontWeight: FontWeight.w500,
       ),
