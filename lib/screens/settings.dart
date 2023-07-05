@@ -7,6 +7,7 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/utils/snackbar.da
 import '../services/lg_service.dart';
 import '../services/ssh_service.dart';
 import '../widgets/confirm_dialog.dart';
+import 'about.dart';
 
 class Settings extends StatefulWidget {
   const Settings({Key? key}) : super(key: key);
@@ -71,6 +72,12 @@ class _SettingsState extends State<Settings> {
                 child: _buildSection('INFO')
               ),
               ListTile(
+                onTap: (){
+                  Navigator.push(
+                              context,
+                                MaterialPageRoute(builder: (context)=> About())
+                            );
+                },
                   title: _buildTitle('About'),
                   leading: _buildIcon(Icons.info_outline),
               ),
