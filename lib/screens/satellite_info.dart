@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,7 +56,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   bool get isConnected => _connection != null && _connection!.isConnected;
   BluetoothDevice? _device;
   int? _deviceState;
-  bool isDisconnecting = false,_connected=false;
+  bool isDisconnecting = false,_btConnected=false;
   bool _isButtonUnavailable = false;
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
 
@@ -174,7 +175,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           print('Connected to the device');
           _connection = connection;
           setState(() {
-            _connected = true;
+            _btConnected = true;
           });
 
           _connection?.input?.listen(null).onDone(() {
@@ -209,7 +210,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     showSnackbar(context,'Device disconnected');
     if (!_connection!.isConnected) {
       setState(() {
-        _connected = false;
+        _btConnected = false;
         _isButtonUnavailable = false;
       });
     }
@@ -733,7 +734,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     const SizedBox();
   }
 
-
   Widget BTConnection(BuildContext context, StateSetter _setState, String TLE){
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
@@ -773,7 +773,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                     await getPairedDevices();
                     _isButtonUnavailable = false;
 
-                    if (_connected) {
+                    if (_btConnected) {
                       _disconnect();
                     }
                   }
@@ -840,19 +840,42 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                 ElevatedButton(
                   onPressed: _isButtonUnavailable
                       ? null
-                      : _connected ? _disconnect :
+                      : _btConnected ? _disconnect :
                       (){
                     _connect();
-                    send(TLE);
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
                   ),
-                  child: Text(_connected ? 'Disconnect' : 'Connect & View'),
+                  child: Text(_btConnected ? 'Disconnect' : 'Connect'),
                 ),
               ],
             ),
           ),
+          const SizedBox(height: 20),
+          _btConnected ?
+          SizedBox(
+            width: 150,
+            child: ElevatedButton(
+                onPressed: (){
+                  send(TLE);
+                  Navigator.pop(context);
+                  showSnackbar(context, 'Data sent.');
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),side: BorderSide(color: ThemeColors.primaryColor))
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset('assets/3d.png',width: 20,height: 20,color: ThemeColors.primaryColor,),
+                    const SizedBox(width: 10),
+                    const Text('VIEW IN 3D'),
+                  ],
+                )
+            ),
+          ) :
+          const SizedBox(),
           const SizedBox(height: 100,),
           RichText(
               text: TextSpan(
@@ -864,26 +887,30 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                   ),
                   children: [
                     TextSpan(
-                      text: 'If you cannot find the device in the list, please pair the device by going to the bluetooth settings.',
+                      text: 'If you cannot find the device in the list, please pair the device by going to the ',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: ThemeColors.textPrimary,
                       ),
+                    ),
+                    TextSpan(
+                      text: 'bluetooth settings.',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: ThemeColors.textPrimary,
+                        decoration: TextDecoration.underline,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = (){
+                          FlutterBluetoothSerial.instance.openSettings();
+                        }
                     )
                   ]
               )
           ),
           const SizedBox(height: 10,),
-          ElevatedButton(
-              onPressed: (){
-                FlutterBluetoothSerial.instance.openSettings();
-              },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),side: BorderSide(color: ThemeColors.primaryColor))
-              ),
-              child: const Text('Bluetooth Settings')
-          )
         ],
       ),
     );

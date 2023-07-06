@@ -80,7 +80,7 @@ class _HomeState extends State<Home> {
                 foregroundColor: ThemeColors.textPrimary,
                 backgroundColor: ThemeColors.backgroundCardColor,
                 elevation: 0,
-                title: const Text('Celestial Satellite tracker'),
+                title: const Text('STEAM Celestial Satellite tracker',style: TextStyle(fontWeight: FontWeight.bold),),
                 actions: [
                   IconButton(
                       onPressed: (){},
@@ -406,7 +406,7 @@ class _HomeState extends State<Home> {
       foregroundColor: ThemeColors.textPrimary,
       backgroundColor: ThemeColors.backgroundCardColor,
       elevation: 0,
-      title: const Text('STEAM Celestial Satellite tracker'),
+      title: const Text('STEAM Celestial Satellite tracker',style: TextStyle(fontWeight: FontWeight.bold),),
       actions: [
         IconButton(
               icon: const Tooltip(

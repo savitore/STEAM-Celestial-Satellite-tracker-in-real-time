@@ -120,285 +120,192 @@ class About extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Column(
+              child: Padding(
+                padding: const EdgeInsets.all(15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'STEAM Celestial Satellite tracker in real time',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: ThemeColors.textPrimary,
+                        fontSize: 32,
+                        fontWeight: FontWeight.w600,
+                        fontStyle: FontStyle.italic
+                      ),
+                      overflow: TextOverflow.visible,
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      alignment: Alignment.center,
+                      child: const Image(
+                          image: AssetImage('assets/logo.png')),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildSectionTitle('Author'),
+                    Text(
+                      'Krishna Agrawal',
+                      style: TextStyle(
+                        color: ThemeColors.textPrimary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.visible,
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          height: 240,
-                          width: 240,
-                          alignment: Alignment.center,
-                          child: const Image(
-                              image: AssetImage('assets/logo.png')),
-                        ),
-                        Text(
-                          'STEAM Celestial Satellite tracker in real time',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: ThemeColors.primaryColor,
-                            fontSize: 32,
-                            fontWeight: FontWeight.w600,
+                        IconButton(
+                          iconSize: 30,
+                          icon: const Icon(
+                            Icons.mail_rounded,
+                            color: Colors.black,
                           ),
-                          overflow: TextOverflow.visible,
+                          splashRadius: 24,
+                          tooltip: _authorEmail,
+                          onPressed: () {
+                            _sendEmail(_authorEmail);
+                          },
+                        ),
+                        IconButton(
+                          iconSize: 30,
+                          splashRadius: 24,
+                          icon: const Icon(
+                            SimpleIcons.github,
+                            color: Colors.black,
+                          ),
+                          tooltip: _authorGitHub,
+                          onPressed: () {
+                            _openGitHub(_authorGitHub);
+                          },
+                        ),
+                        IconButton(
+                          iconSize: 30,
+                          icon: const Icon(
+                            SimpleIcons.linkedin,
+                            color: Colors.black,
+                          ),
+                          splashRadius: 24,
+                          tooltip: _authorLinkedIn,
+                          onPressed: () {
+                            _openLinkedIn('in/$_authorLinkedIn');
+                          },
                         ),
                       ],
                     ),
-                  ),
-                  Padding(
-                    padding: _defaultPadding(),
-                    child: Column(
-                      children: [
-                        _buildSectionTitle('Author'),
-                        Text(
-                          'Krishna Agrawal',
-                          style: TextStyle(
-                            color: ThemeColors.textPrimary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.visible,
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              iconSize: 30,
-                              icon: const Icon(
-                                Icons.mail_rounded,
-                                color: Colors.black,
-                              ),
-                              splashRadius: 24,
-                              tooltip: _authorEmail,
-                              onPressed: () {
-                                _sendEmail(_authorEmail);
-                              },
-                            ),
-                            IconButton(
-                              iconSize: 30,
-                              splashRadius: 24,
-                              icon: const Icon(
-                                SimpleIcons.github,
-                                color: Colors.black,
-                              ),
-                              tooltip: _authorGitHub,
-                              onPressed: () {
-                                _openGitHub(_authorGitHub);
-                              },
-                            ),
-                            IconButton(
-                              iconSize: 30,
-                              icon: const Icon(
-                                SimpleIcons.linkedin,
-                                color: Colors.black,
-                              ),
-                              splashRadius: 24,
-                              tooltip: _authorLinkedIn,
-                              onPressed: () {
-                                _openLinkedIn('in/$_authorLinkedIn');
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Padding(
-                  //   padding: _defaultPadding(),
-                  //   child: Column(
-                  //     children: [
-                  //       _buildSectionTitle('Lleida Liquid Galaxy LAB support'),
-                  //       const Text(
-                  //         'Pau Francino',
-                  //         style: TextStyle(
-                  //           color: Colors.black,
-                  //           fontSize: 18,
-                  //           fontWeight: FontWeight.bold,
-                  //         ),
-                  //       ),
-                  //       Row(
-                  //         crossAxisAlignment: CrossAxisAlignment.center,
-                  //         mainAxisAlignment: MainAxisAlignment.center,
-                  //         children: [
-                  //           IconButton(
-                  //             iconSize: 30,
-                  //             icon: const Icon(
-                  //               Icons.mail_rounded,
-                  //               color: Colors.black,
-                  //             ),
-                  //             splashRadius: 24,
-                  //             tooltip: 'paufrancino99@gmail.com',
-                  //             onPressed: () {
-                  //               _sendEmail('paufrancino99@gmail.com');
-                  //             },
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  Padding(
-                    padding: _defaultPadding(),
-                    child: Column(
-                      children: [
-                        _buildSectionTitle('Mentors'),
-                        ..._mentors
-                            .map(
-                              (mentor) => Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                mentor,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: ThemeColors.textPrimary,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                            .toList(),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: _defaultPadding(),
-                    child: Column(children: [
-                      _buildSectionTitle('Organization Contact/Social'),
-                      Row(
+                    const SizedBox(height: 32),
+                    _buildSectionTitle('Mentors'),
+                    ..._mentors
+                        .map(
+                          (mentor) => Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          IconButton(
-                            iconSize: 30,
-                            icon: const Icon(
-                              SimpleIcons.instagram,
-                              color: Colors.black,
+                          Text(
+                            mentor,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: ThemeColors.textPrimary,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                            splashRadius: 24,
-                            tooltip: '@$_orgInstagram',
-                            onPressed: () {
-                              _openInstagram(_orgInstagram);
-                            },
-                          ),
-                          IconButton(
-                            iconSize: 30,
-                            icon: const Icon(
-                              SimpleIcons.twitter,
-                              color: Colors.black,
-                            ),
-                            splashRadius: 24,
-                            tooltip: '@$_orgTwitter',
-                            onPressed: () {
-                              _openTwitter(_orgTwitter);
-                            },
-                          ),
-                          IconButton(
-                            iconSize: 30,
-                            splashRadius: 24,
-                            icon: const Icon(
-                              SimpleIcons.github,
-                              color: Colors.black,
-                            ),
-                            tooltip: _orgGitHub,
-                            onPressed: () {
-                              _openGitHub(_orgGitHub);
-                            },
-                          ),
-                          IconButton(
-                            iconSize: 30,
-                            icon: const Icon(
-                              SimpleIcons.linkedin,
-                              color: Colors.black,
-                            ),
-                            splashRadius: 24,
-                            tooltip:
-                            'Liquid Galaxy Project (Google Summer of Code)',
-                            onPressed: () {
-                              _openLinkedIn('company/$_orgLinkedIn');
-                            },
-                          ),
-                          IconButton(
-                            iconSize: 30,
-                            icon: const Icon(
-                              Icons.language_rounded,
-                              color: Colors.black,
-                            ),
-                            splashRadius: 24,
-                            tooltip: _orgWebsite,
-                            onPressed: () {
-                              _openLink('https://$_orgWebsite');
-                            },
                           ),
                         ],
                       ),
-                    ]),
-                  ),
-                  Padding(
-                    padding: _defaultPadding(),
-                    child: Column(children: [
-                      _buildSectionTitle('Logos'),
-                      Container(
-                        margin: const EdgeInsets.only(
-                          top: 10,
-                          left: 32,
-                          right: 32,
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        width: double.maxFinite,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            width: 2,
-                            color: Colors.grey.shade600,
+                    )
+                        .toList(),
+                    const SizedBox(height: 32),
+                    _buildSectionTitle('Organization Contact/Social'),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          iconSize: 30,
+                          icon: const Icon(
+                            SimpleIcons.instagram,
+                            color: Colors.black,
                           ),
-                          color: Colors.white,
+                          splashRadius: 24,
+                          tooltip: '@$_orgInstagram',
+                          onPressed: () {
+                            _openInstagram(_orgInstagram);
+                          },
                         ),
-                        child: const Image(
-                            image: AssetImage('assets/mainLogo.jpg')),
-                      ),
-                    ]),
-                  ),
-                  Padding(
-                    padding:
-                    const EdgeInsets.only(top: 32, left: 20, right: 20),
-                    child: Column(children: [
-                      _buildSectionTitle('Project description'),
-                      _buildDescriptionParagraph(
-                          'This project represents the orbit of a satellite orbiting earth on a Liquid Galaxy rig and an Arduino-controlled pointer through a mobile application.'),
-                      _buildDescriptionParagraph('The direction of the satellite can be viewed with the help of Arduino controlled pointer.'),
-                      _buildDescriptionParagraph(
-                          'The data is visible into the Google Earth (running on the Liquid Galaxy rig) as placemarks, polygons, balloons and more.'),
-                      _buildDescriptionParagraph(
-                          'It\'s possible to search, filter and sort satellites, synchronize the data between the application and the database, run some of the Liquid Galaxy system commands/tasks, check the orbit of satellites, play orbit tours and more.'),
-                    ]),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 32, bottom: 16),
-                    child: Text(
-                      '1.0.2',
-                      style: TextStyle(
-                        color: ThemeColors.textPrimary,
-                        fontSize: 12,
-                      ),
+                        IconButton(
+                          iconSize: 30,
+                          icon: const Icon(
+                            SimpleIcons.twitter,
+                            color: Colors.black,
+                          ),
+                          splashRadius: 24,
+                          tooltip: '@$_orgTwitter',
+                          onPressed: () {
+                            _openTwitter(_orgTwitter);
+                          },
+                        ),
+                        IconButton(
+                          iconSize: 30,
+                          splashRadius: 24,
+                          icon: const Icon(
+                            SimpleIcons.github,
+                            color: Colors.black,
+                          ),
+                          tooltip: _orgGitHub,
+                          onPressed: () {
+                            _openGitHub(_orgGitHub);
+                          },
+                        ),
+                        IconButton(
+                          iconSize: 30,
+                          icon: const Icon(
+                            SimpleIcons.linkedin,
+                            color: Colors.black,
+                          ),
+                          splashRadius: 24,
+                          tooltip:
+                          'Liquid Galaxy Project (Google Summer of Code)',
+                          onPressed: () {
+                            _openLinkedIn('company/$_orgLinkedIn');
+                          },
+                        ),
+                        IconButton(
+                          iconSize: 30,
+                          icon: const Icon(
+                            Icons.language_rounded,
+                            color: Colors.black,
+                          ),
+                          splashRadius: 24,
+                          tooltip: _orgWebsite,
+                          onPressed: () {
+                            _openLink('https://$_orgWebsite');
+                          },
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 32),
+                    const SizedBox(
+                      width: double.maxFinite,
+                      child: Image(image: AssetImage('assets/mainLogo.jpg')),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildSectionTitle('Project description'),
+                    _buildDescriptionParagraph(
+                        'This project represents the orbit of a satellite orbiting earth on a Liquid Galaxy rig and an Arduino-controlled pointer through a mobile application.'),
+                    _buildDescriptionParagraph('The direction of the satellite can be viewed with the help of Arduino controlled pointer.'),
+                    _buildDescriptionParagraph(
+                        'The data is visible into the Google Earth (running on the Liquid Galaxy rig) as placemarks, polygons, balloons and more.'),
+                    _buildDescriptionParagraph(
+                        'It\'s possible to search, filter and sort satellites, synchronize the data between the application and the database, run some of the Liquid Galaxy system commands/tasks, check the orbit of satellites, play orbit tours and more.'),
+                  ],
+                ),
               ),
             ),
           ),
         ],
       ),
     );
-  }
-  /// Builds the default padding top.
-  EdgeInsets _defaultPadding() {
-    return const EdgeInsets.only(top: 32);
   }
 
   /// Builds a [Text] that will be used to show the section [title].
