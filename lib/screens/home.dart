@@ -46,7 +46,6 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _dropDownCountries();
-    _dropDownOperators();
     checkFilter();
     _searchFocusNode.addListener(() {
       if (!_searchFocusNode.hasFocus) {
@@ -155,6 +154,7 @@ class _HomeState extends State<Home> {
             );
           }
           else if(state is SatelliteLoadedState){
+            _dropDownOperators();
             List<SatelliteModel> satellites = state.satellites;
             double textWidth = _textWidth('${satellites.length} SATELLITES', TextStyle(fontSize: 20,color: ThemeColors.textPrimary));
             return Scaffold(
