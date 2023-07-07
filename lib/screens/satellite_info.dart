@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
@@ -59,11 +61,18 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   bool isDisconnecting = false,_btConnected=false;
   bool _isButtonUnavailable = false;
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
+  String location='',latitude='',longitude='',altitude='';
+  String btReceived='';
 
   @override
   void initState() {
+    _determinePosition();
     checkLGConnection();
     checkWebsiteDialog();
+    super.initState();
+  }
+
+  String btInit(String TLE){
     FlutterBluetoothSerial.instance.state.then((state) {
       setState(() {
         _bluetoothState = state;
@@ -85,7 +94,65 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         getPairedDevices();
       });
     });
-    super.initState();
+
+    DateTime now = DateTime.now();
+    DateTime date = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
+      TLE = "$TLE,${date.year},${date.month},${date.day},${date.hour},${date.minute},${date.second}";
+      // checkDevice();
+      TLE = "$TLE,$latitude,$longitude,$altitude";
+      print(TLE);
+      return TLE;
+  }
+
+  /// Determine the current position of the device.
+  /// When the location services are not enabled or permissions
+  /// are denied the `Future` will return an error.
+  void _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      location='Location services are disabled.';
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        location='Location permissions are denied';
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      location='Location permissions are permanently denied, we cannot request permissions.';
+      // Permissions are denied forever, handle appropriately.
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    location='access';
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      latitude=position.latitude.toString();
+      longitude=position.longitude.toString();
+      altitude=position.altitude.toString();
+    });
+  }
+
+  void checkDevice() async{
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    print(androidInfo.device+" "+androidInfo.version.toString()+" "+androidInfo.id+" "+androidInfo.product+" "+androidInfo.board);
   }
 
   @override
@@ -214,6 +281,14 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         _isButtonUnavailable = false;
       });
     }
+  }
+
+  void _receiveData(){
+    _connection?.input?.listen((Uint8List data) {
+      //Data entry point
+      print(ascii.decode(data));
+      btReceived=ascii.decode(data);
+    });
   }
 
   Future<void> checkLGConnection() async{
@@ -735,6 +810,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
   Widget BTConnection(BuildContext context, StateSetter _setState, String TLE){
+    String tle=btInit(TLE);
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Column(
@@ -858,8 +934,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             width: 150,
             child: ElevatedButton(
                 onPressed: (){
-                  send(TLE);
+                  send(tle);
                   Navigator.pop(context);
+                  _receiveData();
                   showSnackbar(context, 'Data sent.');
                 },
                 style: ElevatedButton.styleFrom(
