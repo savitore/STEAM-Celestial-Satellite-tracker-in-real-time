@@ -17,10 +17,9 @@ class SSHService {
   SSHClient? get client => _client;
 
   bool isAuthenticated=false;
-  String result='';
 
   /// Sets a client with the given [ssh] info.
-  Future<String?> setClient(SSHEntity ssh) async {
+  void setClient(SSHEntity ssh) async {
     try{
       final socket = await SSHSocket.connect(ssh.host, ssh.port);
       String? password;
@@ -36,15 +35,10 @@ class SSHService {
             isAuthenticated=true;
         }
       );
-      await Future.delayed(const Duration(seconds: 10));
-      if(isAuthenticated){
-      }else{
-        throw Exception('SSH authentication failed');
-      }
+      // await Future.delayed(const Duration(seconds: 10));
     }catch(e){
-      result = "Failed to connect to the SSH server: $e";
+      print(e);
     }
-    return result;
   }
 
   void init() {
@@ -59,15 +53,16 @@ class SSHService {
 
   /// Connects to the current client, executes a command into it and then disconnects.
   Future<SSHSession?> execute(String command) async {
-    String? result = await connect();
+    // String? result = await connect();
 
+    init();
     SSHSession? execResult;
 
     // if (result == '') {
       execResult = await _client?.execute(command);
     // }
 
-    disconnect();
+    // disconnect();
     return execResult;
   }
 
@@ -80,8 +75,7 @@ class SSHService {
       passwordOrKey: settings.password,
       port: settings.port,
     ));
-    print(result);
-    return result;
+    return '';
   }
 
   /// Disconnects from the a machine using the current client.

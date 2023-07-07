@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/services/local_storage_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
 
 import '../models/lg_settings_entity.dart';
-import '../models/ssh_entity.dart';
 import '../services/lg_service.dart';
 import '../services/lg_settings_service.dart';
-import '../services/ssh_service.dart';
 import '../utils/snackbar.dart';
 
 class LGSettings extends StatefulWidget {
@@ -22,19 +22,18 @@ class LGSettings extends StatefulWidget {
 class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
 
   bool show = false;
-  Timer? _timer;
   bool _connected = false;
-  bool _loading = false;
-  bool _canceled = false;
+  bool _loading = false,isAuthenticated=false;
 
   LGSettingsService get _settingsService => GetIt.I<LGSettingsService>();
-  SSHService get _sshService => GetIt.I<SSHService>();
   LGService get _lgService => GetIt.I<LGService>();
+  LocalStorageService get _localStorageService => GetIt.I<LocalStorageService>();
 
   final _ipController = TextEditingController();
   final _portController = TextEditingController();
   final _usernameController = TextEditingController();
   final _pwController = TextEditingController();
+  final _screensController = TextEditingController();
 
   @override
   void initState() {
@@ -44,7 +43,6 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _timer?.cancel();
     super.dispose();
   }
 
@@ -107,7 +105,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                             obscureText: !show,
                             maxLines: 1,
                             decoration: InputDecoration(
-                                hintText: 'p@ssw0rd',
+                                hintText: 'password',
                                 suffix: InkWell(
                                     onTap: (){
                                       setState(() {
@@ -134,10 +132,21 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                           TextFormField(
                             controller: _portController,
                             keyboardType: TextInputType.number,
-                            textInputAction: TextInputAction.done,
+                            textInputAction: TextInputAction.next,
                             maxLines: 1,
                             decoration: const InputDecoration(
                               hintText: '22',
+                            ),
+                          ),
+                          const SizedBox(height: 50,),
+                          _getTitle('Number of Screens'),
+                          TextFormField(
+                            controller: _screensController,
+                            keyboardType: TextInputType.number,
+                            textInputAction: TextInputAction.done,
+                            maxLines: 1,
+                            decoration: const InputDecoration(
+                              hintText: '1 or 3 or 5',
                             ),
                           ),
                           const SizedBox(height: 50,),
@@ -148,7 +157,10 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                                 height: 60,
                                 width: 170,
                                 child: ElevatedButton(
-                                  onPressed: _onConnect,
+                                  onPressed: (){
+                                    _localStorageService.setItem('screen', _screensController.text.toString());
+                                    _onConnect();
+                                  },
                                   style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50)))),
                                   child: Row(
                                     children: [
@@ -195,6 +207,9 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
         _usernameController.text = settings.username;
         _portController.text = settings.port.toString();
         _pwController.text = settings.password;
+        if(_localStorageService.hasItem('screen')){
+          _screensController.text = _localStorageService.getItem('screen');
+        }
       });
 
       if (settings.ip.isNotEmpty) {
@@ -226,16 +241,12 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
 
   /// Checks and sets the connection status according to the form info.
   Future<void> _checkConnection() async {
-    _timer?.cancel();
 
     setState(() {
-      _timer = null;
       _loading = true;
-      _canceled = false;
     });
 
-    _setSSH();
-
+    SSHClient? _client;
     try {
       if (_ipController.text.isEmpty ||
           _usernameController.text.isEmpty ||
@@ -245,39 +256,42 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
         });
       }
 
-      final timer = Timer(const Duration(seconds: 5), () {
-        showSnackbar(context, 'Connection failed');
-
         setState(() {
           _loading = false;
-          _connected = false;
-          _canceled = true;
         });
-      });
-
-      setState(() {
-        _timer = timer;
-      });
-
-      final result = await _sshService.connect();
-      _timer?.cancel();
-
-      if (!_canceled) {
-        setState(() {
-          _connected = result == '';
-        });
-
-        if (result == '') {
+      final settings = _settingsService.getSettings();
+      try{
+        final socket = await SSHSocket.connect(settings.ip,settings.port);
+        String? password;
+        _client = SSHClient(
+            socket,
+            username: settings.username,
+            onPasswordRequest: (){
+              password = settings.password;
+              return password;
+            },
+            keepAliveInterval: const Duration(seconds: 3600),
+            onAuthenticated: (){
+              setState(() {
+                isAuthenticated=true;
+              });
+            }
+        );
+      }catch(e){
+        print(e);
+      }
+        if (isAuthenticated) {
+          setState(() {
+            _connected=true;
+          });
+          _localStorageService.setItem('lgConnected', "connected");
           await _lgService.setLogos();
+        }else{
+          showSnackbar(context, 'Connection failed');
+          _localStorageService.setItem('lgConnected', "not");
         }
-      }
     } on Exception catch (e) {
-      print('$e');
-      if (!_canceled) {
-        setState(() {
-          _connected = false;
-        });
-      }
+      print('error: $e');
     } catch (e) {
       print('$e');
     } finally {
@@ -285,16 +299,6 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
         _loading = false;
       });
     }
-  }
-
-  /// Sets the SSH client info based into the form.
-  void _setSSH() {
-    _sshService.setClient(SSHEntity(
-      host: _ipController.text,
-      passwordOrKey: _pwController.text,
-      port: int.parse(_portController.text),
-      username: _usernameController.text,
-    ));
   }
 
   /// Connects to the a machine according to the form info.

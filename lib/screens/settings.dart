@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/lg_settings.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/services/local_storage_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/snackbar.dart';
 
@@ -21,8 +22,8 @@ class _SettingsState extends State<Settings> {
   bool val = false, tools=false, lgConnected=false;
   bool _settingRefresh = false, _resetingRefresh = false, _clearingKml = false, _rebooting = false, _relaunching = false, _shuttingDown = false;
 
-  SSHService get _sshService => GetIt.I<SSHService>();
   LGService get _lgService => GetIt.I<LGService>();
+  LocalStorageService get _localStorageService => GetIt.I<LocalStorageService>();
 
   @override
   void initState() {
@@ -38,16 +39,12 @@ class _SettingsState extends State<Settings> {
   }
 
   Future<void> checkLGConnection() async{
-    final result = await _sshService.connect();
-    if (result != 'session_connected'){
-      setState(() {
-        lgConnected=false;
-      });
-    }
-    else{
-      setState(() {
-        lgConnected=true;
-      });
+    if(_localStorageService.hasItem('lgConnected')){
+      if(_localStorageService.getItem('lgConnected')=="connected"){
+        setState(() {
+          lgConnected=true;
+        });
+      }
     }
   }
 

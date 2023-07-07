@@ -42,7 +42,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   SatelliteService get _satelliteService => GetIt.I<SatelliteService>();
   LGService get _lgService => GetIt.I<LGService>();
-  SSHService get _sshService => GetIt.I<SSHService>();
   LocalStorageService get _localStorageService => GetIt.I<LocalStorageService>();
 
   bool tleExists = false, lgConnected=false, _satelliteBalloonVisible = true,_viewingLG=false,_orbit=false, _simulate=false, websiteDialog=true,checkbox=false;
@@ -58,7 +57,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   bool get isConnected => _connection != null && _connection!.isConnected;
   BluetoothDevice? _device;
   int? _deviceState;
-  bool isDisconnecting = false,_btConnected=false;
+  bool isDisconnecting = false,_btConnected=false,_btDataSent=false;
   bool _isButtonUnavailable = false;
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   String location='',latitude='',longitude='',altitude='';
@@ -66,8 +65,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   @override
   void initState() {
-    _determinePosition();
     checkLGConnection();
+    _determinePosition();
     checkWebsiteDialog();
     super.initState();
   }
@@ -291,17 +290,14 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     });
   }
 
-  Future<void> checkLGConnection() async{
-    final result = await _sshService.connect();
-    if (result == 'connected'){
-      setState(() {
-        lgConnected=true;
-      });
-    }
-    else{
-      setState(() {
-        lgConnected=false;
-      });
+  void checkLGConnection() {
+    if(_localStorageService.hasItem('lgConnected')){
+      print("hi"+_localStorageService.getItem('lgConnected'));
+      if(_localStorageService.getItem('lgConnected')=="connected"){
+        setState(() {
+          lgConnected=true;
+        });
+      }
     }
   }
 
@@ -935,9 +931,10 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             child: ElevatedButton(
                 onPressed: (){
                   send(tle);
-                  Navigator.pop(context);
+                  setState(() {
+                    _btDataSent=true;
+                  });
                   _receiveData();
-                  showSnackbar(context, 'Data sent.');
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),side: BorderSide(color: ThemeColors.primaryColor))
@@ -951,6 +948,17 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                   ],
                 )
             ),
+          ) :
+          const SizedBox(),
+          _btDataSent ?
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 25),
+              Text('Data Sent'),
+              const SizedBox(height: 5,),
+              Text(btReceived)
+            ],
           ) :
           const SizedBox(),
           const SizedBox(height: 100,),
