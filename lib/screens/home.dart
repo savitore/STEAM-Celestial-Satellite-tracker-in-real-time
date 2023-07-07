@@ -61,6 +61,7 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -198,7 +199,7 @@ class _HomeState extends State<Home> {
                                                       MaterialPageRoute(
                                                           builder: (context) => SatelliteInfo(satellites[index])));
                                                 },
-                                                child: _buildList(context, index, satellites[index]),
+                                                child: _buildList(context, satellites[index]),
                                               );
                                             }
                                         ),
@@ -260,7 +261,7 @@ class _HomeState extends State<Home> {
                                                       MaterialPageRoute(
                                                           builder: (context) => SatelliteInfo(searchedSatellites[index])));
                                                 },
-                                                child: _buildList(context, index, searchedSatellites[index]),
+                                                child: _buildList(context, searchedSatellites[index]),
                                               );
                                             }
                                         ),
@@ -308,7 +309,7 @@ class _HomeState extends State<Home> {
   }
 
 
-  Widget _buildList(BuildContext context, int index, SatelliteModel satellites){
+  Widget _buildList(BuildContext context, SatelliteModel satellites){
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(
