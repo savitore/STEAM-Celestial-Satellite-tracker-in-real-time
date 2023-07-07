@@ -292,7 +292,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   void checkLGConnection() {
     if(_localStorageService.hasItem('lgConnected')){
-      print("hi"+_localStorageService.getItem('lgConnected'));
       if(_localStorageService.getItem('lgConnected')=="connected"){
         setState(() {
           lgConnected=true;
@@ -1279,7 +1278,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               : null,
           updatePosition: updatePosition,
         );
-
         setState(() {
           _satellitePlacemark = placemark;
         });
@@ -1337,9 +1335,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           _viewingLG=true;
         });
       } on Exception catch (_) {
-        showSnackbar(context, 'Connection failed');
+        showSnackbar(context, 'Connection failed!');
       } catch (_) {
-        showSnackbar(context, 'Connection failed');
+        showSnackbar(context, 'Connection failed!!');
       }
 
     }

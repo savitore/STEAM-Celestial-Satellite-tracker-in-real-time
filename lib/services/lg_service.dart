@@ -24,7 +24,7 @@ class LGService {
 
   /// Property that defines the logo slave screen number according to the [screenAmount] property.
   int get logoScreen {
-
+    int screenAmount = int.parse(getScreenAmount()!);
     if (screenAmount == 1) {
       return 1;
     }
@@ -35,7 +35,7 @@ class LGService {
 
   /// Property that defines the balloon slave screen number according to the [screenAmount] property.
   int get balloonScreen {
-
+    int screenAmount = int.parse(getScreenAmount()!);
     if (screenAmount == 1) {
       return 1;
     }
@@ -67,7 +67,7 @@ class LGService {
   }
 
   /// Gets the Liquid Galaxy rig screen amount. Returns a [String] that represents the screen amount.
-  Future<String?> getScreenAmount() async {
+  String? getScreenAmount()  {
     String numberOfScreen = _localStorageService.getItem('screen');
     screenAmount = int.parse(numberOfScreen);
 
@@ -83,7 +83,7 @@ class LGService {
 
     for (var img in images) {
       final image = await _fileService.createImage(img['name']!, img['path']!);
-      await _sshService.upload(image,'');
+      await _sshService.upload(image,'image');
     }
 
     final kmlFile = await _fileService.createFile(fileName, kml.body);
