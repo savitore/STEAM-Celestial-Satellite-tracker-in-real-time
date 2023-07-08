@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:dartssh2/dartssh2.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/local_storage_service.dart';
@@ -22,7 +22,6 @@ class LGSettings extends StatefulWidget {
 class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
 
   bool show = false;
-  bool _connected = false;
   bool _loading = false,isAuthenticated=false;
 
   LGSettingsService get _settingsService => GetIt.I<LGSettingsService>();
@@ -159,6 +158,18 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                                 child: ElevatedButton(
                                   onPressed: (){
                                     _localStorageService.setItem('screen', _screensController.text.toString());
+                                    Timer(const Duration(seconds: 3), () async {
+                                      if (isAuthenticated) {
+                                        _localStorageService.setItem('lgConnected', "connected");
+                                        await _lgService.setLogos();
+                                      }else{
+                                        showSnackbar(context, 'Connection failed');
+                                        _localStorageService.setItem('lgConnected', "not");
+                                      }
+                                      setState(() {
+                                        _loading=false;
+                                      });
+                                    });
                                     _onConnect();
                                   },
                                   style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50)))),
@@ -191,7 +202,12 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
   }
 
   Widget _getConnection(){
-    return Text(_connected ? 'Connected' : 'Disconnected', style: TextStyle(color: _connected ? ThemeColors.success : ThemeColors.alert,fontSize: 24));
+    if(isAuthenticated){
+      setState(() {
+        _loading=false;
+      });
+    }
+    return Text(isAuthenticated ? 'Connected' : 'Disconnected', style: TextStyle(color: isAuthenticated ? ThemeColors.success : ThemeColors.alert,fontSize: 24));
   }
 
   Widget _getTitle(String title){
@@ -200,65 +216,48 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
 
   /// Initializes and sets the network connection form.
   void _initNetworkState() async {
-    try {
       final settings = _settingsService.getSettings();
 
       setState(() {
         _usernameController.text = settings.username;
         _portController.text = settings.port.toString();
         _pwController.text = settings.password;
+        _ipController.text = settings.ip;
         if(_localStorageService.hasItem('screen')){
           _screensController.text = _localStorageService.getItem('screen');
         }
       });
 
-      if (settings.ip.isNotEmpty) {
+      _onConnect();
+      Timer(const Duration(seconds: 3), () async {
+        if (isAuthenticated) {
+          _localStorageService.setItem('lgConnected', "connected");
+          await _lgService.setLogos();
+        }else{
+          showSnackbar(context, 'Connection failed');
+          _localStorageService.setItem('lgConnected', "not");
+        }
         setState(() {
-          _ipController.text = settings.ip;
+          _loading=false;
         });
-
-        _checkConnection();
-        return;
-      }
-
-      final ips = await NetworkInterface.list(type: InternetAddressType.IPv4);
-
-      if (ips.isEmpty || ips.first.addresses.isEmpty) {
-        return;
-      }
-
-      setState(() {
-        _ipController.text = ips.first.addresses.first.address;
       });
-
-      _checkConnection();
-    } on Exception {
-      setState(() {
-        _ipController.text = '';
-      });
-    }
   }
 
   /// Checks and sets the connection status according to the form info.
   Future<void> _checkConnection() async {
 
-    setState(() {
-      _loading = true;
-    });
-
     SSHClient? _client;
+
     try {
+
       if (_ipController.text.isEmpty ||
           _usernameController.text.isEmpty ||
-          _portController.text.isEmpty) {
-        return setState(() {
-          _loading = false;
-        });
+          _portController.text.isEmpty)
+      {
+        showSnackbar(context, 'Please enter all details');
       }
 
-        setState(() {
-          _loading = false;
-        });
+
       final settings = _settingsService.getSettings();
       try{
         final socket = await SSHSocket.connect(settings.ip,settings.port);
@@ -278,33 +277,28 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
             }
         );
       }catch(e){
-        print(e);
-      }
-        if (isAuthenticated) {
-          setState(() {
-            _connected=true;
-          });
-          _localStorageService.setItem('lgConnected', "connected");
-          await _lgService.setLogos();
-        }else{
-          showSnackbar(context, 'Connection failed');
-          _localStorageService.setItem('lgConnected', "not");
+        if (kDebugMode) {
+          print(e);
         }
+      }
+
     } on Exception catch (e) {
-      print('error: $e');
+      if (kDebugMode) {
+        print('error: $e');
+      }
     } catch (e) {
-      print('$e');
-    } finally {
-      setState(() {
-        _loading = false;
-      });
+      if (kDebugMode) {
+        print('$e');
+      }
     }
   }
 
   /// Connects to the a machine according to the form info.
   void _onConnect() async {
+
     setState(() {
-      _loading = true;
+      isAuthenticated=false;
+      _loading=true;
     });
 
     await _settingsService.setSettings(
@@ -316,10 +310,6 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
     );
 
     await _checkConnection();
-
-    setState(() {
-      _loading = false;
-    });
   }
 
 }
