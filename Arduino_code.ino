@@ -1,5 +1,6 @@
 #include <ArduinoP13.h>
 #include <Servo.h>
+#include <TimeLib.h>
 
 Servo elevation; 
 Servo azimuth;
@@ -9,12 +10,12 @@ String l2;
 String str;
 String str1;
 String read;
-int CurrentHour; 
-int CurrentMin; 
-int CurrentSec; 
-int CurrentDay; 
-int CurrentMonth; 
-int CurrentYear;
+int CurrentHour=16; 
+int CurrentMin=51; 
+int CurrentSec=5; 
+int CurrentDay=8; 
+int CurrentMonth=7; 
+int CurrentYear=2023;
 char acBuffer[20];
 const char  *pcMyName = "krishna";     // Observer name
 double dMyLAT;    
@@ -29,6 +30,7 @@ double dSatAZ   = 0; // Satellite azimuth<br&gt
 double dSatEL   = 0; // Satellite elevation 
 
 void setup() {
+  setTime(CurrentHour,CurrentMin,CurrentSec,CurrentDay,CurrentMonth,CurrentYear);
   elevation.attach(9); 
   azimuth.attach(10);
   elevation.write(epos);
@@ -109,17 +111,24 @@ void loop() {
       j++;
       part1 = strtok(NULL, delimiter1);
     }
-    read="yes";
-
-     
+     setTime(CurrentHour,CurrentMin,CurrentSec,CurrentDay,CurrentMonth,CurrentYear);//set the current time which we get from flutter app
+     read="done";
   }
-  if(read=="yes"){
-    char *tleName = l0.c_str();
+     if(read=="done"){
+
+     char *tleName = l0.c_str();
      char *tlel1 = l1.c_str();
      char *tlel2 = l2.c_str();
-
+     
+     //using time library to calcuate azimuth and elevation for ongoing time
+     int iYear    = year(); // Set start year  
+     int iMonth   = month(); // Set start month  
+     int iDay     = day();   // Set start day    
+     int iHour    = hour();  // Set start hour [ substract -6 from current time ]  
+     int iMinute  = minute(); // Set start minute   
+     int iSecond  = second(); // Set start second<br&gt 
       P13Sun Sun; // Create object for the sun   
-      P13DateTime MyTime(CurrentYear, CurrentMonth, CurrentDay, CurrentHour, CurrentMin, CurrentSec); // Set start time for the prediction  
+      P13DateTime MyTime(iYear, iMonth, iDay, iHour, iMinute, iSecond); // Set start time for the prediction  
       P13Observer MyQTH(pcMyName, dMyLAT, dMyLON, dMyALT);              // Set observer coordinates  
       P13Satellite MySAT(tleName, tlel1, tlel2);                        // Create ISS data from TLE
       MyTime.ascii(acBuffer);
@@ -131,9 +140,9 @@ void loop() {
       epos = (int)dSatEL; 
       apos = (int)dSatAZ;
       if (epos < 0) {
-        Serial.write("Out of range, Can't view satellite.");
+        // Serial.write("Out of range, Can't view satellite.");
       } else {
-        Serial.write("In range, Satellite can be viewed.");  
+        // Serial.write("In range, Satellite can be viewed.");  
         if(apos < 180) {  
           apos = abs(180 - (apos)); 
           epos = 180-epos; 
@@ -148,17 +157,14 @@ void loop() {
     Serial.println(l0);
     Serial.println(l1);
     Serial.println(l2);
-    Serial.println(CurrentYear);
-    Serial.println(CurrentMonth);
-    Serial.println(CurrentDay);
-    Serial.println(CurrentHour);
-    Serial.println(CurrentMin);
-    Serial.println(CurrentSec);
     Serial.println(dMyLAT);
     Serial.println(dMyLON);
     Serial.println(dMyALT);
+    Serial.println(dSatEL);
+    Serial.println(dSatAZ);
     Serial.println(apos);
     Serial.println(epos);
-  }
+     }
+    
 }
 
