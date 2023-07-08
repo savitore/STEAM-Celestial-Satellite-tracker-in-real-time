@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -97,9 +98,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     DateTime now = DateTime.now();
     DateTime date = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
       TLE = "$TLE,${date.year},${date.month},${date.day},${date.hour},${date.minute},${date.second}";
-      // checkDevice();
       TLE = "$TLE,$latitude,$longitude,$altitude";
-      print(TLE);
       return TLE;
   }
 
@@ -244,16 +243,16 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             _btConnected = true;
           });
 
-          _connection?.input?.listen(null).onDone(() {
-            if (isDisconnecting) {
-              print('Disconnecting locally!');
-            } else {
-              print('Disconnected remotely!');
-            }
-            if (this.mounted) {
+          // _connection?.input?.listen(null).onDone(() {
+          //   if (isDisconnecting) {
+          //     print('Disconnecting locally!');
+          //   } else {
+          //     print('Disconnected remotely!');
+          //   }
+            if (mounted) {
               setState(() {});
             }
-          });
+          // });
         }).catchError((error) {
           print('Cannot connect, exception occurred');
           print(error);
@@ -283,11 +282,16 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
   void _receiveData(){
-    _connection?.input?.listen((Uint8List data) {
-      //Data entry point
-      print(ascii.decode(data));
-      btReceived=ascii.decode(data);
-    });
+    if(_btConnected)
+      {
+        _connection?.input?.listen((Uint8List data) {
+          //Data entry point
+          print('hi '+utf8.decode(data));
+          setState(() {
+            btReceived=utf8.decode(data);
+          });
+        });
+      }
   }
 
   void checkLGConnection() {
@@ -730,7 +734,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       context: context,
                       builder: (_context) => StatefulBuilder(
                           builder: (BuildContext _context, StateSetter _setState){
-                            return BTConnection(context,_setState,TLE);
+                            String tle=btInit(TLE);
+                            return BTConnection(context,_setState,tle);
                           }),
                       isScrollControlled: true,
                     );
@@ -804,8 +809,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     const SizedBox();
   }
 
-  Widget BTConnection(BuildContext context, StateSetter _setState, String TLE){
-    String tle=btInit(TLE);
+  Widget BTConnection(BuildContext context, StateSetter _setState, String tle){
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Column(
@@ -914,6 +918,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       : _btConnected ? _disconnect :
                       (){
                     _connect();
+                    // Timer(const Duration(milliseconds: 500), () {
+                    //   _receiveData();
+                    // });
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
@@ -933,7 +940,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                   setState(() {
                     _btDataSent=true;
                   });
-                  _receiveData();
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),side: BorderSide(color: ThemeColors.primaryColor))
@@ -955,7 +961,16 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             children: [
               const SizedBox(height: 25),
               Text('Data Sent'),
-              const SizedBox(height: 5,),
+              const SizedBox(height: 5),
+              btReceived!='' ? Row(
+                children: [
+                  CircularProgressIndicator(color: ThemeColors.primaryColor,),
+                  SizedBox(width: 5,),
+                  Text('Waiting for response')
+                ],
+              ) :
+              const SizedBox(),
+              const SizedBox(height: 10),
               Text(btReceived)
             ],
           ) :
