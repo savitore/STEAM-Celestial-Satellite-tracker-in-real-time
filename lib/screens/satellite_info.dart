@@ -26,7 +26,6 @@ import '../models/kml/look_at_entity.dart';
 import '../models/kml/placemark_entity.dart';
 import '../services/lg_service.dart';
 import '../services/satellite_service.dart';
-import '../services/ssh_service.dart';
 import '../utils/colors.dart';
 import '../widgets/date.dart';
 import '../widgets/shimmer.dart';
@@ -1343,7 +1342,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             heading: '0',
           ));
         }
-
         final orbit = _satelliteService.buildOrbit(satellite, tleModel);
         await _lgService.sendTour(orbit, 'Orbit');
         setState(() {

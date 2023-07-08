@@ -138,6 +138,7 @@ class About extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Container(
+                      width: 300,
                       alignment: Alignment.center,
                       child: const Image(
                           image: AssetImage('assets/logo.png')),
@@ -287,13 +288,13 @@ class About extends StatelessWidget {
                     const SizedBox(height: 32),
                     const SizedBox(
                       width: double.maxFinite,
-                      child: Image(image: AssetImage('assets/mainLogo.jpg')),
+                      child: Image(image: AssetImage('assets/aLogo.jpg')),
                     ),
                     const SizedBox(height: 32),
                     _buildSectionTitle('Project description'),
                     _buildDescriptionParagraph(
                         'This project represents the orbit of a satellite orbiting earth on a Liquid Galaxy rig and an Arduino-controlled pointer through a mobile application.'),
-                    _buildDescriptionParagraph('The direction of the satellite can be viewed with the help of Arduino controlled pointer.'),
+                    _buildDescriptionParagraph('To view the direction of satellite on a 3D model, upload the code from my GitHub to Arduino and connect components as mentioned.'),
                     _buildDescriptionParagraph(
                         'The data is visible into the Google Earth (running on the Liquid Galaxy rig) as placemarks, polygons, balloons and more.'),
                     _buildDescriptionParagraph(
@@ -323,13 +324,11 @@ class About extends StatelessWidget {
   /// Builds a [Widget] that will be used to render a paragraph according to the
   /// given [text].
   Widget _buildDescriptionParagraph(String text) {
-    const tab = '        ';
-
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Text(
-        '$tab$text',
-        textAlign: TextAlign.justify,
+        text,
+        textAlign: TextAlign.start,
         style: TextStyle(
           color: ThemeColors.textSecondary,
           fontSize: 18,

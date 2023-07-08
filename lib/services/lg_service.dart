@@ -20,7 +20,7 @@ class LGService {
 
 
   /// Property that defines the slave screen number that has the logos. Defaults to `5`.
-  int screenAmount = 5;
+  int screenAmount = 3;
 
   /// Property that defines the logo slave screen number according to the [screenAmount] property.
   int get logoScreen {
@@ -45,7 +45,7 @@ class LGService {
   }
 
   /// Sets the logos KML into the Liquid Galaxy rig.
-  Future<void> setLogos({String name = 'SVT-logos', String content = '<name>Logos</name>'}) async {
+  Future<void> setLogos({String name = 'SCST-logos', String content = '<name>Logos</name>'}) async {
     final screenOverlay = ScreenOverlayEntity.logos();
 
     final kml = KMLEntity(
@@ -55,11 +55,6 @@ class LGService {
     );
 
     try {
-      final result = await getScreenAmount();
-      if (result != null) {
-        screenAmount = int.parse(result);
-      }
-
       await sendKMLToSlave(logoScreen, kml.body);
     } catch (e) {
       print(e);
@@ -117,12 +112,15 @@ class LGService {
   /// Sends a KML [content] to the given slave [screen].
   Future<void> sendKMLToSlave(int screen, String content) async {
     try {
+      print('inside try');
       await _sshService
           .execute("echo '$content' > /var/www/html/kml/slave_$screen.kml");
+      print('after execute');
     } catch (e) {
       // ignore: avoid_print
       print(e);
     }
+    print('after try');
   }
 
   /// Puts the given [content] into the `/tmp/query.txt` file.
