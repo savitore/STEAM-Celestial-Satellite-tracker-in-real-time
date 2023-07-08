@@ -1,4 +1,4 @@
-#include <AioP13.h>
+#include <ArduinoP13.h>
 #include <Servo.h>
 
 Servo elevation; 
@@ -8,12 +8,14 @@ String l1;
 String l2;
 String str;
 String str1;
+String read;
 int CurrentHour; 
 int CurrentMin; 
 int CurrentSec; 
 int CurrentDay; 
 int CurrentMonth; 
 int CurrentYear;
+char acBuffer[20];
 const char  *pcMyName = "krishna";     // Observer name
 double dMyLAT;    
 double dMyLON;    
@@ -32,7 +34,7 @@ void setup() {
   elevation.write(epos);
   azimuth.write(apos);
   Serial.begin(9600); //default baud rate for bt 38400
-  delay(100); 
+  delay(5000); 
 }
 
 void loop() {
@@ -107,8 +109,12 @@ void loop() {
       j++;
       part1 = strtok(NULL, delimiter1);
     }
+    read="yes";
 
-     char *tleName = l0.c_str();
+     
+  }
+  if(read=="yes"){
+    char *tleName = l0.c_str();
      char *tlel1 = l1.c_str();
      char *tlel2 = l2.c_str();
 
@@ -116,6 +122,7 @@ void loop() {
       P13DateTime MyTime(CurrentYear, CurrentMonth, CurrentDay, CurrentHour, CurrentMin, CurrentSec); // Set start time for the prediction  
       P13Observer MyQTH(pcMyName, dMyLAT, dMyLON, dMyALT);              // Set observer coordinates  
       P13Satellite MySAT(tleName, tlel1, tlel2);                        // Create ISS data from TLE
+      MyTime.ascii(acBuffer);
       MySAT.predict(MyTime);              // Predict ISS for specific time  
       MySAT.latlon(dSatLAT, dSatLON);     // Get the rectangular coordinates  
       MySAT.elaz(MyQTH, dSatEL, dSatAZ);  // Get azimut and elevation for MyQTH
