@@ -138,7 +138,7 @@ class About extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Container(
-                      width: 300,
+                      width: 400,
                       alignment: Alignment.center,
                       child: const Image(
                           image: AssetImage('assets/logo.png')),

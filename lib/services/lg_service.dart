@@ -112,15 +112,12 @@ class LGService {
   /// Sends a KML [content] to the given slave [screen].
   Future<void> sendKMLToSlave(int screen, String content) async {
     try {
-      print('inside try');
       await _sshService
           .execute("echo '$content' > /var/www/html/kml/slave_$screen.kml");
-      print('after execute');
     } catch (e) {
       // ignore: avoid_print
       print(e);
     }
-    print('after try');
   }
 
   /// Puts the given [content] into the `/tmp/query.txt` file.

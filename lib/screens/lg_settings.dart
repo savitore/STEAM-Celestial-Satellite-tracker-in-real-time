@@ -144,9 +144,6 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                             keyboardType: TextInputType.number,
                             textInputAction: TextInputAction.done,
                             maxLines: 1,
-                            decoration: const InputDecoration(
-                              hintText: '1 or 3 or 5',
-                            ),
                           ),
                           const SizedBox(height: 50,),
                           Row(
