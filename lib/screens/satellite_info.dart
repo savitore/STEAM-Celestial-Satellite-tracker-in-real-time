@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +14,7 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_i
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/screens/compass.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/zoomed_screen.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/local_storage_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/snackbar.dart';
@@ -144,12 +144,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       longitude=position.longitude.toString();
       altitude=position.altitude.toString();
     });
-  }
-
-  void checkDevice() async{
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    print(androidInfo.device+" "+androidInfo.version.toString()+" "+androidInfo.id+" "+androidInfo.product+" "+androidInfo.board);
   }
 
   @override
@@ -413,7 +407,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                           _buildTitle('Operator', widget.satelliteModel.operator.toString()),
                           _buildWebsite('Website', widget.satelliteModel.website.toString()),
                           _buildTLE(state.tle),
-                          _buildDate('Updated', widget.satelliteModel.updated.toString())
+                          _buildDate('Updated', widget.satelliteModel.updated.toString()),
                         ],
                       ),
                     ),
@@ -959,16 +953,28 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 25),
-              Text('Data Sent'),
-              const SizedBox(height: 5),
-              btReceived!='' ? Row(
-                children: [
-                  CircularProgressIndicator(color: ThemeColors.primaryColor,),
-                  SizedBox(width: 5,),
-                  Text('Waiting for response')
-                ],
-              ) :
-              const SizedBox(),
+              Text('Data Sent',style: TextStyle(color: ThemeColors.textPrimary),),
+              const SizedBox(height: 10),
+              Text('To view the correct direction of the satellite, please align the 3D model to 0°N',style: TextStyle(color: ThemeColors.textSecondary),),
+              const SizedBox(height: 10,),
+              ElevatedButton(
+                  onPressed: (){
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Compass()));
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),side: BorderSide(color: ThemeColors.primaryColor))),
+                  child: const Text('Open Compass')
+              ),
+              // btReceived!='' ? Row(
+              //   children: [
+              //     CircularProgressIndicator(color: ThemeColors.primaryColor,),
+              //     SizedBox(width: 5,),
+              //     Text('Waiting for response')
+              //   ],
+              // ) :
+              // const SizedBox(),
               const SizedBox(height: 10),
               Text(btReceived)
             ],
@@ -1013,6 +1019,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       ),
     );
   }
+
 
   Widget _buildVisualisingInLG(){
     return _viewingLG ?
