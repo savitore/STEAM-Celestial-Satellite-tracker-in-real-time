@@ -350,7 +350,7 @@ class _HomeState extends State<Home> {
             Container()
                 : Padding(
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: Text('${checkLaunch(satellites.launched!)}  -  ${parseDateString(satellites.launched!)}',overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 18,color: ThemeColors.textPrimary)),
+                  child: Text('${checkLaunch(satellites.launched!)}  -  ${parseDateString(satellites.launched!)}',overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 18,color: ThemeColors.textSecondary)),
             ),
             const SizedBox(height: 15,),
             Text('# ${satellites.satId}',overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 18,color: ThemeColors.textPrimary)),
