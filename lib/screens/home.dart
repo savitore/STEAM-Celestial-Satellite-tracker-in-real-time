@@ -52,6 +52,7 @@ class _HomeState extends State<Home> {
         FocusScope.of(context).unfocus();
       }
     });
+    _dropDownOperators();
   }
 
   @override
@@ -80,7 +81,7 @@ class _HomeState extends State<Home> {
                 foregroundColor: ThemeColors.textPrimary,
                 backgroundColor: ThemeColors.backgroundCardColor,
                 elevation: 0,
-                title: const Text('STEAM Celestial Satellite tracker',style: TextStyle(fontWeight: FontWeight.bold),),
+                title: const Text('STEAM Celestial Satellite tracker in real time',style: TextStyle(fontWeight: FontWeight.bold),),
                 actions: [
                   IconButton(
                       onPressed: (){},
@@ -154,7 +155,6 @@ class _HomeState extends State<Home> {
             );
           }
           else if(state is SatelliteLoadedState){
-            _dropDownOperators();
             List<SatelliteModel> satellites = state.satellites;
             double textWidth = _textWidth('${satellites.length} SATELLITES', TextStyle(fontSize: 20,color: ThemeColors.textPrimary));
             return Scaffold(
@@ -329,7 +329,7 @@ class _HomeState extends State<Home> {
                   child: Text(
                     satellites.name.toString(),
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 18),
+                    style: const TextStyle(fontWeight: FontWeight.w500,fontSize: 22),
                   ),
                 ),
                 Flexible(
@@ -337,7 +337,8 @@ class _HomeState extends State<Home> {
                     satellites.status!.toUpperCase(),
                     style: TextStyle(
                         color: _getStatusColor(satellites.status.toString(),),
-                        fontWeight: FontWeight.bold
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -349,25 +350,26 @@ class _HomeState extends State<Home> {
             Container()
                 : Padding(
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: Text('${checkLaunch(satellites.launched!)}  -  ${parseDateString(satellites.launched!)}',overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 15,color: ThemeColors.textPrimary)),
+                  child: Text('${checkLaunch(satellites.launched!)}  -  ${parseDateString(satellites.launched!)}',overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 18,color: ThemeColors.textPrimary)),
             ),
-            satellites.deployed.toString().isEmpty || satellites.deployed.toString() == 'null' ?
-            Container()
-                : Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: Text('Deployed  -  ${parseDateString(satellites.deployed!)}',overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 15,color: ThemeColors.textPrimary)),
-            ),
-            satellites.decayed.toString().isEmpty || satellites.decayed.toString() == 'null' ?
-            Container()
-                : Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: Text('Decayed  -  ${parseDateString(satellites.decayed!)}',overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 15,color: ThemeColors.textPrimary)),
-            ),
-            satellites.noradCatId.toString() == 'null'
-                ? const SizedBox()
-                : Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                  child: Text(satellites.noradCatId.toString(),style: TextStyle(color: ThemeColors.primaryColor,fontWeight: FontWeight.bold,fontSize: 18),overflow: TextOverflow.visible,),
+            const SizedBox(height: 15,),
+            Text('# ${satellites.satId}',overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 18,color: ThemeColors.textPrimary)),
+            const SizedBox(height: 20,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                satellites.noradCatId.toString() == 'null'
+                    ? const SizedBox()
+                    : Text(satellites.noradCatId.toString(),style: TextStyle(color: ThemeColors.primaryColor,fontWeight: FontWeight.bold,fontSize: 20),overflow: TextOverflow.visible,),
+                satellites.countries.toString() == 'null' || satellites.countries.toString().isEmpty
+                   ? const SizedBox()
+                   : Row(
+                    children: [
+                      Icon(Icons.outlined_flag_rounded,color: ThemeColors.textPrimary,),
+                      Text(' ${satellites.countries}',style: TextStyle(fontSize: 20,color: ThemeColors.textPrimary),overflow: TextOverflow.ellipsis,)
+                   ],
+                )
+              ],
             ),
           ],
         ),
@@ -407,27 +409,23 @@ class _HomeState extends State<Home> {
       foregroundColor: ThemeColors.textPrimary,
       backgroundColor: ThemeColors.backgroundCardColor,
       elevation: 0,
-      title: const Text('STEAM Celestial Satellite tracker',style: TextStyle(fontWeight: FontWeight.bold),),
+      title: const Text('STEAM Celestial Satellite tracker in real time',style: TextStyle(fontWeight: FontWeight.bold),),
       actions: [
-        IconButton(
-              icon: const Tooltip(
-                  message: 'Refresh',
-                  child: Icon(Icons.refresh_rounded)
-              ),
-              onPressed: (){
-                context.read<SatelliteCubit>().fetchData(refresh: true);
-                context.read<SatelliteCubit>().emit(SatelliteLoadingState());
-              },
-            ),
-        IconButton(
-              icon: const Tooltip(
-                  message: 'Settings',
-                  child: Icon(Icons.settings)
-              ),
-          onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const Settings()));
+        InkWell(
+          onTap: (){
+            context.read<SatelliteCubit>().fetchData(refresh: true);
+            context.read<SatelliteCubit>().emit(SatelliteLoadingState());
           },
+          child: Icon(Icons.refresh_rounded,color: ThemeColors.textPrimary,),
+        ),
+        const SizedBox(width: 5,),
+        IconButton(
+              icon: Icon(Icons.settings,color: ThemeColors.textPrimary,),
+              tooltip: 'Settings',
+              onPressed: () {
+                   Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => const Settings()));
+              },
         ),
         const SizedBox(width: 5)
       ],
@@ -464,16 +462,6 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                     ),
-                    // Text('|',style: TextStyle(fontSize: 30,color: ThemeColors.searchBarColor),),
-                    // Padding(
-                    //   padding: const EdgeInsets.symmetric(horizontal: 0),
-                    //   child: IconButton(
-                    //     icon: Icon(Icons.filter_list_rounded,color: filter ? ThemeColors.primaryColor : ThemeColors.searchBarColor),
-                    //     onPressed: (){
-                    //
-                    //     },
-                    //   ),
-                    // )
                   ],
                 ),
               ),

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +54,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
   List<BluetoothDevice> _devicesList = [];
   BluetoothConnection? _connection;
+
   // To track whether the device is still connected to Bluetooth
   bool get isConnected => _connection != null && _connection!.isConnected;
   BluetoothDevice? _device;
@@ -63,13 +65,29 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   String location='',latitude='',longitude='',altitude='';
   String btReceived='';
 
+  // static final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+  // Map<String, dynamic> _deviceData = <String, dynamic>{};
+
   @override
   void initState() {
     checkLGConnection();
     _determinePosition();
     checkWebsiteDialog();
+    getDeviceInfo();
     super.initState();
   }
+
+  void getDeviceInfo() async{
+    // var deviceData = <String, dynamic>{};
+
+    if(kIsWeb){
+
+    } else{
+
+    }
+    // print('data:'+ androidInfo.device+"/"+androidInfo.model);
+  }
+
 
   String btInit(String TLE){
     FlutterBluetoothSerial.instance.state.then((state) {
@@ -102,8 +120,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
   /// Determine the current position of the device.
-  /// When the location services are not enabled or permissions
-  /// are denied the `Future` will return an error.
   void _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -304,17 +320,12 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       home: BlocProvider(
         create: (context) => SatelliteInfoCubit(widget.satelliteModel.noradCatId.toString() !='null' ? widget.satelliteModel.noradCatId! : 0),
         child: Scaffold(
-          backgroundColor: ThemeColors.backgroundColor,
+          backgroundColor: ThemeColors.backgroundCardColor,
           appBar: AppBar(
-            backgroundColor: ThemeColors.primaryColor,
-            foregroundColor: ThemeColors.backgroundColor,
-            elevation: 3,
+            backgroundColor: Colors.transparent,
+            foregroundColor: ThemeColors.textPrimary,
+            elevation: 0,
             leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context); },),
-            title: Text(widget.satelliteModel.name.toString(),overflow: TextOverflow.ellipsis,),
-            actions: const [
-              Icon(Icons.satellite_alt),
-              SizedBox(width: 15),
-            ],
           ),
           body: SafeArea(
             child: BlocConsumer<SatelliteInfoCubit, SatelliteInfoState>(
@@ -390,6 +401,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Text(widget.satelliteModel.name.toString(),overflow: TextOverflow.visible,style: TextStyle(fontWeight: FontWeight.bold,color: ThemeColors.textPrimary,fontSize: 40),),
                           const SizedBox(height: 20,),
                           _buildSatelliteStatus(),
                           const SizedBox(height: 20),
@@ -769,6 +781,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       });
                     }
                     else {
+                      print('not');
                       viewSatellite(context, widget.satelliteModel,
                           _satelliteBalloonVisible);
                     }
@@ -911,9 +924,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       : _btConnected ? _disconnect :
                       (){
                     _connect();
-                    // Timer(const Duration(milliseconds: 500), () {
-                    //   _receiveData();
-                    // });
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
@@ -1289,6 +1299,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       try {
         final tleCoord = tleModel.read();
 
+
         final placemark = _satelliteService.buildPlacemark(
           satellite,
           tleModel,
@@ -1299,6 +1310,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               : null,
           updatePosition: updatePosition,
         );
+
         setState(() {
           _satellitePlacemark = placemark;
         });
@@ -1309,15 +1321,17 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           content: placemark.tag,
         );
 
-        await _lgService.sendKml(
-          kml,
-          images: [
-            {
-              'name': 'satellite.png',
-              'path': 'assets/satellite.png',
-            }
-          ],
-        );
+        print('a');
+        // await _lgService.sendKml(
+        //   kml,
+        //   images: [
+        //     {
+        //       'name': 'satellite.png',
+        //       'path': 'assets/satellite.png',
+        //     }
+        //   ],
+        // );
+        print('hi');
 
         if (_lgService.balloonScreen == _lgService.logoScreen) {
           await _lgService.setLogos(
@@ -1333,12 +1347,12 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             content: placemark.balloonOnlyTag,
           );
 
+          print('a');
           await _lgService.sendKMLToSlave(
             _lgService.balloonScreen,
             kmlBalloon.body,
           );
         }
-
         if (updatePosition) {
           await _lgService.flyTo(LookAtEntity(
             lat: tleCoord['lat']!,
@@ -1349,14 +1363,18 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             heading: '0',
           ));
         }
+        print('b');
         final orbit = _satelliteService.buildOrbit(satellite, tleModel);
         await _lgService.sendTour(orbit, 'Orbit');
+        print('b');
         setState(() {
           _viewingLG=true;
         });
+        print(_viewingLG);
       } on Exception catch (_) {
         showSnackbar(context, 'Connection failed!');
       } catch (_) {
+        print(_);
         showSnackbar(context, 'Connection failed!!');
       }
 

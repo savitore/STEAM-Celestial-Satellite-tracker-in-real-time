@@ -97,22 +97,15 @@ class About extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeColors.backgroundColor,
+      backgroundColor: ThemeColors.backgroundCardColor,
       appBar: AppBar(
-        backgroundColor: ThemeColors.primaryColor,
-        title: const Text('About'),
-        elevation: 2,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded),
+            icon: Icon(Icons.arrow_back_rounded,color: ThemeColors.textPrimary,),
             onPressed: () {
               Navigator.pop(context);
             }),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Icon(Icons.info_outline_rounded),
-          )
-        ],
       ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -130,7 +123,7 @@ class About extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: ThemeColors.textPrimary,
-                        fontSize: 32,
+                        fontSize: 40,
                         fontWeight: FontWeight.w600,
                         fontStyle: FontStyle.italic
                       ),
@@ -285,9 +278,8 @@ class About extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
                     const SizedBox(
-                      width: double.maxFinite,
+                      width: double.infinity,
                       child: Image(image: AssetImage('assets/aLogo.jpg')),
                     ),
                     const SizedBox(height: 32),

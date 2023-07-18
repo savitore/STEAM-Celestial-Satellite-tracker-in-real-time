@@ -6,7 +6,6 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/snackbar.dart';
 
 import '../services/lg_service.dart';
-import '../services/ssh_service.dart';
 import '../widgets/confirm_dialog.dart';
 import 'about.dart';
 
@@ -19,7 +18,7 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
 
-  bool val = false, tools=false, lgConnected=false;
+  bool tools=false, lgConnected=false;
   bool _settingRefresh = false, _resetingRefresh = false, _clearingKml = false, _rebooting = false, _relaunching = false, _shuttingDown = false;
 
   LGService get _lgService => GetIt.I<LGService>();
@@ -51,19 +50,22 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeColors.backgroundColor,
+      backgroundColor: ThemeColors.backgroundCardColor,
       appBar: AppBar(
-        elevation: 3,
-        title: const Text('Settings'),
-        backgroundColor: ThemeColors.primaryColor,
-        foregroundColor: ThemeColors.backgroundColor,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        foregroundColor: ThemeColors.textPrimary,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(5, 20, 0, 20),
+          padding: const EdgeInsets.fromLTRB(5, 0, 0, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(15, 0, 20, 20),
+                child: Text('Settings',overflow: TextOverflow.visible,style: TextStyle(fontWeight: FontWeight.bold,color: ThemeColors.textPrimary,fontSize: 40)),
+              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(15, 0, 20, 10),
                 child: _buildSection('INFO')
@@ -77,36 +79,21 @@ class _SettingsState extends State<Settings> {
                   trailing: const Icon(Icons.arrow_forward),
                   leading: _buildIcon(Icons.info_outline),
               ),
+              _divider(),
+              ListTile(
+                onTap: (){
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => About()));
+                },
+                title: _buildTitle('Help'),
+                trailing: const Icon(Icons.arrow_forward),
+                leading: _buildIcon(Icons.help_center_outlined),
+              ),
+              _divider(),
               Padding(
                 padding: const EdgeInsets.fromLTRB(15, 10, 20, 10),
                 child: _buildSection('APP SETTINGS')
               ),
-              ListTile(
-                leading: _buildIcon(Icons.dark_mode_outlined),
-                title: _buildTitle('Dark Mode'),
-                trailing: Switch(
-                  activeColor: ThemeColors.primaryColor,
-                  onChanged: (value){
-                    setState(() {
-                      val=value;
-                    });
-                  },
-                  value: val,
-                ),
-              ),
-              // _divider(),
-              // ListTile(
-              //     onTap: (){
-              //       Navigator.push(
-              //         context,
-              //           MaterialPageRoute(builder: (context)=> BTSettings())
-              //       );
-              //     },
-              //     title: _buildTitle('Bluetooth Connection'),
-              //     leading: _buildIcon(Icons.settings_bluetooth_outlined),
-              //     trailing: const Icon(Icons.arrow_forward,),
-              // ),
-              _divider(),
               ListTile(
                 onTap: (){
                   Navigator.push(

@@ -41,11 +41,6 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   void setState(fn) {
     if(mounted) {
       super.setState(fn);
@@ -55,6 +50,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: ThemeColors.backgroundCardColor,
           appBar: AppBar(
             leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
@@ -62,25 +58,25 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                   Navigator.pop(context);
                 },
             ),
-            title: const Text('LG Settings'),
-            foregroundColor: ThemeColors.backgroundColor,
-            elevation: 3,
-            backgroundColor: ThemeColors.primaryColor,
+            foregroundColor: ThemeColors.textPrimary,
+            elevation: 0,
+            backgroundColor: Colors.transparent,
           ),
-          backgroundColor: ThemeColors.backgroundColor,
           body: SingleChildScrollView(
             child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                     child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Text('LG Settings',overflow: TextOverflow.visible,style: TextStyle(fontWeight: FontWeight.bold,color: ThemeColors.textPrimary,fontSize: 40),),
+                          const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Status: ',style: TextStyle(fontSize: 24,color: ThemeColors.textPrimary),),
+                              Text('Status: ',style: TextStyle(fontSize: 30,color: ThemeColors.textPrimary),),
                               _getConnection()
                             ],
                           ),
@@ -204,7 +200,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
         _loading=false;
       });
     }
-    return Text(isAuthenticated ? 'Connected' : 'Disconnected', style: TextStyle(color: isAuthenticated ? ThemeColors.success : ThemeColors.alert,fontSize: 24));
+    return Text(isAuthenticated ? 'Connected' : 'Disconnected', style: TextStyle(color: isAuthenticated ? ThemeColors.success : ThemeColors.alert,fontSize: 30));
   }
 
   Widget _getTitle(String title){
