@@ -23,7 +23,7 @@
     </queries>
 
    <application
-        android:label="steam_celestial_satellite_tracker_in_real_time"
+        android:label="STEAM Celestial Satellite tracker"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:enableOnBackInvokedCallback="true">
