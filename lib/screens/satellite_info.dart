@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -701,7 +700,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               style: TextStyle(
                 color: statusData['color'],
                 fontSize: 22,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.5
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -728,7 +728,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              height: 45,
+              height: 60,
               width: MediaQuery.of(context).size.width*0.5-20,
               child: ElevatedButton(
                   onPressed: (){
@@ -758,15 +758,15 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset('assets/3d.png',width: 20,height: 20,color: ThemeColors.primaryColor,),
+                      Flexible(child: Image.asset('assets/3d.png',width: 28,height: 28,color: ThemeColors.primaryColor,)),
                       const SizedBox(width: 10),
-                      Text('VIEW IN 3D',style: TextStyle(color: ThemeColors.primaryColor),),
+                      Flexible(child: Text('VIEW IN 3D',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 20,letterSpacing: 1,overflow: TextOverflow.visible))),
                     ],
                   )
               ),
             ),
             SizedBox(
-              height: 45,
+              height: 60,
               width: MediaQuery.of(context).size.width*0.5-20,
               child: ElevatedButton(
                   onPressed: (){
@@ -781,7 +781,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       });
                     }
                     else {
-                      print('not');
                       viewSatellite(context, widget.satelliteModel,
                           _satelliteBalloonVisible);
                     }
@@ -800,9 +799,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.travel_explore_rounded,color: _viewingLG  ? ThemeColors.backgroundColor : ThemeColors.primaryColor,),
+                      Flexible(child: Icon(Icons.travel_explore_rounded,color: _viewingLG  ? ThemeColors.backgroundColor : ThemeColors.primaryColor,size: 26,)),
                       const SizedBox(width: 10),
-                      Text(_viewingLG ? 'STOP VIEWING' : 'VIEW IN LG',),
+                      Flexible(child: Text(_viewingLG ? 'STOP VIEWING' : 'VIEW IN LG',style: const TextStyle(fontSize: 20,letterSpacing: 1),overflow: TextOverflow.visible,)),
                     ],
                   )
               ),

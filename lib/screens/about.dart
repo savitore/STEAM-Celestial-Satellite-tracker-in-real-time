@@ -96,6 +96,7 @@ class About extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: ThemeColors.backgroundCardColor,
       appBar: AppBar(
@@ -124,28 +125,38 @@ class About extends StatelessWidget {
                       style: TextStyle(
                         color: ThemeColors.textPrimary,
                         fontSize: 40,
-                        fontWeight: FontWeight.w600,
-                        fontStyle: FontStyle.italic
+                        fontWeight: FontWeight.bold,
                       ),
                       overflow: TextOverflow.visible,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 32),
                     Container(
-                      width: 400,
+                      width: 600,
                       alignment: Alignment.center,
                       child: const Image(
                           image: AssetImage('assets/logo.png')),
                     ),
                     const SizedBox(height: 32),
-                    _buildSectionTitle('Author'),
-                    Text(
-                      'Krishna Agrawal',
-                      style: TextStyle(
-                        color: ThemeColors.textPrimary,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.visible,
+                    RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                            text: 'Author - ',
+                            style: TextStyle(
+                              color: ThemeColors.primaryColor,
+                              fontSize: 25,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Krishna Agrawal',
+                                style: TextStyle(
+                                  color: ThemeColors.textPrimary,
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            ]
+                        )
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -190,27 +201,49 @@ class About extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 32),
-                    _buildSectionTitle('Mentors'),
-                    ..._mentors
-                        .map(
-                          (mentor) => Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            mentor,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: ThemeColors.textPrimary,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                    RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          text: 'Mentors - ',
+                          style: TextStyle(
+                            color: ThemeColors.primaryColor,
+                            fontSize: 25,
+                            fontWeight: FontWeight.w500,
                           ),
-                        ],
-                      ),
-                    )
-                        .toList(),
+                          children: [
+                            TextSpan(
+                              text: '${_mentors[0]}, ${_mentors[1]}',
+                              style: TextStyle(
+                                color: ThemeColors.textPrimary,
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          ]
+                        )
+                    ),
                     const SizedBox(height: 32),
-                    _buildSectionTitle('Organization Contact/Social'),
+                    RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                            text: 'Organization - ',
+                            style: TextStyle(
+                              color: ThemeColors.primaryColor,
+                              fontSize: 25,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Liquid Galaxy',
+                                style: TextStyle(
+                                  color: ThemeColors.textPrimary,
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            ]
+                        )
+                    ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -278,19 +311,37 @@ class About extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 50),
                     const SizedBox(
                       width: double.infinity,
-                      child: Image(image: AssetImage('assets/aLogo.jpg')),
+                      child: Image(image: AssetImage('assets/aLogo.png')),
                     ),
-                    const SizedBox(height: 32),
-                    _buildSectionTitle('Project description'),
-                    _buildDescriptionParagraph(
-                        'This project represents the orbit of a satellite orbiting earth on a Liquid Galaxy rig and an Arduino-controlled pointer through a mobile application.'),
-                    _buildDescriptionParagraph('To view the direction of satellite on a 3D model, upload the code from my GitHub to Arduino and connect components as mentioned.'),
-                    _buildDescriptionParagraph(
-                        'The data is visible into the Google Earth (running on the Liquid Galaxy rig) as placemarks, polygons, balloons and more.'),
-                    _buildDescriptionParagraph(
-                        'It\'s possible to search, filter and sort satellites, synchronize the data between the application and the database, run some of the Liquid Galaxy system commands/tasks, check the orbit of satellites, play orbit tours and more.'),
+                    const SizedBox(height: 40),
+                    Text(
+                      'Project description',
+                      style: TextStyle(
+                      color: ThemeColors.primaryColor,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 20, 30, 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDescriptionParagraph(
+                              '◼️  This project represents the orbit of a satellite orbiting earth on a Liquid Galaxy rig and an Arduino-controlled pointer through a mobile application.'),
+                          const SizedBox(height: 10,),
+                          _buildDescriptionParagraph('◼️  To view the direction of satellite on a 3D model, upload the code from my GitHub to Arduino and connect components as mentioned.'),
+                          const SizedBox(height: 10,),
+                          _buildDescriptionParagraph(
+                              '◼️  The data is visible into the Google Earth (running on the Liquid Galaxy rig) as placemarks, polygons, balloons and more.'),
+                          const SizedBox(height: 10,),
+                          _buildDescriptionParagraph(
+                              '◼️  It\'s possible to search, filter and sort satellites, synchronize the data between the application and the database, run some of the Liquid Galaxy system commands/tasks, check the orbit of satellites, play orbit tours and more.'),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -301,32 +352,17 @@ class About extends StatelessWidget {
     );
   }
 
-  /// Builds a [Text] that will be used to show the section [title].
-  Text _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        color: ThemeColors.secondaryColor,
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-      ),
-    );
-  }
-
   /// Builds a [Widget] that will be used to render a paragraph according to the
   /// given [text].
   Widget _buildDescriptionParagraph(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Text(
-        text,
-        textAlign: TextAlign.start,
-        style: TextStyle(
-          color: ThemeColors.textSecondary,
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-        ),
+    return Text(
+      text,
+      style: TextStyle(
+        color: ThemeColors.textPrimary,
+        fontSize: 20,
+        fontWeight: FontWeight.normal,
       ),
+      overflow: TextOverflow.visible,
     );
   }
   }

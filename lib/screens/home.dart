@@ -363,12 +363,13 @@ class _HomeState extends State<Home> {
                     : Text(satellites.noradCatId.toString(),style: TextStyle(color: ThemeColors.primaryColor,fontWeight: FontWeight.bold,fontSize: 20),overflow: TextOverflow.visible,),
                 satellites.countries.toString() == 'null' || satellites.countries.toString().isEmpty
                    ? const SizedBox()
-                   : Row(
-                    children: [
-                      Icon(Icons.outlined_flag_rounded,color: ThemeColors.textPrimary,),
-                      Text(' ${satellites.countries}',style: TextStyle(fontSize: 20,color: ThemeColors.textPrimary),overflow: TextOverflow.ellipsis,)
+                   : MediaQuery.of(context).size.width >= 500 ?
+                       Row(
+                         children: [
+                           Icon(Icons.outlined_flag_rounded,color: ThemeColors.textPrimary,),
+                           Text(' ${satellites.countries}',style: TextStyle(fontSize: 20,color: ThemeColors.textPrimary),overflow: TextOverflow.ellipsis,)
                    ],
-                )
+                ) : const SizedBox()
               ],
             ),
           ],

@@ -80,16 +80,17 @@ class _SettingsState extends State<Settings> {
                   leading: _buildIcon(Icons.info_outline),
               ),
               _divider(),
-              ListTile(
-                onTap: (){
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => About()));
-                },
-                title: _buildTitle('Help'),
-                trailing: const Icon(Icons.arrow_forward),
-                leading: _buildIcon(Icons.help_center_outlined),
-              ),
-              _divider(),
+              // ListTile(
+              //   onTap: (){
+              //     Navigator.push(context,
+              //         MaterialPageRoute(builder: (context) => Help()));
+              //   },
+              //   title: _buildTitle('Help'),
+              //   trailing: const Icon(Icons.arrow_forward),
+              //   leading: _buildIcon(Icons.help_center_outlined),
+              // ),
+              // _divider(),
+              const SizedBox(height: 10,),
               Padding(
                 padding: const EdgeInsets.fromLTRB(15, 10, 20, 10),
                 child: _buildSection('APP SETTINGS')
@@ -112,7 +113,7 @@ class _SettingsState extends State<Settings> {
                     tools=!tools;
                   });
                 },
-                title: Text('LG Tools',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20,fontWeight: tools ? FontWeight.bold : FontWeight.normal),overflow: TextOverflow.visible,),
+                title: Text('LG Tools',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 25,fontWeight: tools ? FontWeight.bold : FontWeight.normal),overflow: TextOverflow.visible,),
                 leading: _buildIcon(Icons.settings_input_antenna),
                 trailing: tools ?
                      Icon(Icons.keyboard_arrow_up,color: ThemeColors.primaryColor,) :
@@ -126,13 +127,13 @@ class _SettingsState extends State<Settings> {
     );
   }
   Widget _buildTitle(String title){
-    return Text(title,style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,);
+    return Text(title,style: TextStyle(color: ThemeColors.textPrimary,fontSize: 25),overflow: TextOverflow.visible,);
   }
   Widget _buildIcon(IconData iconData){
-    return Icon(iconData,size: 20,color: ThemeColors.primaryColor,);
+    return Icon(iconData,size: 25,color: ThemeColors.primaryColor,);
   }
   Widget _buildSection(String title){
-    return Text(title,style: TextStyle(color: ThemeColors.secondaryColor,fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis),);
+    return Text(title,style: TextStyle(color: ThemeColors.secondaryColor,fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis,fontSize: 18),);
   }
   Widget _divider(){
     return Container(
