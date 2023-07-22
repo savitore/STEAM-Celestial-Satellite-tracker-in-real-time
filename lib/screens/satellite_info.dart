@@ -1305,7 +1305,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         return {
           'icon': Icons.check_circle_rounded,
           'title': 'Operational',
-          'description': 'Satellite is in orbit and operational',
+          'description': 'Satellite is in orbit.',
           'color': ThemeColors.success,
         };
       case 're-entered':

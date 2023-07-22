@@ -1,11 +1,9 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../repositories/satellite_info_repository.dart';
-import '../services/ssh_service.dart';
 
 class SatelliteInfoCubit extends Cubit<SatelliteInfoState>{
   int norad;

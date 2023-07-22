@@ -7,7 +7,6 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/services/lg_setti
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/local_storage_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/satellite_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/ssh_service.dart';
-import 'screens/home.dart';
 
 /// Registers all services into the application.
 void setupServices() {
