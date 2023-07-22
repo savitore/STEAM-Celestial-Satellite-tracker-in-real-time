@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
+import 'package:location/location.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
@@ -122,54 +123,80 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   /// Determine the current position of the device.
   void _determinePosition() async {
-    print('h');
-    bool serviceEnabled;
-    LocationPermission permission;
+    // bool serviceEnabled;
+    // LocationPermission permission;
+    //
+    // // Test if location services are enabled.
+    // serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    // if (!serviceEnabled) {
+    //   location='Location services are disabled.';
+    //   // Location services are not enabled don't continue
+    //   // accessing the position and request users of the
+    //   // App to enable the location services.
+    // }
+    //
+    // permission = await Geolocator.checkPermission();
+    // if (permission == LocationPermission.denied) {
+    //   permission = await Geolocator.requestPermission();
+    //   if (permission == LocationPermission.denied) {
+    //     location='Location permissions are denied';
+    //     // Permissions are denied, next time you could try
+    //     // requesting permissions again (this is also where
+    //     // Android's shouldShowRequestPermissionRationale
+    //     // returned true. According to Android guidelines
+    //     // your App should show an explanatory UI now.
+    //   }
+    // }
+    //
+    // if (permission == LocationPermission.deniedForever) {
+    //   location='Location permissions are permanently denied, we cannot request permissions.';
+    //   // Permissions are denied forever, handle appropriately.
+    // }
+    //
+    // // When we reach here, permissions are granted and we can
+    // // continue accessing the position of the device.
+    // location='access';
+    // print(location);
+    // setState(() {
+    //   latitude="19.14970";
+    //   longitude="72.84717";
+    // });
+    // Position position = await Geolocator.getCurrentPosition();
+    // setState(() {
+    //   latitude=position.latitude.toString();
+    //   longitude=position.longitude.toString();
+    //   altitude=position.altitude.toString();
+    //   print('latitude: '+latitude);
+    // });
+    Location location = new Location();
 
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      location='Location services are disabled.';
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-    }
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    LocationData _locationData;
 
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        location='Location permissions are denied';
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
       }
     }
 
-    if (permission == LocationPermission.deniedForever) {
-      location='Location permissions are permanently denied, we cannot request permissions.';
-      // Permissions are denied forever, handle appropriately.
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
     }
-    print('g');
 
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    location='access';
-    print(location);
+    _locationData = await location.getLocation();
     setState(() {
-      latitude="19.14970";
-      longitude="72.84717";
+      latitude=_locationData.latitude.toString();
+      longitude=_locationData.longitude.toString();
+      altitude=_locationData.altitude.toString();
     });
-    Position position = await Geolocator.getCurrentPosition();
-    print('f');
-    setState(() {
-      latitude=position.latitude.toString();
-      longitude=position.longitude.toString();
-      altitude=position.altitude.toString();
-      print('latitude: '+latitude);
-    });
+    print(latitude+" "+longitude+" "+altitude);
   }
 
   @override
@@ -698,8 +725,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               const SizedBox(width: 10,),
               Tooltip(
                 message: 'Orbit Period: The amount of time to complete one revolution around the Earth. \nApogee: The point where the satellite is farthest from Earth. \nPerigee: The point where the satellite is closest to Earth. \nInclination: It is the angle between orbital and equitorial plane. ',
-                textStyle: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),
-                decoration: BoxDecoration(color: ThemeColors.backgroundColor,borderRadius: BorderRadius.circular(20)),
+                // textStyle: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),
+                // decoration: BoxDecoration(color: ThemeColors.backgroundColor,borderRadius: BorderRadius.circular(20)),
                 padding: const EdgeInsets.symmetric(vertical: 15,horizontal: 10),
                 child: Icon(Icons.info_outline,color: ThemeColors.primaryColor,size: 22,),
               )
