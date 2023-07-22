@@ -53,6 +53,10 @@ class TLEModel {
       'lat': rad2deg(coord.lat),
       'lng': rad2deg(coord.lon),
       'alt': rad2deg(coord.alt),
+      'apogee': orbit.apogee(),
+      'perigee': orbit.perigee(),
+      'period': orbit.period(),
+      'inclination': rad2deg(orbit.inclination())
     };
   }
 

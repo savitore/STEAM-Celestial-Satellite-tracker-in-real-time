@@ -64,6 +64,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   String location='',latitude='',longitude='',altitude='';
   String btReceived='';
 
+  double? _height1=10 ,_height2=30;
+
   // static final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   // Map<String, dynamic> _deviceData = <String, dynamic>{};
 
@@ -120,6 +122,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   /// Determine the current position of the device.
   void _determinePosition() async {
+    print('h');
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -149,15 +152,23 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       location='Location permissions are permanently denied, we cannot request permissions.';
       // Permissions are denied forever, handle appropriately.
     }
+    print('g');
 
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
     location='access';
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    print(location);
+    setState(() {
+      latitude="19.14970";
+      longitude="72.84717";
+    });
+    Position position = await Geolocator.getCurrentPosition();
+    print('f');
     setState(() {
       latitude=position.latitude.toString();
       longitude=position.longitude.toString();
       altitude=position.altitude.toString();
+      print('latitude: '+latitude);
     });
   }
 
@@ -224,7 +235,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       ));
     } else {
       for (var device in _devicesList) {
-        print(device.name);
         items.add(DropdownMenuItem(
           value: device,
           child: Text(device.name!),
@@ -245,22 +255,21 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       if (!isConnected) {
         await BluetoothConnection.toAddress(_device?.address)
             .then((connection) {
-          print('Connected to the device');
           _connection = connection;
           setState(() {
             _btConnected = true;
           });
 
-          // _connection?.input?.listen(null).onDone(() {
-          //   if (isDisconnecting) {
-          //     print('Disconnecting locally!');
-          //   } else {
-          //     print('Disconnected remotely!');
-          //   }
+          _connection?.input?.listen(null).onDone(() {
+            if (isDisconnecting) {
+              print('Disconnecting locally!');
+            } else {
+              print('Disconnected remotely!');
+            }
             if (mounted) {
               setState(() {});
             }
-          // });
+          });
         }).catchError((error) {
           print('Cannot connect, exception occurred');
           print(error);
@@ -416,9 +425,10 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                           _buildDate('Decay date', widget.satelliteModel.decayed.toString()),
                           _buildCountry(widget.satelliteModel.countries.toString()),
                           _buildTitle('Operator', widget.satelliteModel.operator.toString()),
-                          _buildWebsite('Website', widget.satelliteModel.website.toString()),
+                          _buildWebsite(widget.satelliteModel.website.toString()),
                           _buildTLE(state.tle),
                           _buildDate('Updated', widget.satelliteModel.updated.toString()),
+                          _buildAdditional(),
                         ],
                       ),
                     ),
@@ -435,6 +445,13 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     );
   }
 
+  Widget _title(String text){
+    return Text(text,style: TextStyle(fontSize: 22,color: ThemeColors.textSecondary),overflow: TextOverflow.ellipsis,);
+  }
+  Widget _paragraph(String text){
+    return Text(text,style: TextStyle(fontSize: 25,color: ThemeColors.textPrimary),overflow: TextOverflow.visible,);
+  }
+
   Widget _buildTitle(String title, String info){
     if(info.isEmpty || info == 'null' ){
       return Container();
@@ -443,25 +460,23 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title,style: TextStyle(fontSize: 18,color: ThemeColors.textSecondary),overflow: TextOverflow.ellipsis,),
-        const SizedBox(height: 10),
-        Text(info,style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,),
-        const SizedBox(height: 30)
+        _title(title),
+        SizedBox(height: _height1),
+        _paragraph(info),
+        SizedBox(height: _height2)
       ],
     );
   }
 
-  Widget _buildWebsite(String title, String web){
+  Widget _buildWebsite(String web){
     return web.isEmpty || web == 'null'
         ? Container()
         : Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title,
-                  style: TextStyle(
-                      fontSize: 18, color: ThemeColors.textSecondary)),
-              const SizedBox(height: 10),
+              _title('Website'),
+              SizedBox(height: _height1),
               InkWell(
                   onTap: () {
                     if (widget.satelliteModel.websiteValid()) {
@@ -597,13 +612,13 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                     web,
                     style: TextStyle(
                         color: ThemeColors.textPrimary,
-                        fontSize: 20,
+                        fontSize: 25,
                         fontWeight: widget.satelliteModel.websiteValid()
                             ? FontWeight.w500
                             : FontWeight.normal),
                     overflow: TextOverflow.visible,
                   )),
-              const SizedBox(height: 30)
+              SizedBox(height: _height2)
             ],
           );
   }
@@ -617,10 +632,10 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title,style: TextStyle(fontSize: 18,color: ThemeColors.textSecondary)),
-        const SizedBox(height: 10),
-        Text(date,style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,),
-        const SizedBox(height: 30)
+        _title(title),
+        SizedBox(height: _height1),
+        _paragraph(date),
+        SizedBox(height: _height2)
       ],
     );
   }
@@ -661,10 +676,104 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Latest Two-Line Element (TLE)',style: TextStyle(fontSize: 18,color: ThemeColors.textSecondary)),
-          const SizedBox(height: 10),
-          Text('${tle[0]}\n${tle[1]}\n${tle[2]}',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,),
-          const SizedBox(height: 30)
+          _title('Latest Two-Line Element (TLE)'),
+          SizedBox(height: _height1),
+          _paragraph('${tle[0]}\n${tle[1]}\n${tle[2]}'),
+          SizedBox(height: _height2)
+        ],
+      );
+    }
+    return Container();
+  }
+
+  Widget _buildAdditional(){
+    if(tleExists){
+      final tleStats = tleModel.read();
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _title('Additional Information'),
+              const SizedBox(width: 10,),
+              Tooltip(
+                message: 'Orbit Period: The amount of time to complete one revolution around the Earth. \nApogee: The point where the satellite is farthest from Earth. \nPerigee: The point where the satellite is closest to Earth. \nInclination: It is the angle between orbital and equitorial plane. ',
+                textStyle: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),
+                decoration: BoxDecoration(color: ThemeColors.backgroundColor,borderRadius: BorderRadius.circular(20)),
+                padding: const EdgeInsets.symmetric(vertical: 15,horizontal: 10),
+                child: Icon(Icons.info_outline,color: ThemeColors.primaryColor,size: 22,),
+              )
+            ],
+          ),
+          SizedBox(height: _height1!+10),
+          RichText(
+              text: TextSpan(
+                  text: 'Orbit Period: ',
+                  style: TextStyle(fontSize: 22,color: ThemeColors.textPrimary),
+                  children: [
+                    TextSpan(
+                      text: (tleStats['period']!/60)?.toStringAsFixed(2),
+                      style: TextStyle(color: ThemeColors.textPrimary,fontSize: 25)
+                    ),
+                    TextSpan(
+                        text: ' minutes',
+                        style: TextStyle(color: ThemeColors.textPrimary,fontSize: 25)
+                    )
+                  ]
+              ),
+          ),
+          const SizedBox(height: 5),
+          RichText(
+            text: TextSpan(
+                text: 'Apogee: ',
+                style: TextStyle(fontSize: 22,color: ThemeColors.textPrimary),
+                children: [
+                  TextSpan(
+                      text: (tleStats['apogee'])?.toStringAsFixed(2),
+                      style: TextStyle(color: ThemeColors.textPrimary,fontSize: 25)
+                  ),
+                  TextSpan(
+                      text: ' km',
+                      style: TextStyle(color: ThemeColors.textPrimary,fontSize: 25)
+                  )
+                ]
+            ),
+          ),
+          const SizedBox(height: 5),
+          RichText(
+            text: TextSpan(
+                text: 'Perigee: ',
+                style: TextStyle(fontSize: 22,color: ThemeColors.textPrimary),
+                children: [
+                  TextSpan(
+                      text: (tleStats['perigee'])?.toStringAsFixed(2),
+                      style: TextStyle(color: ThemeColors.textPrimary,fontSize: 25)
+                  ),
+                  TextSpan(
+                      text: ' km',
+                      style: TextStyle(color: ThemeColors.textPrimary,fontSize: 25)
+                  )
+                ]
+            ),
+          ),
+          const SizedBox(height: 5),
+          RichText(
+            text: TextSpan(
+                text: 'Inclination: ',
+                style: TextStyle(fontSize: 22,color: ThemeColors.textPrimary),
+                children: [
+                  TextSpan(
+                      text: (tleStats['inclination'])?.toStringAsFixed(2),
+                      style: TextStyle(color: ThemeColors.textPrimary,fontSize: 25)
+                  ),
+                  TextSpan(
+                      text: ' °',
+                      style: TextStyle(color: ThemeColors.textPrimary,fontSize: 25)
+                  )
+                ]
+            ),
+          ),
+          SizedBox(height: _height2),
         ],
       );
     }
@@ -1029,7 +1138,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     );
   }
 
-
   Widget _buildVisualisingInLG(){
     return _viewingLG ?
     Padding(
@@ -1317,20 +1425,26 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         final kml = KMLEntity(
           name: satellite.name.toString().replaceAll(
               RegExp(r'[^a-zA-Z0-9]'), ''),
-          content: placemark.tag,
+          content: placemark.balloonOnlyTag,
         );
 
-        print('a');
-        // await _lgService.sendKml(
-        //   kml,
-        //   images: [
-        //     {
-        //       'name': 'satellite.png',
-        //       'path': 'assets/satellite.png',
-        //     }
-        //   ],
-        // );
         print('hi');
+        try{
+          await _lgService.sendKml(
+            kml,
+            images: [
+              {
+                'name': 'satellite.png',
+                'path': 'assets/satellite.png',
+              }
+            ],
+          );
+        }
+        catch(e){
+          print('error :$e');
+        }
+
+
 
         if (_lgService.balloonScreen == _lgService.logoScreen) {
           await _lgService.setLogos(
