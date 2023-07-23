@@ -508,7 +508,7 @@ class _HomeState extends State<Home> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: Text('SORT BY',style: TextStyle(fontSize: 16,color: ThemeColors.textPrimary),),
+              child: Text('SORT BY',style: TextStyle(fontSize: 22,color: ThemeColors.textPrimary),),
             ),
             const SizedBox(height: 10,),
             Padding(
@@ -619,21 +619,22 @@ class _HomeState extends State<Home> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text('FILTERS',style: TextStyle(fontSize: 16,color: ThemeColors.textPrimary),),
-                const SizedBox(height: 10),
+                Text('FILTERS',style: TextStyle(fontSize: 22,color: ThemeColors.textPrimary),),
+                const SizedBox(height: 20),
                 Divider(
                   thickness: 0.5,
                   height: 0.5,
                   color: Colors.grey[500],
                 ),
                 const SizedBox(height: 20,),
-                Text('Country of Origin',style: TextStyle(fontWeight: FontWeight.w500,color: ThemeColors.primaryColor),),
+                Text('Country of Origin',style: TextStyle(fontSize:18, fontWeight: FontWeight.w500,color: ThemeColors.primaryColor),),
                 DropdownButton(
                   // isExpanded: true,
                     elevation: 4,
                     value: dropdownvalueCountries,
                     underline: Container(
                         height: 1, color:ThemeColors.textPrimary),
+                    style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),
                     items: itemsCountries.map((String items){
                       return DropdownMenuItem(
                         value: items,
@@ -657,13 +658,14 @@ class _HomeState extends State<Home> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Status',style: TextStyle(fontWeight: FontWeight.w500,color: ThemeColors.primaryColor),),
+                        Text('Status',style: TextStyle(fontSize:18, fontWeight: FontWeight.w500,color: ThemeColors.primaryColor),),
                         DropdownButton(
                           // isExpanded: true,
                             elevation: 4,
                             value: dropdownvalueStatus,
                             underline: Container(
                                 height: 1, color:ThemeColors.textPrimary),
+                            style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),
                             items: itemsStatus.map((String items){
                               return DropdownMenuItem(
                                 value: items,
@@ -684,13 +686,14 @@ class _HomeState extends State<Home> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Operators',style: TextStyle(fontWeight: FontWeight.w500,color: ThemeColors.primaryColor),),
+                        Text('Operators',style: TextStyle(fontSize:18, fontWeight: FontWeight.w500,color: ThemeColors.primaryColor),),
                         DropdownButton(
                           // isExpanded: true,
                             elevation: 4,
                             value: dropdownvalueOperators,
                             underline: Container(
                                 height: 1, color:ThemeColors.textPrimary),
+                            style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),
                             items: itemsOperators.map((String items){
                               return DropdownMenuItem(
                                 value: items,
@@ -717,7 +720,7 @@ class _HomeState extends State<Home> {
                     Flexible(
                       child: Row(
                         children: [
-                          Flexible(child: Text('Decayed',style: TextStyle(color: ThemeColors.textPrimary),overflow: TextOverflow.visible)),
+                          Flexible(child: Text('Decayed',style: TextStyle(fontSize: 20, color: ThemeColors.textPrimary),overflow: TextOverflow.visible)),
                           Checkbox(
                             value: decayed,
                             onChanged: (bool? value){
@@ -735,7 +738,7 @@ class _HomeState extends State<Home> {
                     Flexible(
                       child: Row(
                         children: [
-                          Flexible(child:Text('Launched',style: TextStyle(color: ThemeColors.textPrimary),overflow: TextOverflow.visible)),
+                          Flexible(child:Text('Launched',style: TextStyle(fontSize: 20, color: ThemeColors.textPrimary),overflow: TextOverflow.visible)),
                           Checkbox(
                             value: launched,
                             onChanged: (bool? value){
@@ -753,7 +756,7 @@ class _HomeState extends State<Home> {
                     Flexible(
                       child: Row(
                         children: [
-                          Flexible(child: Text('Deployed',style: TextStyle(color: ThemeColors.textPrimary),overflow: TextOverflow.visible,)),
+                          Flexible(child: Text('Deployed',style: TextStyle(fontSize: 20, color: ThemeColors.textPrimary),overflow: TextOverflow.visible,)),
                           Checkbox(
                             value: deployed,
                             onChanged: (bool? value){
@@ -779,13 +782,13 @@ class _HomeState extends State<Home> {
             thickness: 1,
           ),
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 15),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 filter ?
                 SizedBox(
-                  height: 45,
+                  height: 50,
                   child: ElevatedButton(
                     onPressed: (){
                       _setState(() {
@@ -814,12 +817,12 @@ class _HomeState extends State<Home> {
                           launchOld);
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.backgroundColor,elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),side: const BorderSide(color: Colors.black12))),
-                    child: Text('CLEAR',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 16),),
+                    child: Text('CLEAR',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 20),),
                   ),
                 ) :
                 const SizedBox(),
                 SizedBox(
-                  height: 45,
+                  height: 50,
                   child: ElevatedButton(
                     onPressed: (){
                       checkFilter();
@@ -839,7 +842,7 @@ class _HomeState extends State<Home> {
                       }
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                    child: Text('APPLY',style: TextStyle(color: ThemeColors.backgroundColor,fontSize: 16),),
+                    child: Text('APPLY',style: TextStyle(color: ThemeColors.backgroundColor,fontSize: 20),),
                   ),
                 ),
               ],
@@ -849,7 +852,6 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-
 
   Widget bottomRow(BuildContext context,SatelliteState state){
     return BottomAppBar(
@@ -878,15 +880,15 @@ class _HomeState extends State<Home> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.sort_rounded,color: Colors.black54,),
+                    const Icon(Icons.sort_rounded,color: Colors.black54,size: 25,),
                     const SizedBox(width: 10,),
-                    const Text('SORT',style: TextStyle(color: Colors.black54),),
+                    const Text('SORT',style: TextStyle(color: Colors.black54,fontSize: 20),),
                     sort ?
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0,left: 5),
+                      padding: const EdgeInsets.only(bottom: 12.0,left: 5),
                       child: Container(
-                        width: 5.0,
-                        height: 5.0,
+                        width: 6.5,
+                        height: 6.5,
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: ThemeColors.primaryColor
@@ -923,15 +925,15 @@ class _HomeState extends State<Home> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.filter_list,color: Colors.black54,),
+                    const Icon(Icons.filter_list,color: Colors.black54,size: 25,),
                     const SizedBox(width: 10,),
-                    const Text('FILTER',style: TextStyle(color: Colors.black54),),
+                    const Text('FILTER',style: TextStyle(color: Colors.black54,fontSize: 20),),
                     filter ?
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0,left: 5),
+                      padding: const EdgeInsets.only(bottom: 12.0,left: 5),
                       child: Container(
-                        width: 5.0,
-                        height: 5.0,
+                        width: 6.5,
+                        height: 6.5,
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: ThemeColors.primaryColor
@@ -949,7 +951,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget sortItem(String message, bool check){
-    return Text(message,style: TextStyle(fontSize: 16,color: check ? ThemeColors.primaryColor : ThemeColors.textSecondary),);
+    return Text(message,style: TextStyle(fontSize: 20,color: check ? ThemeColors.primaryColor : ThemeColors.textSecondary),);
   }
 
   void checkFilter(){

@@ -29,11 +29,12 @@ class _CompassState extends State<Compass> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeColors.backgroundColor,
+      backgroundColor: ThemeColors.backgroundCardColor,
       appBar: AppBar(
-        backgroundColor: ThemeColors.primaryColor,
-        foregroundColor: ThemeColors.backgroundColor,
-        title: Text('Compass'),
+        backgroundColor: Colors.transparent,
+        foregroundColor: ThemeColors.textPrimary,
+        leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context); },),
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
@@ -43,6 +44,12 @@ class _CompassState extends State<Compass> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Row(
+                children: [
+                  Text('Compass',overflow: TextOverflow.visible,style: TextStyle(fontWeight: FontWeight.bold,color: ThemeColors.textPrimary,fontSize: 40),),
+                ],
+              ),
+              const SizedBox(height: 30),
               Text("${heading!.ceil()}°",style: TextStyle(color: ThemeColors.primaryColor,fontSize: 26,fontWeight: FontWeight.bold),),
               const SizedBox(height: 50),
               Stack(
