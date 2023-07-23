@@ -67,7 +67,7 @@ class _SettingsState extends State<Settings> {
                 child: Text('Settings',overflow: TextOverflow.visible,style: TextStyle(fontWeight: FontWeight.bold,color: ThemeColors.textPrimary,fontSize: 40)),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(15, 0, 20, 10),
+                padding: const EdgeInsets.fromLTRB(15, 0, 20, 15),
                 child: _buildSection('INFO')
               ),
               ListTile(
@@ -80,19 +80,9 @@ class _SettingsState extends State<Settings> {
                   leading: _buildIcon(Icons.info_outline),
               ),
               _divider(),
-              // ListTile(
-              //   onTap: (){
-              //     Navigator.push(context,
-              //         MaterialPageRoute(builder: (context) => Help()));
-              //   },
-              //   title: _buildTitle('Help'),
-              //   trailing: const Icon(Icons.arrow_forward),
-              //   leading: _buildIcon(Icons.help_center_outlined),
-              // ),
-              // _divider(),
               const SizedBox(height: 10,),
               Padding(
-                padding: const EdgeInsets.fromLTRB(15, 10, 20, 10),
+                padding: const EdgeInsets.fromLTRB(15, 10, 20, 15),
                 child: _buildSection('APP SETTINGS')
               ),
               ListTile(
@@ -114,7 +104,7 @@ class _SettingsState extends State<Settings> {
                     tools=!tools;
                   });
                 },
-                title: Text('LG Tools',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 25,fontWeight: tools ? FontWeight.bold : FontWeight.normal),overflow: TextOverflow.visible,),
+                title: Text('LG Tools',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 28,fontWeight: tools ? FontWeight.bold : FontWeight.normal),overflow: TextOverflow.visible,),
                 leading: _buildIcon(Icons.settings_input_antenna),
                 trailing: tools ?
                      Icon(Icons.keyboard_arrow_up,color: ThemeColors.primaryColor,) :

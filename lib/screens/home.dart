@@ -410,17 +410,44 @@ class _HomeState extends State<Home> {
       foregroundColor: ThemeColors.textPrimary,
       backgroundColor: ThemeColors.backgroundCardColor,
       elevation: 0,
-      title: const Text('STEAM Celestial Satellite tracker in real time',style: TextStyle(fontWeight: FontWeight.bold),),
+      title: const Text('STEAM Celestial Satellite tracker in real time',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 22),),
       actions: [
-        IconButton(
-          icon: Icon(Icons.refresh_rounded,color: ThemeColors.textPrimary,),
-          tooltip: 'REFRESH',
-          onPressed: () {
-            context.read<SatelliteCubit>().fetchData(refresh: true);
-            context.read<SatelliteCubit>().emit(SatelliteLoadingState());
-          },
+        // IconButton(
+        //   icon: Icon(Icons.refresh_rounded,color: ThemeColors.textPrimary,),
+        //   tooltip: 'REFRESH',
+        //   onPressed: () {
+        //     setState(() {
+        //       featured=true;
+        //       launchNew=false;
+        //       launchOld=false;
+        //       sort=false;
+        //       filter=false;
+        //     });
+        //     context.read<SatelliteCubit>().fetchData(refresh: true);
+        //     context.read<SatelliteCubit>().emit(SatelliteLoadingState());
+        //   },
+        // ),
+        TextButton(
+            onPressed: (){
+              setState(() {
+                featured=true;
+                launchNew=false;
+                launchOld=false;
+                sort=false;
+                filter=false;
+              });
+              context.read<SatelliteCubit>().fetchData(refresh: true);
+              context.read<SatelliteCubit>().emit(SatelliteLoadingState());
+            },
+            child: Row(
+              children: [
+                Text('REFRESH',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 18),),
+                const SizedBox(width: 5,),
+                Icon(Icons.refresh_rounded,color: ThemeColors.textPrimary,)
+              ],
+            )
         ),
-        const SizedBox(width: 5,),
+        // const SizedBox(width: 5,),
         IconButton(
               icon: Icon(Icons.settings,color: ThemeColors.textPrimary,),
               tooltip: 'Settings',
