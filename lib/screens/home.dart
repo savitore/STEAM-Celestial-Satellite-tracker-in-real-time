@@ -412,12 +412,13 @@ class _HomeState extends State<Home> {
       elevation: 0,
       title: const Text('STEAM Celestial Satellite tracker in real time',style: TextStyle(fontWeight: FontWeight.bold),),
       actions: [
-        InkWell(
-          onTap: (){
+        IconButton(
+          icon: Icon(Icons.refresh_rounded,color: ThemeColors.textPrimary,),
+          tooltip: 'REFRESH',
+          onPressed: () {
             context.read<SatelliteCubit>().fetchData(refresh: true);
             context.read<SatelliteCubit>().emit(SatelliteLoadingState());
           },
-          child: Icon(Icons.refresh_rounded,color: ThemeColors.textPrimary,),
         ),
         const SizedBox(width: 5,),
         IconButton(

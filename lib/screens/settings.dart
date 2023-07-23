@@ -105,6 +105,7 @@ class _SettingsState extends State<Settings> {
                 title: _buildTitle('LG Connection'),
                 leading: Image.asset('assets/lg.png',width: 20,height: 20,color: ThemeColors.primaryColor,),
                 trailing: const Icon(Icons.arrow_forward,),
+                subtitle: lgConnected ? Text('CONNECTED',style: TextStyle(color: ThemeColors.success,fontSize: 16),) : Text('NOT CONNECTED',style: TextStyle(color: ThemeColors.alert,fontSize: 16),),
                 ),
               _divider(),
               ListTile(
@@ -127,13 +128,13 @@ class _SettingsState extends State<Settings> {
     );
   }
   Widget _buildTitle(String title){
-    return Text(title,style: TextStyle(color: ThemeColors.textPrimary,fontSize: 25),overflow: TextOverflow.visible,);
+    return Text(title,style: TextStyle(color: ThemeColors.textPrimary,fontSize: 28),overflow: TextOverflow.visible,);
   }
   Widget _buildIcon(IconData iconData){
-    return Icon(iconData,size: 25,color: ThemeColors.primaryColor,);
+    return Icon(iconData,size: 28,color: ThemeColors.primaryColor,);
   }
   Widget _buildSection(String title){
-    return Text(title,style: TextStyle(color: ThemeColors.secondaryColor,fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis,fontSize: 18),);
+    return Text(title,style: TextStyle(color: ThemeColors.secondaryColor,fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis,fontSize: 22),);
   }
   Widget _divider(){
     return Container(
@@ -504,7 +505,7 @@ class _SettingsState extends State<Settings> {
   }
 
   void errorTaskButton(){
-    showSnackbar(context, 'Please connect to LG rig.');
+    showSnackbar(context, 'Connection failed.');
   }
 
 }
