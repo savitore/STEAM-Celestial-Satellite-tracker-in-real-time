@@ -711,7 +711,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               const SizedBox(width: 10,),
               Tooltip(
                 message: 'Orbit Period: The amount of time to complete one revolution around the Earth. \nApogee: The point where the satellite is farthest from Earth. \nPerigee: The point where the satellite is closest to Earth. \nInclination: It is the angle between orbital and equitorial plane. ',
-                // textStyle: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),
+                textStyle: const TextStyle(color: Colors.white,fontSize: 20),
                 // decoration: BoxDecoration(color: ThemeColors.backgroundColor,borderRadius: BorderRadius.circular(20)),
                 padding: const EdgeInsets.symmetric(vertical: 15,horizontal: 10),
                 child: Icon(Icons.info_outline,color: ThemeColors.primaryColor,size: 22,),
