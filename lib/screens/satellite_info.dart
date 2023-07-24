@@ -62,7 +62,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   bool isDisconnecting = false,_btConnected=false,_btDataSent=false;
   bool _isButtonUnavailable = false;
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
-  String location='',latitude='',longitude='',altitude='';
+  String _location='',latitude='',longitude='',altitude='',satAltitude='';
   String btReceived='';
 
   double? _height1=10 ,_height2=30;
@@ -168,7 +168,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     //   altitude=position.altitude.toString();
     //   print('latitude: '+latitude);
     // });
-    Location location = new Location();
+    Location location = Location();
 
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
@@ -192,9 +192,13 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
     _locationData = await location.getLocation();
     setState(() {
+      _location="granted";
       latitude=_locationData.latitude.toString();
       longitude=_locationData.longitude.toString();
       altitude=_locationData.altitude.toString();
+      if(double.parse(altitude) < 0){
+        altitude="0";
+      }
     });
     print(latitude+" "+longitude+" "+altitude);
   }
@@ -207,6 +211,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       _connection?.dispose();
       _connection = null;
     }
+    btReceived='';
     super.dispose();
   }
 
@@ -279,6 +284,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     if (_device == null) {
       showSnackbar(context,'No device selected');
     } else {
+
       if (!isConnected) {
         await BluetoothConnection.toAddress(_device?.address)
             .then((connection) {
@@ -287,9 +293,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             _btConnected = true;
           });
 
+          //get data from HC-05
           _connection?.input?.listen((Uint8List data) {
-            //Data entry point
-            print('hi '+utf8.decode(data));
             setState(() {
               btReceived=utf8.decode(data);
             });
@@ -324,6 +329,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     }
   }
 
+  //check if lg is connected
   void checkLGConnection() {
     if(_localStorageService.hasItem('lgConnected')){
       if(_localStorageService.getItem('lgConnected')=="connected"){
@@ -862,7 +868,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       builder: (_context) => StatefulBuilder(
                           builder: (BuildContext _context, StateSetter _setState){
                             String tle=btInit(TLE);
-                            return BTConnection(context,_setState,tle);
+                            return btConnection(context,_setState,tle);
                           }),
                       isScrollControlled: true,
                     );
@@ -936,11 +942,12 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     const SizedBox();
   }
 
-  Widget BTConnection(BuildContext context, StateSetter _setState, String tle){
+  Widget btConnection(BuildContext context, StateSetter _setState, String tle){
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -1063,7 +1070,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           const SizedBox(height: 20),
           _btConnected && !_btDataSent ?
           SizedBox(
-            width: 150,
+            width: 200,
             height: 45,
             child: ElevatedButton(
                 onPressed: (){
@@ -1090,7 +1097,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 25),
               Text('Data Sent',style: TextStyle(color: ThemeColors.textPrimary),),
               const SizedBox(height: 10),
               Text('To view the correct direction of the satellite, please align the 3D model to 0°N',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),),
@@ -1108,58 +1114,51 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                     child: const Text('Open Compass',style: TextStyle(fontSize: 20),)
                 ),
               ),
-              const SizedBox(height: 10,),
-              Text(btReceived,style: TextStyle(color: ThemeColors.textPrimary),),
-              // btReceived!='' ? Row(
-              //   children: [
-              //     CircularProgressIndicator(color: ThemeColors.primaryColor,),
-              //     SizedBox(width: 5,),
-              //     Text('Waiting for response')
-              //   ],
-              // ) :
-              // const SizedBox(),
-              const SizedBox(height: 10),
-              Text(btReceived)
+              const SizedBox(height: 20,),
+              btReceived=='' ? Row(
+                children: [
+                  CircularProgressIndicator(color: ThemeColors.primaryColor,),
+                  const SizedBox(width: 5,),
+                  Text('Waiting for response',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,)
+                ],
+              ) :
+               Text(btReceived,style: TextStyle(color: ThemeColors.secondaryColor,fontSize: 25,fontWeight: FontWeight.bold),overflow: TextOverflow.visible,),
             ],
           ) :
           const SizedBox(),
-          const SizedBox(height: 100,),
-          Row(
-            children: [
-              RichText(
-                  text: TextSpan(
-                      text: 'Note: ',
+          const SizedBox(height: 30,),
+          RichText(
+              text: TextSpan(
+                  text: 'Note: ',
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: ThemeColors.primaryColor
+                  ),
+                  children: [
+                    TextSpan(
+                      text: 'If you cannot find the device in the list, please pair the device by going to the ',
                       style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: ThemeColors.primaryColor
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: ThemeColors.textPrimary,
                       ),
-                      children: [
-                        TextSpan(
-                          text: 'If you cannot find the device in the list, please pair the device by going to the ',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: ThemeColors.textPrimary,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 'bluetooth settings.',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: ThemeColors.textPrimary,
-                            decoration: TextDecoration.underline,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = (){
-                              FlutterBluetoothSerial.instance.openSettings();
-                            }
-                        )
-                      ]
-                  )
-              ),
-            ],
+                    ),
+                    TextSpan(
+                      text: 'bluetooth settings.',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: ThemeColors.textPrimary,
+                        decoration: TextDecoration.underline,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = (){
+                          FlutterBluetoothSerial.instance.openSettings();
+                        }
+                    )
+                  ]
+              )
           ),
           const SizedBox(height: 10,),
         ],
