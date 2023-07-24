@@ -19,16 +19,16 @@ int CurrentMonth=7;
 int CurrentYear=2023;
 const float R = 6371.0;
 char acBuffer[20];
-const char  *pcMyName = "krishna";     // Observer name
+const char  *pcMyName = ""; // Observer name
 double dMyLAT;    
 double dMyLON;    
 double dMyALT;  
 
 int epos = 0;   
 int apos = 0;
-double dSatLAT  = 0; // Satellite latitude<br&gt 
-double dSatLON  = 0; // Satellite longitude  
-double dSatAZ   = 0; // Satellite azimuth<br&gt 
+double dSatLAT  = 0; // Satellite latitude
+double dSatLON  = 0; // Satellite longitude
+double dSatAZ   = 0; // Satellite azimuth
 double dSatEL   = 0; // Satellite elevation 
 
 void setup() {
@@ -41,17 +41,17 @@ void setup() {
   delay(5000); 
 }
 
-// Function to calculate the azimuth, elevation, and range angles
+// Function to calculate the azimuth & elevation angles
 void calculateAngles(double lat_ref, double lon_ref, double lat_sat, double lon_sat,
                      double& azimuth, double& elevation) {
+
   // Convert degrees to radians
   lat_ref = radians(lat_ref);
   lon_ref = radians(lon_ref);
   lat_sat = radians(lat_sat);
   lon_sat = radians(lon_sat);
 
-
-  // Calculate differences in longitude, latitude, and altitude
+  // Calculate differences in longitude & latitude
   double d_lon = lon_sat - lon_ref;
   double d_lat = lat_sat - lat_ref;
 
@@ -148,33 +148,8 @@ void loop() {
       part1 = strtok(NULL, delimiter1);
     }
      setTime(CurrentHour,CurrentMin,CurrentSec,CurrentDay,CurrentMonth,CurrentYear);//set the current time which we get from flutter app
-     Serial.println("");
-     Serial.println("TLE:-");  
-     Serial.println(l0);
-     Serial.println(l1);
-     Serial.println(l2);
-     Serial.println("Current date and time:- ");
-     Serial.print(CurrentHour);
-     Serial.print(":");
-     Serial.print(CurrentMin);
-     Serial.print(":");
-     Serial.print(CurrentSec);
-     Serial.print(" , ");
-     Serial.print(CurrentDay);
-     Serial.print("-");
-     Serial.print(CurrentMonth);
-     Serial.print("-");
-     Serial.print(CurrentYear);
-     Serial.println("");
-     Serial.println("Latitude: ");
-     Serial.print(dMyLAT);
-     Serial.println("");
-     Serial.println("Longitude: ");
-     Serial.print(dMyLON);
-     Serial.println("");
-     Serial.println("Altitude: ");
-     Serial.print(dMyALT);
-     Serial.println("");
+     elevation.write(0);
+     azimuth.write(0);
      read="done";
   }
      if(read=="done"){
@@ -197,23 +172,17 @@ void loop() {
       MyTime.ascii(acBuffer);
       MySAT.predict(MyTime);              // Predict ISS for specific time  
       MySAT.latlon(dSatLAT, dSatLON);     // Get the rectangular coordinates  
-  
       delay(500);
-      
-      Serial.println(dSatLAT);
-      Serial.println(dSatLON);
-
       calculateAngles(dMyLAT, dMyLON, dSatLAT, dSatLON, dSatAZ, dSatEL);
-
       // Servo calculation  
       epos = (int)dSatEL; 
       apos = (int)dSatAZ;    
 
       if (epos < 0) {
-        Serial.println("Out of range, Can't view satellite.");
+        Serial.println("Out of range. Please try another satellite.");
       } 
       else {
-        Serial.println("In range, Satellite can be viewed.");
+        Serial.println("In range, satellite can be viewed.");
         if(apos < 180) {  
           apos = abs(180 - (apos)); 
           epos = 180-epos; 
@@ -227,11 +196,10 @@ void loop() {
         elevation.write(epos); 
       }        
 
-      Serial.print("azimuth: ");
-      Serial.println(apos);
-      Serial.print("elevation: ");
-      Serial.println(epos);
+      // Serial.print("azimuth: ");
+      // Serial.println(apos);
+      // Serial.print("elevation: ");
+      // Serial.println(epos);
      }
     
 }
-
