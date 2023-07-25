@@ -950,6 +950,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
   Widget btConnection(BuildContext context, StateSetter _setState, String tle){
+    if(_bluetoothState == BluetoothState.STATE_ON){
+      getPairedDevices();
+    }
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child:
