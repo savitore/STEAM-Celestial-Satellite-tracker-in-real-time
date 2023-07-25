@@ -60,7 +60,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   BluetoothDevice? _device;
   int? _deviceState;
   bool isDisconnecting = false,_btConnected=false,_btDataSent=false;
-  bool _isButtonUnavailable = false;
+  bool _isButtonUnavailable = false, _isConnecting=false;
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   String _location='',latitude='',longitude='',altitude='',satAltitude='';
   String btReceived='';
@@ -280,6 +280,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   void _connect() async {
     setState(() {
       _isButtonUnavailable = true;
+      _isConnecting=true;
     });
     if (_device == null) {
       showSnackbar(context,'No device selected');
@@ -307,7 +308,10 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         });
         showSnackbar(context,'Device connected');
 
-        setState(() => _isButtonUnavailable = false);
+        setState(() {
+          _isButtonUnavailable = false;
+          _isConnecting=false;
+        });
       }
     }
   }
@@ -868,6 +872,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       builder: (_context) => StatefulBuilder(
                           builder: (BuildContext _context, StateSetter _setState){
                             String tle=btInit(TLE);
+                            if(_bluetoothState==BluetoothState.STATE_ON){
+                              getPairedDevices();
+                            }
                             return btConnection(context,_setState,tle);
                           }),
                       isScrollControlled: true,
@@ -1029,7 +1036,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           ),
           const SizedBox(height: 5,),
           Visibility(
-            visible: _isButtonUnavailable &&
+            visible: _isConnecting && _isButtonUnavailable &&
                 _bluetoothState == BluetoothState.STATE_ON,
             child: LinearProgressIndicator(
               backgroundColor: Colors.yellow,
@@ -1054,9 +1061,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                 SizedBox(
                   height: 45,
                   child: ElevatedButton(
-                    onPressed: _isButtonUnavailable
-                        ? null
-                        : _btConnected ? _disconnect :
+                    onPressed:
+                    _btConnected ? _disconnect :
                         (){
                       _connect();
                     },
