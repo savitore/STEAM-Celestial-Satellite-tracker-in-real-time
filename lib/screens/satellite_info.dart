@@ -65,7 +65,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   String _location='',latitude='',longitude='',altitude='',satAltitude='';
   String btReceived='';
 
-  double? _height1=10 ,_height2=30;
+  final double _height1=10 ,_height2=30;
 
   // static final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   // Map<String, dynamic> _deviceData = <String, dynamic>{};
@@ -99,7 +99,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     });
     _deviceState=0;
 
-    enableBluetooth();
+    // enableBluetooth();
 
     // Listen for further state changes
     FlutterBluetoothSerial.instance
@@ -216,21 +216,21 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
   // Request Bluetooth permission from the user
-  Future<bool> enableBluetooth() async {
-    // Retrieving the current Bluetooth state
-    _bluetoothState = await FlutterBluetoothSerial.instance.state;
-
-    // If the bluetooth is off, then turn it on first
-    // and then retrieve the devices that are paired.
-    if (_bluetoothState == BluetoothState.STATE_OFF) {
-      await FlutterBluetoothSerial.instance.requestEnable();
-      await getPairedDevices();
-      return true;
-    } else {
-      await getPairedDevices();
-    }
-    return false;
-  }
+  // Future<bool> enableBluetooth() async {
+  //   // Retrieving the current Bluetooth state
+  //   _bluetoothState = await FlutterBluetoothSerial.instance.state;
+  //
+  //   // If the bluetooth is off, then turn it on first
+  //   // and then retrieve the devices that are paired.
+  //   if (_bluetoothState == BluetoothState.STATE_OFF) {
+  //     await FlutterBluetoothSerial.instance.requestEnable();
+  //     await getPairedDevices();
+  //     return true;
+  //   } else {
+  //     await getPairedDevices();
+  //   }
+  //   return false;
+  // }
 
   // For retrieving and storing the paired devices
   // in a list.
@@ -945,7 +945,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   Widget btConnection(BuildContext context, StateSetter _setState, String tle){
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
-      child: Column(
+      child:
+      _bluetoothState == BluetoothState.STATE_ON ?
+      Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -955,47 +957,47 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             ],
           ),
           const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  'Enable Bluetooth',
-                  style: TextStyle(
-                    color: ThemeColors.textPrimary,
-                    fontSize: 22,
-                  ),
-                ),
-              ),
-              Switch(
-                value: _bluetoothState.isEnabled,
-                onChanged: (bool value) {
-                  future() async {
-                    if (value) {
-                      await FlutterBluetoothSerial.instance
-                          .requestEnable();
-                    } else {
-                      await FlutterBluetoothSerial.instance
-                          .requestDisable();
-                    }
-
-                    await getPairedDevices();
-                    _isButtonUnavailable = false;
-
-                    if (_btConnected) {
-                      _disconnect();
-                    }
-                  }
-
-                  future().then((_) {
-                    _setState(() {});
-                  });
-                },
-                activeColor: ThemeColors.primaryColor,
-              )
-            ],
-          ),
-          const SizedBox(height: 5,),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.start,
+          //   children: <Widget>[
+          //     Expanded(
+          //       child: Text(
+          //         'Enable Bluetooth',
+          //         style: TextStyle(
+          //           color: ThemeColors.textPrimary,
+          //           fontSize: 22,
+          //         ),
+          //       ),
+          //     ),
+          //     Switch(
+          //       value: _bluetoothState.isEnabled,
+          //       onChanged: (bool value) {
+          //         future() async {
+          //           if (value) {
+          //             await FlutterBluetoothSerial.instance
+          //                 .requestEnable();
+          //           } else {
+          //             await FlutterBluetoothSerial.instance
+          //                 .requestDisable();
+          //           }
+          //
+          //           await getPairedDevices();
+          //           _isButtonUnavailable = false;
+          //
+          //           if (_btConnected) {
+          //             _disconnect();
+          //           }
+          //         }
+          //
+          //         future().then((_) {
+          //           _setState(() {});
+          //         });
+          //       },
+          //       activeColor: ThemeColors.primaryColor,
+          //     )
+          //   ],
+          // ),
+          // const SizedBox(height: 5,),
           Divider(
             thickness: 0.5,
             height: 5,
@@ -1162,7 +1164,46 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           ),
           const SizedBox(height: 10,),
         ],
-      ),
+      ) :
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RichText(
+                  text: TextSpan(
+                      text: 'To view in 3D, please go to ',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: ThemeColors.textPrimary
+                      ),
+                      children: [
+                        TextSpan(
+                            text: 'bluetooth settings',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: ThemeColors.textPrimary,
+                              decoration: TextDecoration.underline,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = (){
+                                FlutterBluetoothSerial.instance.openSettings();
+                              }
+                        ),
+                        TextSpan(
+                          text: ' and enable bluetooth.',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: ThemeColors.textPrimary,
+                          ),
+                        ),
+                      ]
+                  )
+              ),
+            ],
+          )
     );
   }
 
