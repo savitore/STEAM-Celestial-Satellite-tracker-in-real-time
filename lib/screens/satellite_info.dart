@@ -1506,7 +1506,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           content: placemark.balloonOnlyTag,
         );
 
-        print('hi');
         try{
           await _lgService.sendKml(
             kml,
@@ -1522,11 +1521,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           print('error :$e');
         }
 
-
-
         if (_lgService.balloonScreen == _lgService.logoScreen) {
           await _lgService.setLogos(
-            name: 'SVT-logos-balloon',
+            name: 'CSt-logos-balloon',
             content: '''
             <name>Logos-Balloon</name>
             ${placemark.balloonOnlyTag}
@@ -1534,11 +1531,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           );
         } else {
           final kmlBalloon = KMLEntity(
-            name: 'SVT-balloon',
+            name: 'CSt-balloon',
             content: placemark.balloonOnlyTag,
           );
-
-          print('a');
           await _lgService.sendKMLToSlave(
             _lgService.balloonScreen,
             kmlBalloon.body,
@@ -1554,14 +1549,11 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             heading: '0',
           ));
         }
-        print('b');
         final orbit = _satelliteService.buildOrbit(satellite, tleModel);
         await _lgService.sendTour(orbit, 'Orbit');
-        print('b');
         setState(() {
           _viewingLG=true;
         });
-        print(_viewingLG);
       } on Exception catch (_) {
         showSnackbar(context, 'Connection failed!');
       } catch (_) {
