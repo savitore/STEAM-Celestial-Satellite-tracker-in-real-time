@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:get_it/get_it.dart';
@@ -53,16 +54,10 @@ class SSHService {
 
   /// Connects to the current client, executes a command into it and then disconnects.
   Future<SSHSession?> execute(String command) async {
-    // String? result = await connect();
-
-    init();
     SSHSession? execResult;
 
-    // if (result == '') {
-      execResult = await _client?.execute(command);
-    // }
+    execResult = await _client?.execute(command);
 
-    // disconnect();
     return execResult;
   }
 
@@ -85,18 +80,40 @@ class SSHService {
   }
 
   /// Connects to the current client through SFTP, uploads a file into it and then disconnects.
-  Future<void> upload(File inputFile, String filename) async {
-    // await connect();
-    double anyKindofProgressBar;
-    final sftp = await _client?.sftp();
-    // String? result = await _client.connectSFTP();
-    final file = await sftp?.open('/var/www/html/$filename',
-    mode: SftpFileOpenMode.truncate |
-        SftpFileOpenMode.create |
-        SftpFileOpenMode.write);
-    var fileSize = await inputFile.length();
-    await file?.write(inputFile.openRead().cast(), onProgress: (progress){
-      anyKindofProgressBar = progress/fileSize;
-    });
+  upload(File inputFile, String filename) async {
+    print(isAuthenticated);
+    try{
+      bool uploading =true;
+      final sftp = await _client?.sftp();
+      final file = await sftp?.open('/var/www/html/$filename',
+          mode: SftpFileOpenMode.truncate |
+          SftpFileOpenMode.create |
+          SftpFileOpenMode.write);
+      var fileSize = await inputFile.length();
+      file?.write(inputFile.openRead().cast(), onProgress: (progress){
+        if(fileSize == progress){
+          uploading=false;
+        }
+      });
+      if(file==null){
+        return;
+      }
+      await waitWhile(() => uploading);
+    } catch(error){
+      print(error);
+    }
+  }
+
+  Future waitWhile(bool Function() test, [Duration pollInterval = Duration.zero]){
+    var completer = Completer();
+    check(){
+      if(!test()){
+        completer.complete();
+      } else{
+        Timer(pollInterval,check);
+      }
+    }
+    check();
+    return completer.future;
   }
 }
