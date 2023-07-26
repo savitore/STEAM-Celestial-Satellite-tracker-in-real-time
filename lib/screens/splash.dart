@@ -20,16 +20,15 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
   @override
   void initState() {
     _localStorageService.setItem('lgConnected','not');
+    Future.delayed(const Duration(seconds: 3),(){
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const Home()));
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    Timer(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const Home()));
-    });
-
     return Container(
       height: double.infinity,
       color: Colors.white,
