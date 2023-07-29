@@ -86,11 +86,14 @@ class _SettingsState extends State<Settings> {
                 child: _buildSection('APP SETTINGS')
               ),
               ListTile(
-                onTap: (){
-                  Navigator.push(
+                onTap: () async {
+                  final result = await Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context)=> const LGSettings())
                   );
+                  if(result=="pop"){
+                    checkLGConnection();
+                  }
                 },
                 title: _buildTitle('LG Connection'),
                 leading: Image.asset('assets/lg.png',width: 20,height: 20,color: ThemeColors.primaryColor,),

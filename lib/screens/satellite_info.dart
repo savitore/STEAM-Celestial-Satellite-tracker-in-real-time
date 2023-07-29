@@ -895,7 +895,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                     children: [
                       Flexible(child: Image.asset('assets/3d.png',width: 28,height: 28,color: ThemeColors.primaryColor,)),
                       const SizedBox(width: 10),
-                      Flexible(child: Text('VIEW IN 3D',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 20,letterSpacing: 1,overflow: TextOverflow.visible))),
+                      Flexible(child: Text('VIEW IN 3D',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 18,letterSpacing: 1,overflow: TextOverflow.visible))),
                     ],
                   )
               ),
@@ -936,7 +936,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                     children: [
                       Flexible(child: Icon(Icons.travel_explore_rounded,color: _viewingLG  ? ThemeColors.backgroundColor : ThemeColors.primaryColor,size: 26,)),
                       const SizedBox(width: 10),
-                      Flexible(child: Text(_viewingLG ? 'STOP VIEWING' : 'VIEW IN LG',style: const TextStyle(fontSize: 20,letterSpacing: 1),overflow: TextOverflow.visible,)),
+                      Flexible(child: Text(_viewingLG ? 'STOP VIEWING' : 'VIEW IN LG',style: const TextStyle(fontSize: 18,letterSpacing: 1),overflow: TextOverflow.visible,)),
                     ],
                   )
               ),
@@ -1052,14 +1052,17 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                DropdownButton(
-                  items: _getDeviceItems(),
-                  onChanged: (value) =>
-                      _setState(() => _device = value),
-                  value: _devicesList.isNotEmpty ? _device : null,
-                  style: TextStyle(color: ThemeColors.textPrimary,fontSize: 22),
-                  iconSize: 25,
-                  padding: const EdgeInsets.all(10),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width > 500 ? 300 : MediaQuery.of(context).size.width*0.5,
+                  child: DropdownButton(
+                    items: _getDeviceItems(),
+                    onChanged: (value) =>
+                        _setState(() => _device = value),
+                    value: _devicesList.isNotEmpty ? _device : null,
+                    style: TextStyle(color: ThemeColors.textPrimary,fontSize: 22,overflow: TextOverflow.ellipsis),
+                    iconSize: 25,
+                    padding: const EdgeInsets.all(10),
+                  ),
                 ),
                 SizedBox(
                   height: 45,

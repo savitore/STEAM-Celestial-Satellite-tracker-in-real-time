@@ -55,7 +55,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
             leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: (){
-                  Navigator.pop(context);
+                  Navigator.pop(context, "pop");
                 },
             ),
             foregroundColor: ThemeColors.textPrimary,
