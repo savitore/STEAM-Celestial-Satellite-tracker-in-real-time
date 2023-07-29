@@ -748,7 +748,7 @@ class _HomeState extends State<Home> {
                     Flexible(
                       child: Row(
                         children: [
-                          Flexible(child: Text('Decayed',style: TextStyle(fontSize: 20, color: ThemeColors.textPrimary),overflow: TextOverflow.visible)),
+                          Flexible(child: Text('Decayed',style: TextStyle(fontSize: 18, color: ThemeColors.textPrimary),overflow: TextOverflow.visible)),
                           Checkbox(
                             value: decayed,
                             onChanged: (bool? value){
@@ -766,7 +766,7 @@ class _HomeState extends State<Home> {
                     Flexible(
                       child: Row(
                         children: [
-                          Flexible(child:Text('Launched',style: TextStyle(fontSize: 20, color: ThemeColors.textPrimary),overflow: TextOverflow.visible)),
+                          Flexible(child:Text('Launched',style: TextStyle(fontSize: 18, color: ThemeColors.textPrimary),overflow: TextOverflow.visible)),
                           Checkbox(
                             value: launched,
                             onChanged: (bool? value){
@@ -784,7 +784,7 @@ class _HomeState extends State<Home> {
                     Flexible(
                       child: Row(
                         children: [
-                          Flexible(child: Text('Deployed',style: TextStyle(fontSize: 20, color: ThemeColors.textPrimary),overflow: TextOverflow.visible,)),
+                          Flexible(child: Text('Deployed',style: TextStyle(fontSize: 18, color: ThemeColors.textPrimary),overflow: TextOverflow.visible,)),
                           Checkbox(
                             value: deployed,
                             onChanged: (bool? value){
