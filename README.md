@@ -38,3 +38,10 @@ With the project cloned, run it by using the following command:
 ```bash
 $ flutter run --no-sound-null-safety
 ```
+### Setting up the Arduino-controlled pointer
+
+You can find the documentation for setting up the Arduino-controlled pointer by clicking [here.](https://docs.google.com/document/d/1NfXiyhhtKBtD2GL_H1Qew8CYwpoZ0U3u9v3ifMiTAcE/edit)
+
+### Connecting to the Liquid Galaxy
+
+### Setting up the LG rig
