@@ -459,6 +459,18 @@ class _HomeState extends State<Home> {
     return textPainter.size.width;
   }
 
+  void refresh(BuildContext context,SatelliteState state){
+    setState(() {
+      featured=true;
+      launchNew=false;
+      launchOld=false;
+      sort=false;
+      filter=false;
+    });
+    context.read<SatelliteCubit>().fetchData(refresh: true);
+    context.read<SatelliteCubit>().emit(SatelliteLoadingState());
+  }
+
   SliverAppBar sliverAppBar(BuildContext context,SatelliteState state)
   {
     return SliverAppBar(
@@ -477,26 +489,6 @@ class _HomeState extends State<Home> {
             lgConnected ? 'LG: CONNECTED' : 'LG: NOT CONNECTED',style: TextStyle(color: lgConnected ? ThemeColors.success : ThemeColors.alert,fontSize: 19),overflow: TextOverflow.visible,
           ),
         ),
-        TextButton(
-            onPressed: (){
-              setState(() {
-                featured=true;
-                launchNew=false;
-                launchOld=false;
-                sort=false;
-                filter=false;
-              });
-              context.read<SatelliteCubit>().fetchData(refresh: true);
-              context.read<SatelliteCubit>().emit(SatelliteLoadingState());
-            },
-            child: Row(
-              children: [
-                Text('REFRESH',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 18),),
-                const SizedBox(width: 5,),
-                Icon(Icons.refresh_rounded,color: ThemeColors.textPrimary,)
-              ],
-            )
-        ),
         // const SizedBox(width: 5,),
         IconButton(
               icon: Icon(Icons.settings,color: ThemeColors.textPrimary,),
@@ -506,6 +498,9 @@ class _HomeState extends State<Home> {
                         MaterialPageRoute(builder: (context) => const Settings()));
                    if(result=="pop"){
                      checkLGConnection();
+                   }
+                   if(result=="refresh"){
+                     refresh(context, state);
                    }
               },
         ),

@@ -212,7 +212,7 @@ class About extends StatelessWidget {
                           ),
                           children: [
                             TextSpan(
-                              text: '${_mentors[0]}, ${_mentors[1]}',
+                              text: '${_mentors[1]}, ${_mentors[0]}',
                               style: TextStyle(
                                 color: ThemeColors.textPrimary,
                                 fontSize: 25,
