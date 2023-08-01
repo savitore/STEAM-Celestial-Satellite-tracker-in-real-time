@@ -54,7 +54,6 @@ dependencies:
   simple_icons: ^7.10.0
   geolocator: ^9.0.2
   flutter_compass: ^0.7.0
-  device_info_plus: ^9.0.2
   location: ^5.0.1
 
 dev_dependencies:

@@ -75,19 +75,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     checkLGConnection();
     _determinePosition();
     checkWebsiteDialog();
-    getDeviceInfo();
     super.initState();
-  }
-
-  void getDeviceInfo() async{
-    // var deviceData = <String, dynamic>{};
-
-    if(kIsWeb){
-
-    } else{
-
-    }
-    // print('data:'+ androidInfo.device+"/"+androidInfo.model);
   }
 
 
@@ -1504,8 +1492,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
       try {
         final tleCoord = tleModel.read();
-
-
         final placemark = _satelliteService.buildPlacemark(
           satellite,
           tleModel,
@@ -1570,19 +1556,20 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             heading: '0',
           ));
         }
-        await Future.delayed(const Duration(seconds: 5));
-        try{
-          await _lgService.stopTour();
-        }
-        catch(e){
-          print('1'+e.toString());
-        }
+        // await Future.delayed(const Duration(seconds: 5));
+        // try{
+        //   await _lgService.stopTour();
+        // }
+        // catch(e){
+        //   print(e);
+        // }
+
         final orbit = _satelliteService.buildOrbit(satellite, tleModel);
         try{
           await _lgService.sendTour(orbit, 'Orbit');
         }
         catch(e){
-          print('2'+e.toString());
+          print(e);
         }
         setState(() {
           _viewingLG=true;
