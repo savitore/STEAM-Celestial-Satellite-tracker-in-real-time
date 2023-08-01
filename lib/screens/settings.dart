@@ -55,6 +55,7 @@ class _SettingsState extends State<Settings> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: ThemeColors.textPrimary,
+        leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context,"pop"); },),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -139,8 +140,8 @@ class _SettingsState extends State<Settings> {
   }
 
   Widget showTools(){
-    ButtonStyle style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.secondaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)));
-    ButtonStyle _style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.secondaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),side: BorderSide(color: ThemeColors.secondaryColor)));
+    ButtonStyle style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.secondaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)));
+    ButtonStyle _style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.secondaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10),side: BorderSide(color: ThemeColors.secondaryColor)));
     return Padding(
       padding: const EdgeInsets.only(right: 10,left: 5,top: 10),
       child: Column(

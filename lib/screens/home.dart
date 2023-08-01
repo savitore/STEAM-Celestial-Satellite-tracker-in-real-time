@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_state.dart';
@@ -9,6 +10,7 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/screens/settings.
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
 
 import '../repositories/countries_iso.dart';
+import '../services/local_storage_service.dart';
 import '../utils/snackbar.dart';
 import '../widgets/date.dart';
 import '../widgets/shimmer.dart';
@@ -22,7 +24,10 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
+  LocalStorageService get _localStorageService => GetIt.I<LocalStorageService>();
   TextEditingController _searchController = TextEditingController();
+  late ScrollController _scrollController;
+  bool _showBackToTopButton = false, lgConnected=false;
   FocusNode _searchFocusNode = FocusNode();
   String dropdownvalueCountries = 'ALL';
   String dropdownvalueStatus = 'ALL';
@@ -53,12 +58,44 @@ class _HomeState extends State<Home> {
       }
     });
     _dropDownOperators();
+    _scrollController = ScrollController()
+      ..addListener(() {
+        setState(() {
+          if (_scrollController.offset >= 300) {
+            _showBackToTopButton = true; // show the back-to-top button
+          } else {
+            _showBackToTopButton = false; // hide the back-to-top button
+          }
+        });
+      });
   }
 
   @override
   void dispose() {
     _searchFocusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  // This function is triggered when the user presses the back-to-top button
+  void _scrollToTop() {
+    setState(() {
+      _scrollController.animateTo(
+          _scrollController.position.minScrollExtent,
+          curve: Curves.easeInOut,
+          duration: const Duration(milliseconds: 500),);
+    });
+  }
+
+  //check if lg is connected
+  void checkLGConnection() {
+    if(_localStorageService.hasItem('lgConnected')){
+      if(_localStorageService.getItem('lgConnected')=="connected"){
+        setState(() {
+          lgConnected=true;
+        });
+      }
+    }
   }
 
 
@@ -160,6 +197,7 @@ class _HomeState extends State<Home> {
             return Scaffold(
               backgroundColor: ThemeColors.backgroundCardColor,
               body: CustomScrollView(
+                controller: _scrollController,
                 slivers: [
                   sliverAppBar(context,state),
                   SliverList(
@@ -193,11 +231,14 @@ class _HomeState extends State<Home> {
                                             itemCount: satellites.length,
                                             itemBuilder:(context, index){
                                               return InkWell(
-                                                onTap: (){
-                                                  Navigator.push(
+                                                onTap: () async {
+                                                  final result = await Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
                                                           builder: (context) => SatelliteInfo(satellites[index])));
+                                                  if(result=="pop"){
+                                                    checkLGConnection();
+                                                  }
                                                 },
                                                 child: _buildList(context, satellites[index]),
                                               );
@@ -214,6 +255,13 @@ class _HomeState extends State<Home> {
                 ],
               ),
               bottomNavigationBar: bottomRow(context,state),
+              floatingActionButton: _showBackToTopButton == false
+                  ? null
+                  : FloatingActionButton(
+                onPressed: _scrollToTop,
+                backgroundColor: ThemeColors.primaryColor,
+                child: const Icon(Icons.arrow_upward, color: Colors.white,),
+              ),
             );
           }
           else if(state is FilteredSatelliteState){
@@ -222,6 +270,7 @@ class _HomeState extends State<Home> {
             return Scaffold(
               backgroundColor: ThemeColors.backgroundCardColor,
               body: CustomScrollView(
+                controller: _scrollController,
                 slivers: [
                   sliverAppBar(context,state),
                   SliverList(
@@ -255,11 +304,14 @@ class _HomeState extends State<Home> {
                                             itemCount: searchedSatellites.length,
                                             itemBuilder:(context, index){
                                               return InkWell(
-                                                onTap: (){
-                                                  Navigator.push(
+                                                onTap: () async {
+                                                  final result = await Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
                                                           builder: (context) => SatelliteInfo(searchedSatellites[index])));
+                                                  if(result=="pop"){
+                                                    checkLGConnection();
+                                                  }
                                                 },
                                                 child: _buildList(context, searchedSatellites[index]),
                                               );
@@ -276,6 +328,13 @@ class _HomeState extends State<Home> {
                 ],
               ),
               bottomNavigationBar: bottomRow(context,state),
+              floatingActionButton: _showBackToTopButton == false
+                  ? null
+                  : FloatingActionButton(
+                   onPressed: _scrollToTop,
+                   backgroundColor: ThemeColors.primaryColor,
+                   child: const Icon(Icons.arrow_upward, color: Colors.white,),
+              ),
             );
           }
 
@@ -412,21 +471,12 @@ class _HomeState extends State<Home> {
       elevation: 0,
       title: const Text('STEAM Celestial Satellite tracker in real time',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 22),),
       actions: [
-        // IconButton(
-        //   icon: Icon(Icons.refresh_rounded,color: ThemeColors.textPrimary,),
-        //   tooltip: 'REFRESH',
-        //   onPressed: () {
-        //     setState(() {
-        //       featured=true;
-        //       launchNew=false;
-        //       launchOld=false;
-        //       sort=false;
-        //       filter=false;
-        //     });
-        //     context.read<SatelliteCubit>().fetchData(refresh: true);
-        //     context.read<SatelliteCubit>().emit(SatelliteLoadingState());
-        //   },
-        // ),
+        TextButton(
+          onPressed: null,
+          child: Text(
+            lgConnected ? 'LG: CONNECTED' : 'LG: NOT CONNECTED',style: TextStyle(color: lgConnected ? ThemeColors.success : ThemeColors.alert,fontSize: 19),overflow: TextOverflow.visible,
+          ),
+        ),
         TextButton(
             onPressed: (){
               setState(() {
@@ -451,9 +501,12 @@ class _HomeState extends State<Home> {
         IconButton(
               icon: Icon(Icons.settings,color: ThemeColors.textPrimary,),
               tooltip: 'Settings',
-              onPressed: () {
-                   Navigator.push(context,
+              onPressed: () async {
+                   final result = await Navigator.push(context,
                         MaterialPageRoute(builder: (context) => const Settings()));
+                   if(result=="pop"){
+                     checkLGConnection();
+                   }
               },
         ),
         const SizedBox(width: 5)

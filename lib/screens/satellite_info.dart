@@ -356,7 +356,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             backgroundColor: Colors.transparent,
             foregroundColor: ThemeColors.textPrimary,
             elevation: 0,
-            leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context); },),
+            leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context,"pop"); },),
           ),
           body: SafeArea(
             child: BlocConsumer<SatelliteInfoCubit, SatelliteInfoState>(
@@ -946,7 +946,25 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         const SizedBox(height: 20),
       ],
     ) :
-    const SizedBox();
+    Column(
+      children: [
+        SizedBox(
+          height: 60,
+          width: MediaQuery.of(context).size.width-40,
+          child: ElevatedButton(
+            onPressed: null,
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: ThemeColors.backgroundColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                  ),
+              ),
+              child: Text('No TLE information available',overflow: TextOverflow.visible,style: TextStyle(color: ThemeColors.textPrimary,fontSize: 18),),
+              )
+          ),
+        const SizedBox(height: 20,)
+      ],
+    );
   }
 
   Widget btConnection(BuildContext context, StateSetter _setState, String tle){
@@ -1552,8 +1570,20 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             heading: '0',
           ));
         }
+        await Future.delayed(const Duration(seconds: 5));
+        try{
+          await _lgService.stopTour();
+        }
+        catch(e){
+          print('1'+e.toString());
+        }
         final orbit = _satelliteService.buildOrbit(satellite, tleModel);
-        await _lgService.sendTour(orbit, 'Orbit');
+        try{
+          await _lgService.sendTour(orbit, 'Orbit');
+        }
+        catch(e){
+          print('2'+e.toString());
+        }
         setState(() {
           _viewingLG=true;
         });

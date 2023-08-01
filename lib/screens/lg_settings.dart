@@ -91,7 +91,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                               hintText: 'username',
                             ),
                           ),
-                          const SizedBox(height: 50,),
+                          const SizedBox(height: 30,),
                           _getTitle('Password'),
                           TextFormField(
                             controller: _pwController,
@@ -111,7 +111,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                                 )
                             ),
                           ),
-                          const SizedBox(height: 50,),
+                          const SizedBox(height: 30,),
                           _getTitle('IP Address'),
                           TextFormField(
                             controller: _ipController,
@@ -122,7 +122,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                               hintText: '192.168.10.21',
                             ),
                           ),
-                          const SizedBox(height: 50,),
+                          const SizedBox(height: 30,),
                           _getTitle('Port'),
                           TextFormField(
                             controller: _portController,
@@ -133,7 +133,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                               hintText: '22',
                             ),
                           ),
-                          const SizedBox(height: 50,),
+                          const SizedBox(height: 30,),
                           _getTitle('Number of Screens'),
                           TextFormField(
                             controller: _screensController,
@@ -266,6 +266,13 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
             onAuthenticated: (){
               setState(() {
                 isAuthenticated=true;
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                    'Connected successfully.',
+                    style: TextStyle(color: ThemeColors.snackBarTextColor),
+                  ),
+                  backgroundColor: ThemeColors.success,
+                ));
               });
             }
         );

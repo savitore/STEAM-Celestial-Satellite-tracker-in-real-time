@@ -234,7 +234,7 @@ class About extends StatelessWidget {
                             ),
                             children: [
                               TextSpan(
-                                text: 'Liquid Galaxy',
+                                text: 'Liquid Galaxy project',
                                 style: TextStyle(
                                   color: ThemeColors.textPrimary,
                                   fontSize: 25,
