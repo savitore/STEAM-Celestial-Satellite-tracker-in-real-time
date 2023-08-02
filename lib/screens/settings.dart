@@ -114,7 +114,7 @@ class _SettingsState extends State<Settings> {
                      Icon(Icons.keyboard_arrow_up,color: ThemeColors.primaryColor,) :
                      const Icon(Icons.keyboard_arrow_down,)
               ),
-              _divider(),
+              tools ? showTools() : _divider(),
               ListTile(
                   onTap: (){
                     Navigator.pop(context,"refresh");
@@ -122,7 +122,7 @@ class _SettingsState extends State<Settings> {
                   title: Text('Refresh data',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 28,fontWeight: FontWeight.normal),overflow: TextOverflow.visible,),
                   leading: _buildIcon(Icons.refresh_rounded),
               ),
-              tools ? showTools() : _divider()
+              _divider(),
             ],
           ),
         ),
@@ -488,6 +488,7 @@ class _SettingsState extends State<Settings> {
               ],
             ),
           ),
+          const SizedBox(height: 10,),
         ],
       ),
     );
