@@ -79,12 +79,10 @@ class _HomeState extends State<Home> {
 
   // This function is triggered when the user presses the back-to-top button
   void _scrollToTop() {
-    setState(() {
       _scrollController.animateTo(
           _scrollController.position.minScrollExtent,
           curve: Curves.easeInOut,
           duration: const Duration(milliseconds: 500),);
-    });
   }
 
   //check if lg is connected

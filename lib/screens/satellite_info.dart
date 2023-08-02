@@ -1225,6 +1225,14 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     );
   }
 
+  Future send(String _data) async {
+    List<int> bytes = utf8.encode(_data);
+    Uint8List data = Uint8List.fromList(bytes);
+    _connection?.output.add(data);
+    await _connection?.output.allSent;
+    print(data);
+  }
+
   Widget _buildVisualisingInLG(){
     return _viewingLG ?
     Padding(
@@ -1234,7 +1242,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             children: [
               TextButton.icon(
                   onPressed: (){
-
                     setState(() {
                       _orbit=!_orbit;
                       _simulate=false;
@@ -1583,15 +1590,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
     }
 
-  }
-
-
-  Future send(String _data) async {
-    List<int> bytes = utf8.encode(_data);
-    Uint8List data = Uint8List.fromList(bytes);
-    _connection?.output.add(data);
-    await _connection?.output.allSent;
-    print(data);
   }
 
 }

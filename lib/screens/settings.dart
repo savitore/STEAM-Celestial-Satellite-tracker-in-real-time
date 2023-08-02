@@ -119,7 +119,7 @@ class _SettingsState extends State<Settings> {
                   onTap: (){
                     Navigator.pop(context,"refresh");
                   },
-                  title: Text('Refresh data',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 28,fontWeight: tools ? FontWeight.bold : FontWeight.normal),overflow: TextOverflow.visible,),
+                  title: Text('Refresh data',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 28,fontWeight: FontWeight.normal),overflow: TextOverflow.visible,),
                   leading: _buildIcon(Icons.refresh_rounded),
               ),
               tools ? showTools() : _divider()
