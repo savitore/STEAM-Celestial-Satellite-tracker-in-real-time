@@ -78,12 +78,15 @@ class LGService {
 
     for (var img in images) {
       final image = await _fileService.createImage(img['name']!, img['path']!);
-      await _sshService.upload(image,'image');
+      print('image created');
+      await _sshService.upload(image,img['name']!);
+      print('image uploaded');
     }
 
     final kmlFile = await _fileService.createFile(fileName, kml.body);
-    await _sshService.upload(kmlFile,'sendKml');
-
+    print('kml created');
+    await _sshService.upload(kmlFile,fileName);
+    print('kml uploaded');
     await _sshService
         .execute('echo "$_url/$fileName" > /var/www/html/kmls.txt');
   }
@@ -93,7 +96,9 @@ class LGService {
     final fileName = '$tourName.kml';
 
     final kmlFile = await _fileService.createFile(fileName, tourKml);
-    await _sshService.upload(kmlFile,'sendTour');
+    print('sendTour created');
+    await _sshService.upload(kmlFile,fileName);
+    print('sendTour uploaded');
 
     await _sshService
         .execute('echo "\n$_url/$fileName" >> /var/www/html/kmls.txt');
@@ -229,7 +234,6 @@ class LGService {
     if (result != null) {
       screenAmount = int.parse(result);
     }
-    print(pw+" "+user+" "+screenAmount.toString());
     for (var i = screenAmount; i >= 1; i--) {
       try {
         final relaunchCommand = """RELAUNCH_CMD="\\

@@ -6,10 +6,12 @@ import 'package:dartssh2/dartssh2.dart';
 
 import '../models/ssh_entity.dart';
 import 'lg_settings_service.dart';
+import 'local_storage_service.dart';
 
 /// Service that deals with the SSH management.
 class SSHService {
   LGSettingsService get _settingsService => GetIt.I<LGSettingsService>();
+  LocalStorageService get _localStorageService => GetIt.I<LocalStorageService>();
 
   /// Property that defines the SSH client instance.
   SSHClient? _client;
@@ -32,8 +34,9 @@ class SSHService {
             return password;
           },
         keepAliveInterval: const Duration(seconds: 3600),
-        onAuthenticated: (){
+        onAuthenticated: () async {
             isAuthenticated=true;
+            _localStorageService.setItem('lgConnected', "connected");
         }
       );
       // await Future.delayed(const Duration(seconds: 10));
@@ -81,6 +84,14 @@ class SSHService {
 
   /// Connects to the current client through SFTP, uploads a file into it and then disconnects.
   upload(File inputFile, String filename) async {
+    final settings = _settingsService.getSettings();
+    setClient(SSHEntity(
+      username: settings.username,
+      host: settings.ip,
+      passwordOrKey: settings.password,
+      port: settings.port,
+    ));
+    Future.delayed(const Duration(seconds: 3));
     print(isAuthenticated);
     try{
       bool uploading =true;
@@ -91,14 +102,16 @@ class SSHService {
           SftpFileOpenMode.write);
       var fileSize = await inputFile.length();
       file?.write(inputFile.openRead().cast(), onProgress: (progress){
-        if(fileSize == progress){
-          uploading=false;
-        }
+        // if(fileSize == progress){
+          uploading=true;
+        // }
       });
-      if(file==null){
-        return;
-      }
-      await waitWhile(() => uploading);
+      // print(file);
+      // if(file==null){
+      //   print('null');
+      //   return;
+      // }
+      // await waitWhile(() => uploading);
     } catch(error){
       print(error);
     }
@@ -106,6 +119,7 @@ class SSHService {
 
   Future waitWhile(bool Function() test, [Duration pollInterval = Duration.zero]){
     var completer = Completer();
+    print('inside');
     check(){
       if(!test()){
         completer.complete();
@@ -116,4 +130,5 @@ class SSHService {
     check();
     return completer.future;
   }
+
 }

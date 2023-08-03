@@ -153,7 +153,6 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                                     _localStorageService.setItem('screen', _screensController.text.toString());
                                     Timer(const Duration(seconds: 3), () async {
                                       if (isAuthenticated) {
-                                        _localStorageService.setItem('lgConnected', "connected");
                                         await _lgService.setLogos();
                                       }else{
                                         showSnackbar(context, 'Connection failed');
@@ -224,7 +223,6 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
       _onConnect();
       Timer(const Duration(seconds: 3), () async {
         if (isAuthenticated) {
-          _localStorageService.setItem('lgConnected', "connected");
           await _lgService.setLogos();
         }else{
           showSnackbar(context, 'Connection failed');
@@ -266,6 +264,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
             onAuthenticated: (){
               setState(() {
                 isAuthenticated=true;
+                _localStorageService.setItem('lgConnected', "connected");
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text(
                     'Connected successfully.',

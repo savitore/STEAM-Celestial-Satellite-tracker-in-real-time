@@ -99,7 +99,6 @@ class _SettingsState extends State<Settings> {
                 title: _buildTitle('LG Connection'),
                 leading: Image.asset('assets/lg.png',width: 20,height: 20,color: ThemeColors.primaryColor,),
                 trailing: const Icon(Icons.arrow_forward,),
-                subtitle: lgConnected ? Text('CONNECTED',style: TextStyle(color: ThemeColors.success,fontSize: 16),) : Text('NOT CONNECTED',style: TextStyle(color: ThemeColors.alert,fontSize: 16),),
                 ),
               _divider(),
               ListTile(
