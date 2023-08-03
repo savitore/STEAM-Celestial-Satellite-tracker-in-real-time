@@ -1513,11 +1513,11 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         setState(() {
           _satellitePlacemark = placemark;
         });
-
+        //
         final kml = KMLEntity(
           name: satellite.name.toString().replaceAll(
               RegExp(r'[^a-zA-Z0-9]'), ''),
-          content: placemark.balloonOnlyTag,
+          content: placemark.tag,
         );
 
         try{
@@ -1536,6 +1536,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         }
 
         if (_lgService.balloonScreen == _lgService.logoScreen) {
+          print('1');
           await _lgService.setLogos(
             name: 'CSt-logos-balloon',
             content: '''
@@ -1544,6 +1545,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           ''',
           );
         } else {
+          print('2');
           final kmlBalloon = KMLEntity(
             name: 'CSt-balloon',
             content: placemark.balloonOnlyTag,

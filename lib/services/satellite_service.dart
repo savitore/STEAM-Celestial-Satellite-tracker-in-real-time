@@ -79,7 +79,6 @@ class SatelliteService {
   /// Returns a [String] that represents the `orbit` KML.
   String buildOrbit(SatelliteModel satellite, TLEModel tle, {LookAtEntity? lookAt})
   {
-
     LookAtEntity lookAtObj;
 
     if (lookAt == null) {
