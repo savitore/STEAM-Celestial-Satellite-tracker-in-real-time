@@ -425,7 +425,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                           _buildSatelliteStatus(),
                           const SizedBox(height: 20),
                           _buildSatelliteImage(),
-                          _buildVisualise(context,state.TLE),
+                          _buildViewButtons(context,state.TLE),
                           _buildVisualisingInLG(),
                           _buildTitle('Satellite ID', widget.satelliteModel.satId.toString()),
                           _buildTitle('NORAD ID', widget.satelliteModel.noradCatId.toString()),
@@ -840,7 +840,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     );
   }
 
-  Widget _buildVisualise(BuildContext context, String TLE){
+  Widget _buildViewButtons(BuildContext context, String TLE){
     return tleExists ?
     Column(
       children: [
@@ -1201,8 +1201,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: ThemeColors.textPrimary,
-                              decoration: TextDecoration.underline,
+                              color: ThemeColors.primaryColor,
                             ),
                             recognizer: TapGestureRecognizer()
                               ..onTap = (){
@@ -1536,7 +1535,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         }
 
         if (_lgService.balloonScreen == _lgService.logoScreen) {
-          print('1');
           await _lgService.setLogos(
             name: 'CSt-logos-balloon',
             content: '''
@@ -1545,7 +1543,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           ''',
           );
         } else {
-          print('2');
           final kmlBalloon = KMLEntity(
             name: 'CSt-balloon',
             content: placemark.balloonOnlyTag,

@@ -97,7 +97,7 @@ class _SettingsState extends State<Settings> {
                   }
                 },
                 title: _buildTitle('LG Connection'),
-                leading: Image.asset('assets/lg.png',width: 20,height: 20,color: ThemeColors.primaryColor,),
+                leading: _buildIcon(Icons.travel_explore_rounded),
                 trailing: const Icon(Icons.arrow_forward,),
                 ),
               _divider(),
@@ -118,8 +118,8 @@ class _SettingsState extends State<Settings> {
                   onTap: (){
                     Navigator.pop(context,"refresh");
                   },
-                  title: Text('Refresh data',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 28,fontWeight: FontWeight.normal),overflow: TextOverflow.visible,),
-                  leading: _buildIcon(Icons.refresh_rounded),
+                  title: Text('Synchronize data',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 28,fontWeight: FontWeight.normal),overflow: TextOverflow.visible,),
+                  leading: _buildIcon(Icons.sync),
               ),
               _divider(),
             ],

@@ -107,7 +107,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                                         show=!show;
                                       });
                                     },
-                                    child: Text(show ? 'HIDE' : 'SHOW')
+                                    child: Text(show ? 'HIDE' : 'SHOW',style: const TextStyle(fontSize: 18),)
                                 )
                             ),
                           ),
@@ -151,6 +151,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                                 child: ElevatedButton(
                                   onPressed: (){
                                     _localStorageService.setItem('screen', _screensController.text.toString());
+                                    _onConnect();
                                     Timer(const Duration(seconds: 3), () async {
                                       if (isAuthenticated) {
                                         await _lgService.setLogos();
@@ -162,21 +163,20 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                                         _loading=false;
                                       });
                                     });
-                                    _onConnect();
                                   },
                                   style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50)))),
                                   child: Row(
                                     children: [
                                       const SizedBox(width: 5,),
                                       const Text('CONNECT',style: TextStyle(fontSize: 20),),
-                                      const SizedBox(width: 5,),
+                                      const SizedBox(width: 10,),
                                       _loading ?
                                       SizedBox(
                                         width: 20,
                                         height: 20,
                                         child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor,),
                                       ) :
-                                      const Icon(Icons.connected_tv,size: 25,)
+                                      const Icon(Icons.cast_connected_outlined,size: 25,)
                                     ],
                                   ),
                                 ),
@@ -243,6 +243,8 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
 
       if (_ipController.text.isEmpty ||
           _usernameController.text.isEmpty ||
+          _pwController.text.isEmpty ||
+          _screensController.text.isEmpty ||
           _portController.text.isEmpty)
       {
         showSnackbar(context, 'Please enter all details');
