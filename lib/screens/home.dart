@@ -54,7 +54,7 @@ class _HomeState extends State<Home> {
     checkFilter();
     _searchFocusNode.addListener(() {
       if (!_searchFocusNode.hasFocus) {
-        FocusScope.of(context).unfocus();
+        FocusManager.instance.primaryFocus?.unfocus();
       }
     });
     _dropDownOperators();
@@ -228,14 +228,11 @@ class _HomeState extends State<Home> {
                                             itemCount: satellites.length,
                                             itemBuilder:(context, index){
                                               return InkWell(
-                                                onTap: () async {
-                                                  final result = await Navigator.push(
+                                                onTap: () {
+                                                  Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
                                                           builder: (context) => SatelliteInfo(satellites[index])));
-                                                  if(result=="pop"){
-                                                    checkLGConnection();
-                                                  }
                                                 },
                                                 child: _buildList(context, satellites[index]),
                                               );
@@ -300,14 +297,11 @@ class _HomeState extends State<Home> {
                                             itemCount: searchedSatellites.length,
                                             itemBuilder:(context, index){
                                               return InkWell(
-                                                onTap: () async {
-                                                  final result = await Navigator.push(
+                                                onTap: () {
+                                                  Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
                                                           builder: (context) => SatelliteInfo(searchedSatellites[index])));
-                                                  if(result=="pop"){
-                                                    checkLGConnection();
-                                                  }
                                                 },
                                                 child: _buildList(context, searchedSatellites[index]),
                                               );

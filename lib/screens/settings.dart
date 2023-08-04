@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/screens/help.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/lg_settings.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/local_storage_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
@@ -79,6 +80,16 @@ class _SettingsState extends State<Settings> {
                   title: _buildTitle('About'),
                   trailing: const Icon(Icons.arrow_forward),
                   leading: _buildIcon(Icons.info_outline),
+              ),
+              _divider(),
+              ListTile(
+                onTap: (){
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Help()));
+                },
+                title: _buildTitle('Help'),
+                trailing: const Icon(Icons.arrow_forward),
+                leading: _buildIcon(Icons.help_center_outlined),
               ),
               _divider(),
               const SizedBox(height: 10,),
@@ -313,7 +324,7 @@ class _SettingsState extends State<Settings> {
               ],
             ),
           ),
-          const SizedBox(height: 5,),
+          const SizedBox(height: 20,),
           ElevatedButton(
             onPressed: () async {
               checkLGConnection();

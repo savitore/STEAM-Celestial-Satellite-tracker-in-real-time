@@ -103,7 +103,6 @@ class About extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: ThemeColors.backgroundCardColor,
       appBar: AppBar(
@@ -339,60 +338,41 @@ class About extends StatelessWidget {
                           _buildDescriptionParagraph(
                               '◼️  This project represents the orbit of a satellite orbiting earth on a Liquid Galaxy rig and an Arduino-controlled pointer through a mobile application.'),
                           const SizedBox(height: 10,),
-                          RichText(
-                              text: TextSpan(
-                                  text: '◼️  To view the direction of a satellite in 3D with an Arduino-controlled pointer, follow the instructions on the ',
-                                  style: TextStyle(
-                                    color: ThemeColors.textPrimary,
-                                    fontSize: 20,
-                                  ),
-                                  children: [
-                                    TextSpan(
-                                        text: 'Instruction Manual.',
-                                        style: TextStyle(
-                                          color: ThemeColors.primaryColor,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold
-                                        ),
-                                        recognizer: TapGestureRecognizer()
-                                          ..onTap = (){
-                                          _openLink(_instructionManual);
-                                          }
-                                    ),
-                                  ]
-                              )
-                          ),
+                          _buildDescriptionParagraph('◼️  The direction of the satellite can be viewed by using the Arduino-controlled pointer, which emits laser towards the satellite.'),
+                          // RichText(
+                          //     text: TextSpan(
+                          //         text: '◼️  To view the direction of a satellite in 3D with an Arduino-controlled pointer, follow the instructions on the ',
+                          //         style: TextStyle(
+                          //           color: ThemeColors.textPrimary,
+                          //           fontSize: 20,
+                          //         ),
+                          //         children: [
+                          //           TextSpan(
+                          //               text: 'Instruction Manual.',
+                          //               style: TextStyle(
+                          //                 color: ThemeColors.primaryColor,
+                          //                 fontSize: 20,
+                          //                 fontWeight: FontWeight.bold
+                          //               ),
+                          //               recognizer: TapGestureRecognizer()
+                          //                 ..onTap = (){
+                          //                 _openLink(_instructionManual);
+                          //                 }
+                          //           ),
+                          //         ]
+                          //     )
+                          // ),
                           const SizedBox(height: 10,),
                           _buildDescriptionParagraph(
                               '◼️  The data is visible into the Google Earth (running on the Liquid Galaxy rig) as placemarks, polygons, balloons and more.'),
                           const SizedBox(height: 10,),
                           _buildDescriptionParagraph(
                               '◼️  It\'s possible to search, filter and sort satellites, synchronize the data between the application and the database, run some of the Liquid Galaxy system commands, check the orbit of satellites, play orbit tours and more.'),
+                          const SizedBox(height: 10,),
+                          _buildDescriptionParagraph(
+                              '◼️  This app has been developed thanks to the Liquid Galaxy LAB testers: Mohamed Zazou, Navdeep Singh and Imad Laichi.'),
                         ],
                       ),
-                    ),
-                    RichText(
-                        text: TextSpan(
-                            text: 'To know more about the app, visit this project\'s ',
-                            style: TextStyle(
-                              color: ThemeColors.textPrimary,
-                              fontSize: 22,
-                            ),
-                            children: [
-                              TextSpan(
-                                  text: 'GitHub.',
-                                  style: TextStyle(
-                                      color: ThemeColors.primaryColor,
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold
-                                  ),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = (){
-                                      _openLink(_projectGitHub);
-                                    }
-                              ),
-                            ]
-                        )
                     ),
                   ],
                 ),

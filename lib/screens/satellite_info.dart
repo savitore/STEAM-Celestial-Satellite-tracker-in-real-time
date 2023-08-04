@@ -93,236 +93,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
 
-  String btInit(String TLE){
-    FlutterBluetoothSerial.instance.state.then((state) {
-      setState(() {
-        _bluetoothState = state;
-      });
-    });
-    _deviceState=0;
-
-    // enableBluetooth();
-
-    // Listen for further state changes
-    FlutterBluetoothSerial.instance
-        .onStateChanged()
-        .listen((BluetoothState state) {
-      setState(() {
-        _bluetoothState = state;
-        if (_bluetoothState == BluetoothState.STATE_OFF) {
-          _isButtonUnavailable = true;
-        }
-        getPairedDevices();
-      });
-    });
-
-    DateTime now = DateTime.now();
-    DateTime date = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
-      TLE = "$TLE,${date.year},${date.month},${date.day},${date.hour},${date.minute},${date.second}";
-      TLE = "$TLE,$latitude,$longitude,$altitude";
-      return TLE;
-  }
-
-  /// Determine the current position of the device.
-  void _determinePosition() async {
-    // bool serviceEnabled;
-    // LocationPermission permission;
-    //
-    // // Test if location services are enabled.
-    // serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    // if (!serviceEnabled) {
-    //   location='Location services are disabled.';
-    //   // Location services are not enabled don't continue
-    //   // accessing the position and request users of the
-    //   // App to enable the location services.
-    // }
-    //
-    // permission = await Geolocator.checkPermission();
-    // if (permission == LocationPermission.denied) {
-    //   permission = await Geolocator.requestPermission();
-    //   if (permission == LocationPermission.denied) {
-    //     location='Location permissions are denied';
-    //     // Permissions are denied, next time you could try
-    //     // requesting permissions again (this is also where
-    //     // Android's shouldShowRequestPermissionRationale
-    //     // returned true. According to Android guidelines
-    //     // your App should show an explanatory UI now.
-    //   }
-    // }
-    //
-    // if (permission == LocationPermission.deniedForever) {
-    //   location='Location permissions are permanently denied, we cannot request permissions.';
-    //   // Permissions are denied forever, handle appropriately.
-    // }
-    //
-    // // When we reach here, permissions are granted and we can
-    // // continue accessing the position of the device.
-    // location='access';
-    // print(location);
-    // setState(() {
-    //   latitude="19.14970";
-    //   longitude="72.84717";
-    // });
-    // Position position = await Geolocator.getCurrentPosition();
-    // setState(() {
-    //   latitude=position.latitude.toString();
-    //   longitude=position.longitude.toString();
-    //   altitude=position.altitude.toString();
-    //   print('latitude: '+latitude);
-    // });
-    Location location = Location();
-
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    LocationData _locationData;
-
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
-    }
-
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-
-    _locationData = await location.getLocation();
-    setState(() {
-      _location="granted";
-      latitude=_locationData.latitude.toString();
-      longitude=_locationData.longitude.toString();
-      altitude=_locationData.altitude.toString();
-      if(double.parse(altitude) < 0){
-        altitude="0";
-      }
-    });
-    print(latitude+" "+longitude+" "+altitude);
-  }
-
-  // Request Bluetooth permission from the user
-  // Future<bool> enableBluetooth() async {
-  //   // Retrieving the current Bluetooth state
-  //   _bluetoothState = await FlutterBluetoothSerial.instance.state;
-  //
-  //   // If the bluetooth is off, then turn it on first
-  //   // and then retrieve the devices that are paired.
-  //   if (_bluetoothState == BluetoothState.STATE_OFF) {
-  //     await FlutterBluetoothSerial.instance.requestEnable();
-  //     await getPairedDevices();
-  //     return true;
-  //   } else {
-  //     await getPairedDevices();
-  //   }
-  //   return false;
-  // }
-
-  // For retrieving and storing the paired devices
-  // in a list.
-  Future<void> getPairedDevices() async {
-    List<BluetoothDevice> devices = [];
-
-    // To get the list of paired devices
-    try {
-      devices = await _bluetooth.getBondedDevices();
-    } on PlatformException {
-      if (kDebugMode) {
-        print("Error");
-      }
-    }
-
-    // It is an error to call [setState] unless [mounted] is true.
-    if (!mounted) {
-      return;
-    }
-
-    // Store the [devices] list in the [_devicesList] for accessing
-    // the list outside this class
-    setState(() {
-      _devicesList = devices;
-    });
-  }
-
-  // Create the List of devices to be shown in Dropdown Menu
-  List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
-    List<DropdownMenuItem<BluetoothDevice>> items = [];
-    if (_devicesList.isEmpty) {
-      items.add(const DropdownMenuItem(
-        child: Text('NONE'),
-      ));
-    } else {
-      for (var device in _devicesList) {
-        items.add(DropdownMenuItem(
-          value: device,
-          child: Text(device.name!),
-        ));
-      }
-    }
-    return items;
-  }
-
-// Method to connect to bluetooth
-  void _connect() async {
-    setState(() {
-      _isButtonUnavailable = true;
-      _isConnecting=true;
-    });
-    if (_device == null) {
-      showSnackbar(context,'No device selected');
-    } else {
-
-      if (!isConnected) {
-        await BluetoothConnection.toAddress(_device?.address)
-            .then((connection) {
-          _connection = connection;
-          setState(() {
-            _btConnected = true;
-          });
-
-          //get data from HC-05
-          _connection?.input?.listen((Uint8List data) {
-            setState(() {
-              btReceived=utf8.decode(data);
-            });
-            if (mounted) {
-              setState(() {});
-            }
-          });
-        }).catchError((error) {
-          print(error);
-        });
-        showSnackbar(context,'Device connected');
-
-        setState(() {
-          _isButtonUnavailable = false;
-          _isConnecting=false;
-        });
-      }
-    }
-  }
-
-  // Method to disconnect bluetooth
-  void _disconnect() async {
-    setState(() {
-      _isButtonUnavailable = true;
-      _deviceState = 0;
-    });
-
-    await _connection?.close();
-    showSnackbar(context,'Device disconnected');
-    if (!_connection!.isConnected) {
-      setState(() {
-        _btConnected = false;
-        _isButtonUnavailable = false;
-      });
-    }
-  }
-
   //check if lg is connected
   void checkLGConnection() {
     if(_localStorageService.hasItem('lgConnected')){
@@ -346,7 +116,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             backgroundColor: Colors.transparent,
             foregroundColor: ThemeColors.textPrimary,
             elevation: 0,
-            leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context,"pop"); },),
+            leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context); },),
           ),
           body: SafeArea(
             child: BlocConsumer<SatelliteInfoCubit, SatelliteInfoState>(
@@ -1268,7 +1038,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   Widget _buildVisualisingInLG(){
     return _viewingLG ?
     Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+          padding: const EdgeInsets.fromLTRB(0, 10, 0, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -1290,8 +1060,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                   },
                   icon: Icon(!_orbit ? Icons.flip_camera_android_rounded
                       : Icons.stop_rounded,
-                    color: ThemeColors.primaryColor,),
-                  label: Text(_orbit ? 'STOP ORBIT' : 'ORBIT',style: TextStyle(color: ThemeColors.textPrimary,fontWeight: FontWeight.bold),)
+                    color: ThemeColors.primaryColor,size: 30,),
+                  label: Text(_orbit ? 'STOP ORBIT' : 'ORBIT',style: TextStyle(color: ThemeColors.textPrimary,fontWeight: FontWeight.bold,fontSize: 25),)
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1301,7 +1071,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                     style: TextStyle(
                       color: ThemeColors.textPrimary,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 22,
                     ),
                   ),
                   Switch(
@@ -1331,7 +1101,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                     style: TextStyle(
                       color: ThemeColors.textPrimary,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 22,
                     ),
                   ),
                   Flexible(
@@ -1394,13 +1164,14 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                           ? Icons.rocket_launch_rounded
                           : Icons.stop_rounded,
                       color: ThemeColors.primaryColor,
+                      size: 30,
                     ),
                     label: Text(
                       _simulate ? 'STOP SIMULATION' : 'SIMULATE',
                       style: TextStyle(
                         color: ThemeColors.textPrimary,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 25,
                       ),
                     ),
                     onPressed: () async {
@@ -1417,7 +1188,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                     },
                   )
                 ],
-              )
+              ),
             ],
           ),
         ) :
@@ -1517,6 +1288,236 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       setState(() {
       websiteDialog = _localStorageService.getItem(StorageKeys.website);
     });
+    }
+  }
+
+  String btInit(String TLE){
+    FlutterBluetoothSerial.instance.state.then((state) {
+      setState(() {
+        _bluetoothState = state;
+      });
+    });
+    _deviceState=0;
+
+    // enableBluetooth();
+
+    // Listen for further state changes
+    FlutterBluetoothSerial.instance
+        .onStateChanged()
+        .listen((BluetoothState state) {
+      setState(() {
+        _bluetoothState = state;
+        if (_bluetoothState == BluetoothState.STATE_OFF) {
+          _isButtonUnavailable = true;
+        }
+        getPairedDevices();
+      });
+    });
+
+    DateTime now = DateTime.now();
+    DateTime date = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
+    TLE = "$TLE,${date.year},${date.month},${date.day},${date.hour},${date.minute},${date.second}";
+    TLE = "$TLE,$latitude,$longitude,$altitude";
+    return TLE;
+  }
+
+  /// Determine the current position of the device.
+  void _determinePosition() async {
+    // bool serviceEnabled;
+    // LocationPermission permission;
+    //
+    // // Test if location services are enabled.
+    // serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    // if (!serviceEnabled) {
+    //   location='Location services are disabled.';
+    //   // Location services are not enabled don't continue
+    //   // accessing the position and request users of the
+    //   // App to enable the location services.
+    // }
+    //
+    // permission = await Geolocator.checkPermission();
+    // if (permission == LocationPermission.denied) {
+    //   permission = await Geolocator.requestPermission();
+    //   if (permission == LocationPermission.denied) {
+    //     location='Location permissions are denied';
+    //     // Permissions are denied, next time you could try
+    //     // requesting permissions again (this is also where
+    //     // Android's shouldShowRequestPermissionRationale
+    //     // returned true. According to Android guidelines
+    //     // your App should show an explanatory UI now.
+    //   }
+    // }
+    //
+    // if (permission == LocationPermission.deniedForever) {
+    //   location='Location permissions are permanently denied, we cannot request permissions.';
+    //   // Permissions are denied forever, handle appropriately.
+    // }
+    //
+    // // When we reach here, permissions are granted and we can
+    // // continue accessing the position of the device.
+    // location='access';
+    // print(location);
+    // setState(() {
+    //   latitude="19.14970";
+    //   longitude="72.84717";
+    // });
+    // Position position = await Geolocator.getCurrentPosition();
+    // setState(() {
+    //   latitude=position.latitude.toString();
+    //   longitude=position.longitude.toString();
+    //   altitude=position.altitude.toString();
+    //   print('latitude: '+latitude);
+    // });
+    Location location = Location();
+
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    LocationData _locationData;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _locationData = await location.getLocation();
+    setState(() {
+      _location="granted";
+      latitude=_locationData.latitude.toString();
+      longitude=_locationData.longitude.toString();
+      altitude=_locationData.altitude.toString();
+      if(double.parse(altitude) < 0){
+        altitude="0";
+      }
+    });
+    print(latitude+" "+longitude+" "+altitude);
+  }
+
+  // Request Bluetooth permission from the user
+  // Future<bool> enableBluetooth() async {
+  //   // Retrieving the current Bluetooth state
+  //   _bluetoothState = await FlutterBluetoothSerial.instance.state;
+  //
+  //   // If the bluetooth is off, then turn it on first
+  //   // and then retrieve the devices that are paired.
+  //   if (_bluetoothState == BluetoothState.STATE_OFF) {
+  //     await FlutterBluetoothSerial.instance.requestEnable();
+  //     await getPairedDevices();
+  //     return true;
+  //   } else {
+  //     await getPairedDevices();
+  //   }
+  //   return false;
+  // }
+
+  // For retrieving and storing the paired devices
+  // in a list.
+  Future<void> getPairedDevices() async {
+    List<BluetoothDevice> devices = [];
+
+    // To get the list of paired devices
+    try {
+      devices = await _bluetooth.getBondedDevices();
+    } on PlatformException {
+      if (kDebugMode) {
+        print("Error");
+      }
+    }
+
+    // It is an error to call [setState] unless [mounted] is true.
+    if (!mounted) {
+      return;
+    }
+
+    // Store the [devices] list in the [_devicesList] for accessing
+    // the list outside this class
+    setState(() {
+      _devicesList = devices;
+    });
+  }
+
+  // Create the List of devices to be shown in Dropdown Menu
+  List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
+    List<DropdownMenuItem<BluetoothDevice>> items = [];
+    if (_devicesList.isEmpty) {
+      items.add(const DropdownMenuItem(
+        child: Text('NONE'),
+      ));
+    } else {
+      for (var device in _devicesList) {
+        items.add(DropdownMenuItem(
+          value: device,
+          child: Text(device.name!),
+        ));
+      }
+    }
+    return items;
+  }
+
+// Method to connect to bluetooth
+  void _connect() async {
+    setState(() {
+      _isButtonUnavailable = true;
+      _isConnecting=true;
+    });
+    if (_device == null) {
+      showSnackbar(context,'No device selected');
+    } else {
+
+      if (!isConnected) {
+        await BluetoothConnection.toAddress(_device?.address)
+            .then((connection) {
+          _connection = connection;
+          setState(() {
+            _btConnected = true;
+          });
+
+          //get data from HC-05
+          _connection?.input?.listen((Uint8List data) {
+            setState(() {
+              btReceived=utf8.decode(data);
+            });
+            if (mounted) {
+              setState(() {});
+            }
+          });
+        }).catchError((error) {
+          print(error);
+        });
+        showSnackbar(context,'Device connected');
+
+        setState(() {
+          _isButtonUnavailable = false;
+          _isConnecting=false;
+        });
+      }
+    }
+  }
+
+  // Method to disconnect bluetooth
+  void _disconnect() async {
+    setState(() {
+      _isButtonUnavailable = true;
+      _deviceState = 0;
+    });
+
+    await _connection?.close();
+    showSnackbar(context,'Device disconnected');
+    if (!_connection!.isConnected) {
+      setState(() {
+        _btConnected = false;
+        _isButtonUnavailable = false;
+      });
     }
   }
 

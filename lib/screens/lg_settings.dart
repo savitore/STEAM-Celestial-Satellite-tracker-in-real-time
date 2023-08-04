@@ -150,6 +150,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                                 width: 170,
                                 child: ElevatedButton(
                                   onPressed: (){
+                                    FocusManager.instance.primaryFocus?.unfocus();
                                     _localStorageService.setItem('screen', _screensController.text.toString());
                                     _onConnect();
                                     Timer(const Duration(seconds: 3), () async {
