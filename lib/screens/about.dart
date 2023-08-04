@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_icons/simple_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -36,6 +37,12 @@ class About extends StatelessWidget {
 
   /// Property that defines the organization website URL.
   final _orgWebsite = 'www.liquidgalaxy.eu';
+
+  /// Property that defines the instruction manual.
+  final _instructionManual = 'https://docs.google.com/document/d/1NfXiyhhtKBtD2GL_H1Qew8CYwpoZ0U3u9v3ifMiTAcE/edit';
+
+  /// Property that defines the project GitHub.
+  final _projectGitHub = 'https://github.com/savitore/STEAM-Celestial-Satellite-tracker-in-real-time';
 
   /// Opens the email app with the given [email] in it.
   void _sendEmail(String email) async {
@@ -325,23 +332,68 @@ class About extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(30, 20, 30, 20),
+                      padding: const EdgeInsets.fromLTRB(30, 20, 30, 30),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildDescriptionParagraph(
                               '◼️  This project represents the orbit of a satellite orbiting earth on a Liquid Galaxy rig and an Arduino-controlled pointer through a mobile application.'),
                           const SizedBox(height: 10,),
-                          _buildDescriptionParagraph('◼️  To view the direction of satellite on a 3D model, upload the code from my GitHub to Arduino and connect components as mentioned.'),
+                          RichText(
+                              text: TextSpan(
+                                  text: '◼️  To view the direction of a satellite in 3D with an Arduino-controlled pointer, follow the instructions on the ',
+                                  style: TextStyle(
+                                    color: ThemeColors.textPrimary,
+                                    fontSize: 20,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                        text: 'Instruction Manual.',
+                                        style: TextStyle(
+                                          color: ThemeColors.primaryColor,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = (){
+                                          _openLink(_instructionManual);
+                                          }
+                                    ),
+                                  ]
+                              )
+                          ),
                           const SizedBox(height: 10,),
                           _buildDescriptionParagraph(
                               '◼️  The data is visible into the Google Earth (running on the Liquid Galaxy rig) as placemarks, polygons, balloons and more.'),
                           const SizedBox(height: 10,),
                           _buildDescriptionParagraph(
-                              '◼️  It\'s possible to search, filter and sort satellites, synchronize the data between the application and the database, run some of the Liquid Galaxy system commands/tasks, check the orbit of satellites, play orbit tours and more.'),
+                              '◼️  It\'s possible to search, filter and sort satellites, synchronize the data between the application and the database, run some of the Liquid Galaxy system commands, check the orbit of satellites, play orbit tours and more.'),
                         ],
                       ),
-                    )
+                    ),
+                    RichText(
+                        text: TextSpan(
+                            text: 'To know more about the app, visit this project\'s ',
+                            style: TextStyle(
+                              color: ThemeColors.textPrimary,
+                              fontSize: 22,
+                            ),
+                            children: [
+                              TextSpan(
+                                  text: 'GitHub.',
+                                  style: TextStyle(
+                                      color: ThemeColors.primaryColor,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = (){
+                                      _openLink(_projectGitHub);
+                                    }
+                              ),
+                            ]
+                        )
+                    ),
                   ],
                 ),
               ),
@@ -360,7 +412,6 @@ class About extends StatelessWidget {
       style: TextStyle(
         color: ThemeColors.textPrimary,
         fontSize: 20,
-        fontWeight: FontWeight.normal,
       ),
       overflow: TextOverflow.visible,
     );
