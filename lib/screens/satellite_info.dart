@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/kml/kml_entity.dart';
 import '../models/kml/look_at_entity.dart';
 import '../models/kml/placemark_entity.dart';
+import '../repositories/countries_iso.dart';
 import '../services/lg_service.dart';
 import '../services/satellite_service.dart';
 import '../utils/colors.dart';
@@ -76,6 +78,18 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     _determinePosition();
     checkWebsiteDialog();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // Avoid memory leak and disconnect
+    if (isConnected) {
+      isDisconnecting = true;
+      _connection?.dispose();
+      _connection = null;
+    }
+    btReceived='';
+    super.dispose();
   }
 
 
@@ -189,18 +203,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       }
     });
     print(latitude+" "+longitude+" "+altitude);
-  }
-
-  @override
-  void dispose() {
-    // Avoid memory leak and disconnect
-    if (isConnected) {
-      isDisconnecting = true;
-      _connection?.dispose();
-      _connection = null;
-    }
-    btReceived='';
-    super.dispose();
   }
 
   // Request Bluetooth permission from the user
@@ -425,7 +427,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                           _buildSatelliteStatus(),
                           const SizedBox(height: 20),
                           _buildSatelliteImage(),
-                          _buildViewButtons(context,state.TLE),
+                          _buildVisualise(context,state.TLE),
                           _buildVisualisingInLG(),
                           _buildTitle('Satellite ID', widget.satelliteModel.satId.toString()),
                           _buildTitle('NORAD ID', widget.satelliteModel.noradCatId.toString()),
@@ -792,11 +794,42 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
   Widget _buildCountry(String countries){
+    if(countries.isEmpty || countries == 'null' ){
+      return Container();
+    }
     String title = 'Country of Origin';
     if(countries.contains(',')){
       title = 'Countries of Origin';
+      return _buildTitle(title, countries.toString());
     }
-    return _buildTitle(title, countries.toString());
+      List iso = ISO().iso;
+      String code = '';
+      for (int j = 0; j < iso.length; j++) {
+        Map<String, String> data = iso[j];
+          if (data['Name'] == countries) {
+            code = data['Code']!;
+          }
+      }
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _title(title),
+          SizedBox(height: _height1),
+          Row(
+            children: [
+              _paragraph(countries.toString()),
+              const SizedBox(width: 5,),
+              CountryFlag.fromCountryCode(
+                code,
+                height: 36,
+                width: 24,
+              ),
+            ],
+          ),
+          SizedBox(height: _height2)
+        ],
+      );
   }
 
   Widget _buildSatelliteStatus() {
@@ -840,7 +873,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     );
   }
 
-  Widget _buildViewButtons(BuildContext context, String TLE){
+  Widget _buildVisualise(BuildContext context, String TLE){
     return tleExists ?
     Column(
       children: [

@@ -55,6 +55,7 @@ dependencies:
   geolocator: ^9.0.2
   flutter_compass: ^0.7.0
   location: ^5.0.1
+  country_flags: ^2.1.0
 
 dev_dependencies:
   flutter_test:
