@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
@@ -761,31 +762,32 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     if(_bluetoothState == BluetoothState.STATE_ON){
       getPairedDevices();
     }
-    // if(_location!="granted"){
-    //   return Padding(
-    //     padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
-    //     child: Column(
-    //       mainAxisSize: MainAxisSize.min,
-    //       crossAxisAlignment: CrossAxisAlignment.start,
-    //       children: [
-    //         Text('Please grant location permission in order to view in 3D.',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,),
-    //         const SizedBox(height: 20,),
-    //         SizedBox(
-    //           height: 45,
-    //           child: ElevatedButton(
-    //               onPressed: (){
-    //                 _determinePosition();
-    //               },
-    //               style: ElevatedButton.styleFrom(
-    //                   backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
-    //               ),
-    //               child: const Text('Request Permission',style: TextStyle(fontSize: 20),)
-    //           ),
-    //         )
-    //       ],
-    //     ),
-    //   );
-    // }
+    if(_location!="access"){
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Please grant location permission in order to view in 3D.',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,),
+            const SizedBox(height: 20,),
+            SizedBox(
+              height: 45,
+              child: ElevatedButton(
+                  onPressed: (){
+                    openAppSettings();
+                    Future.delayed(const Duration(seconds: 5),() => _determinePosition());
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
+                  ),
+                  child: const Text('App Settings',style: TextStyle(fontSize: 20),)
+              ),
+            )
+          ],
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child:
@@ -1407,10 +1409,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
-    _location='access';
-    print(_location);
     Position position = await Geolocator.getCurrentPosition();
     setState(() {
+      _location='access';
       latitude=position.latitude.toString();
       longitude=position.longitude.toString();
       altitude=position.altitude.toString();
