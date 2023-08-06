@@ -143,7 +143,7 @@ class _SettingsState extends State<Settings> {
     return Text(title,style: TextStyle(color: ThemeColors.textPrimary,fontSize: 28),overflow: TextOverflow.visible,);
   }
   Widget _buildIcon(IconData iconData){
-    return Icon(iconData,size: 28,color: ThemeColors.primaryColor,);
+    return Icon(iconData,size: 30,color: ThemeColors.primaryColor,);
   }
   Widget _buildSection(String title){
     return Text(title,style: TextStyle(color: ThemeColors.secondaryColor,fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis,fontSize: 22),);

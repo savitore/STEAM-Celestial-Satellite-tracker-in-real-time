@@ -593,19 +593,19 @@ class _HomeState extends State<Home> {
                   launchNew=false;
                   launchOld=false;
                   sort=false;
-                  Navigator.pop(context);
-                  context.read<SatelliteCubit>().filterSearchData(
-                      _searchController.text,
-                      dropdownvalueCountries,
-                      dropdownvalueStatus,
-                      decayed,
-                      launched,
-                      deployed,
-                      dropdownvalueOperators,
-                      featured,
-                      launchNew,
-                      launchOld);
                 });
+                  Navigator.pop(context);
+                    context.read<SatelliteCubit>().filterSearchData(
+                        _searchController.text,
+                        dropdownvalueCountries,
+                        dropdownvalueStatus,
+                        decayed,
+                        launched,
+                        deployed,
+                        dropdownvalueOperators,
+                        featured,
+                        launchNew,
+                        launchOld);
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 15),
@@ -620,6 +620,7 @@ class _HomeState extends State<Home> {
                   launchNew=true;
                   launchOld=false;
                   sort=true;
+                });
                   Navigator.pop(context);
                   context.read<SatelliteCubit>().filterSearchData(
                       _searchController.text,
@@ -632,7 +633,6 @@ class _HomeState extends State<Home> {
                       featured,
                       launchNew,
                       launchOld);
-                });
               },
               child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 15),
@@ -647,6 +647,7 @@ class _HomeState extends State<Home> {
                   launchNew=false;
                   launchOld=true;
                   sort=true;
+                });
                   Navigator.pop(context);
                   context.read<SatelliteCubit>().filterSearchData(
                       _searchController.text,
@@ -659,7 +660,6 @@ class _HomeState extends State<Home> {
                       featured,
                       launchNew,
                       launchOld);
-                });
               },
               child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 15),

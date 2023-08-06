@@ -197,7 +197,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                           _buildSatelliteStatus(),
                           const SizedBox(height: 20),
                           _buildSatelliteImage(),
-                          _buildVisualise(context,state.TLE),
+                          _buildViewButtons(context,state.TLE),
                           _buildVisualisingInLG(),
                           _buildTitle('Satellite ID', widget.satelliteModel.satId.toString()),
                           _buildTitle('NORAD ID', widget.satelliteModel.noradCatId.toString()),
@@ -643,7 +643,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     );
   }
 
-  Widget _buildVisualise(BuildContext context, String TLE){
+  Widget _buildViewButtons(BuildContext context, String TLE){
     return tleExists ?
     Column(
       children: [
@@ -655,6 +655,10 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               width: MediaQuery.of(context).size.width*0.5-20,
               child: ElevatedButton(
                   onPressed: (){
+                    String tle=btInit(TLE);
+                    if(_bluetoothState==BluetoothState.STATE_ON){
+                      getPairedDevices();
+                    }
                     showModalBottomSheet(
                       isDismissible: true,
                       enableDrag: false,
@@ -662,10 +666,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       context: context,
                       builder: (_context) => StatefulBuilder(
                           builder: (BuildContext _context, StateSetter _setState){
-                            String tle=btInit(TLE);
-                            if(_bluetoothState==BluetoothState.STATE_ON){
-                              getPairedDevices();
-                            }
                             return btConnection(context,_setState,tle);
                           }),
                       isScrollControlled: true,
@@ -762,11 +762,36 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     if(_bluetoothState == BluetoothState.STATE_ON){
       getPairedDevices();
     }
+    // if(_location!="granted"){
+    //   return Padding(
+    //     padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
+    //     child: Column(
+    //       mainAxisSize: MainAxisSize.min,
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         Text('Please grant location permission in order to view in 3D.',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,),
+    //         const SizedBox(height: 20,),
+    //         SizedBox(
+    //           height: 45,
+    //           child: ElevatedButton(
+    //               onPressed: (){
+    //                 _determinePosition();
+    //               },
+    //               style: ElevatedButton.styleFrom(
+    //                   backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
+    //               ),
+    //               child: const Text('Request Permission',style: TextStyle(fontSize: 20),)
+    //           ),
+    //         )
+    //       ],
+    //     ),
+    //   );
+    // }
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child:
       _bluetoothState == BluetoothState.STATE_ON ?
-      Column(
+       Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -877,7 +902,13 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                   height: 45,
                   child: ElevatedButton(
                     onPressed:
-                    _btConnected ? _disconnect :
+                    _btConnected ? (){
+                      _disconnect();
+                      _setState(() {
+                        _btDataSent=false;
+                        _btConnected=false;
+                      });
+                    } :
                         (){
                       _connect();
                     },
@@ -891,6 +922,36 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             ),
           ),
           const SizedBox(height: 20),
+          _btConnected ?
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('To view the correct direction of the satellite, please align the 3D model to 0°N',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),),
+              const SizedBox(height: 10,),
+              SizedBox(
+                height: 45,
+                width: 220,
+                child: ElevatedButton(
+                    onPressed: (){
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Compass()));
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent,foregroundColor: ThemeColors.textPrimary, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),side: const BorderSide(color: Colors.black12))),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.compass_calibration_outlined),
+                        SizedBox(width: 10,),
+                        Flexible(child: Text('Open Compass',style: TextStyle(fontSize: 20),overflow: TextOverflow.visible,))
+                      ],
+                    )
+                ),
+              ),
+              const SizedBox(height: 30,),
+            ],
+          ) :
+          const SizedBox(),
           _btConnected && !_btDataSent ?
           SizedBox(
             width: 200,
@@ -903,12 +964,12 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                   });
                 },
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),side: BorderSide(color: ThemeColors.primaryColor))
+                    backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset('assets/3d.png',width: 20,height: 20,color: ThemeColors.primaryColor,),
+                    Image.asset('assets/3d.png',width: 25,height: 25,color: ThemeColors.backgroundColor,),
                     const SizedBox(width: 10),
                     const Text('VIEW IN 3D',style: TextStyle(fontSize: 20),),
                   ],
@@ -917,39 +978,24 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           ) :
           const SizedBox(),
           _btDataSent ?
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Data Sent',style: TextStyle(color: ThemeColors.textPrimary),),
-              const SizedBox(height: 10),
-              Text('To view the correct direction of the satellite, please align the 3D model to 0°N',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),),
-              const SizedBox(height: 10,),
-              SizedBox(
-                height: 45,
-                child: ElevatedButton(
-                    onPressed: (){
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Compass()));
-                    },
-                    style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),side: BorderSide(color: ThemeColors.primaryColor))),
-                    child: const Text('Open Compass',style: TextStyle(fontSize: 20),)
-                ),
-              ),
-              const SizedBox(height: 20,),
-              btReceived=='' ? Row(
-                children: [
-                  CircularProgressIndicator(color: ThemeColors.primaryColor,),
-                  const SizedBox(width: 5,),
-                  Text('Waiting for response',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,)
-                ],
-              ) :
+           Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               Text('Data Sent',style: TextStyle(color: ThemeColors.textPrimary),),
+               const SizedBox(height: 10),
+               btReceived=='' ? Row(
+                 children: [
+                   CircularProgressIndicator(color: ThemeColors.primaryColor,),
+                   const SizedBox(width: 5,),
+                   Text('Waiting for response',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,)
+                 ],
+               ) :
                Text(btReceived,style: TextStyle(color: ThemeColors.secondaryColor,fontSize: 25,fontWeight: FontWeight.bold),overflow: TextOverflow.visible,),
-            ],
-          ) :
-          const SizedBox(),
+             ],
+           ) :
+           const SizedBox(),
           const SizedBox(height: 30,),
+          !_btConnected ?
           RichText(
               text: TextSpan(
                   text: 'Note: ',
@@ -982,7 +1028,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                     )
                   ]
               )
-          ),
+          ) :
+          const SizedBox(),
           const SizedBox(height: 10,),
         ],
       ) :
@@ -1318,6 +1365,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     DateTime date = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
     TLE = "$TLE,${date.year},${date.month},${date.day},${date.hour},${date.minute},${date.second}";
     TLE = "$TLE,$latitude,$longitude,$altitude";
+    print(TLE);
     return TLE;
   }
 
@@ -1370,37 +1418,37 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     // });
     Location location = Location();
 
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    LocationData _locationData;
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    LocationData locationData;
 
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
         return;
       }
     }
 
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
         return;
       }
     }
 
-    _locationData = await location.getLocation();
+    locationData = await location.getLocation();
     setState(() {
       _location="granted";
-      latitude=_locationData.latitude.toString();
-      longitude=_locationData.longitude.toString();
-      altitude=_locationData.altitude.toString();
+      latitude=locationData.latitude.toString();
+      longitude=locationData.longitude.toString();
+      altitude=locationData.altitude.toString();
       if(double.parse(altitude) < 0){
         altitude="0";
       }
     });
-    print(latitude+" "+longitude+" "+altitude);
+    print("$latitude $longitude $altitude");
   }
 
   // Request Bluetooth permission from the user

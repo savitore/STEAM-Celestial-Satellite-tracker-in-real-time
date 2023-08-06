@@ -52,15 +52,9 @@ class _CompassState extends State<Compass> {
               const SizedBox(height: 30),
               Text("${heading!.ceil()}°",style: TextStyle(color: ThemeColors.primaryColor,fontSize: 26,fontWeight: FontWeight.bold),),
               const SizedBox(height: 50),
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image.asset("assets/cadrant.png",color: Colors.black,),
-                  Transform.rotate(
-                    angle: ((heading ?? 0) * (pi/180) * -1),
-                    child: Image.asset("assets/compass.png",scale: 1.1,),
-                  )
-                ],
+              Transform.rotate(
+                angle: ((heading ?? 0) * (pi/180) * -1),
+                child: Image.asset("assets/compass.png",fit: BoxFit.fill,),
               )
             ],
           ),
