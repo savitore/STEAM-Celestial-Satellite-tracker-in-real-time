@@ -11,7 +11,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:location/location.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
@@ -65,7 +64,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   bool _isButtonUnavailable = false, _isConnecting=false;
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   String _location='',latitude='',longitude='',altitude='',satAltitude='';
-  String btReceived='';
+  String btReceived='', _btDataToSend='';
 
   final double _height1=10 ,_height2=30;
 
@@ -655,7 +654,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               width: MediaQuery.of(context).size.width*0.5-20,
               child: ElevatedButton(
                   onPressed: (){
-                    String tle=btInit(TLE);
+                    btInit();
                     if(_bluetoothState==BluetoothState.STATE_ON){
                       getPairedDevices();
                     }
@@ -666,7 +665,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       context: context,
                       builder: (_context) => StatefulBuilder(
                           builder: (BuildContext _context, StateSetter _setState){
-                            return btConnection(context,_setState,tle);
+                            return btConnection(context,_setState,TLE);
                           }),
                       isScrollControlled: true,
                     );
@@ -707,7 +706,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       });
                     }
                     else {
-                      viewSatellite(context, widget.satelliteModel,
+                      viewSatelliteLG(context, widget.satelliteModel,
                           _satelliteBalloonVisible);
                     }
                   },
@@ -911,6 +910,10 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                     } :
                         (){
                       _connect();
+                      setState(() {
+                        _btDataToSend= btData(tle);
+                      });
+                      print(_btDataToSend);
                     },
                     style: ElevatedButton.styleFrom(
                         backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
@@ -958,7 +961,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             height: 45,
             child: ElevatedButton(
                 onPressed: (){
-                  send(tle);
+                  send(_btDataToSend);
                   setState(() {
                     _btDataSent=true;
                   });
@@ -1100,7 +1103,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       _lgService.startTour('Orbit');
                     }else{
                       _lgService.stopTour();
-                      viewSatellite(context, widget.satelliteModel, true);
+                      viewSatelliteLG(context, widget.satelliteModel, true);
                     }
 
                   },
@@ -1129,7 +1132,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                         _simulate = false;
                         _satelliteBalloonVisible=value;
                       });
-                      viewSatellite(
+                      viewSatelliteLG(
                         context,
                         widget.satelliteModel,
                         value,
@@ -1181,7 +1184,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                             _simulate = false;
                           });
 
-                          viewSatellite(
+                          viewSatelliteLG(
                             context,
                             widget.satelliteModel,
                             _satelliteBalloonVisible,
@@ -1337,7 +1340,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     }
   }
 
-  String btInit(String TLE){
+  void btInit(){
     FlutterBluetoothSerial.instance.state.then((state) {
       setState(() {
         _bluetoothState = state;
@@ -1359,7 +1362,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         getPairedDevices();
       });
     });
+  }
 
+  String btData(String TLE){
     DateTime now = DateTime.now();
     DateTime date = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
     TLE = "$TLE,${date.year},${date.month},${date.day},${date.hour},${date.minute},${date.second}";
@@ -1370,84 +1375,80 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   /// Determine the current position of the device.
   void _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      _location='Location services are disabled.';
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        _location='Location permissions are denied';
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      _location='Location permissions are permanently denied, we cannot request permissions.';
+      // Permissions are denied forever, handle appropriately.
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    _location='access';
+    print(_location);
+    Position position = await Geolocator.getCurrentPosition();
+    setState(() {
+      latitude=position.latitude.toString();
+      longitude=position.longitude.toString();
+      altitude=position.altitude.toString();
+      print('latitude: $latitude');
+    });
+    // Location location = Location();
+    //
     // bool serviceEnabled;
-    // LocationPermission permission;
+    // PermissionStatus permissionGranted;
+    // LocationData locationData;
     //
-    // // Test if location services are enabled.
-    // serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    // serviceEnabled = await location.serviceEnabled();
     // if (!serviceEnabled) {
-    //   location='Location services are disabled.';
-    //   // Location services are not enabled don't continue
-    //   // accessing the position and request users of the
-    //   // App to enable the location services.
-    // }
-    //
-    // permission = await Geolocator.checkPermission();
-    // if (permission == LocationPermission.denied) {
-    //   permission = await Geolocator.requestPermission();
-    //   if (permission == LocationPermission.denied) {
-    //     location='Location permissions are denied';
-    //     // Permissions are denied, next time you could try
-    //     // requesting permissions again (this is also where
-    //     // Android's shouldShowRequestPermissionRationale
-    //     // returned true. According to Android guidelines
-    //     // your App should show an explanatory UI now.
+    //   serviceEnabled = await location.requestService();
+    //   if (!serviceEnabled) {
+    //     return;
     //   }
     // }
     //
-    // if (permission == LocationPermission.deniedForever) {
-    //   location='Location permissions are permanently denied, we cannot request permissions.';
-    //   // Permissions are denied forever, handle appropriately.
+    // permissionGranted = await location.hasPermission();
+    // if (permissionGranted == PermissionStatus.denied) {
+    //   permissionGranted = await location.requestPermission();
+    //   if (permissionGranted != PermissionStatus.granted) {
+    //     return;
+    //   }
     // }
     //
-    // // When we reach here, permissions are granted and we can
-    // // continue accessing the position of the device.
-    // location='access';
-    // print(location);
+    // locationData = await location.getLocation();
     // setState(() {
-    //   latitude="19.14970";
-    //   longitude="72.84717";
+    //   _location="granted";
+    //   latitude=locationData.latitude.toString();
+    //   longitude=locationData.longitude.toString();
+    //   altitude=locationData.altitude.toString();
+    //   if(double.parse(altitude) < 0){
+    //     altitude="0";
+    //   }
     // });
-    // Position position = await Geolocator.getCurrentPosition();
-    // setState(() {
-    //   latitude=position.latitude.toString();
-    //   longitude=position.longitude.toString();
-    //   altitude=position.altitude.toString();
-    //   print('latitude: '+latitude);
-    // });
-    Location location = Location();
-
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-    LocationData locationData;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
-    }
-
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-
-    locationData = await location.getLocation();
-    setState(() {
-      _location="granted";
-      latitude=locationData.latitude.toString();
-      longitude=locationData.longitude.toString();
-      altitude=locationData.altitude.toString();
-      if(double.parse(altitude) < 0){
-        altitude="0";
-      }
-    });
-    print("$latitude $longitude $altitude");
+    // print("$latitude $longitude $altitude");
   }
 
   // Request Bluetooth permission from the user
@@ -1572,7 +1573,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     }
   }
 
-  Future<void> viewSatellite(BuildContext context, SatelliteModel satellite, bool showBalloon,
+  Future<void> viewSatelliteLG(BuildContext context, SatelliteModel satellite, bool showBalloon,
       {double orbitPeriod = 2.8, bool updatePosition = true})
   async {
 

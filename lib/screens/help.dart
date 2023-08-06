@@ -205,7 +205,7 @@ class Help extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 15),
-                            _buildDescriptionParagraph('◼️  Click on \"View in 3D\" button. The date is now sent to the Arduino board. If the satellite is in your range, then you can now see the direction of the satellite from the Arduino-controlled pointer. If it\'s not, then try another satellite.'),
+                            _buildDescriptionParagraph('◼️  Click on \"View in 3D\" button. The data is now sent to the Arduino board. If the satellite is in your range, then you can see the direction of the satellite from the Arduino-controlled pointer. If it\'s not, then try another satellite.'),
                             const SizedBox(height: 40),
                             Text(
                               'Troubleshooting:',
