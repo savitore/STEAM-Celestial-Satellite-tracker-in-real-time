@@ -38,12 +38,6 @@ class About extends StatelessWidget {
   /// Property that defines the organization website URL.
   final _orgWebsite = 'www.liquidgalaxy.eu';
 
-  /// Property that defines the instruction manual.
-  final _instructionManual = 'https://docs.google.com/document/d/1NfXiyhhtKBtD2GL_H1Qew8CYwpoZ0U3u9v3ifMiTAcE/edit';
-
-  /// Property that defines the project GitHub.
-  final _projectGitHub = 'https://github.com/savitore/STEAM-Celestial-Satellite-tracker-in-real-time';
-
   /// Opens the email app with the given [email] in it.
   void _sendEmail(String email) async {
     final Uri emailLaunchUri = Uri(
@@ -103,6 +97,7 @@ class About extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: ThemeColors.backgroundCardColor,
       appBar: AppBar(
@@ -137,7 +132,7 @@ class About extends StatelessWidget {
                     ),
                     const SizedBox(height: 32),
                     Container(
-                      width: 600,
+                      width: width > 600 ? 600 : width*0.9,
                       alignment: Alignment.center,
                       child: const Image(
                           image: AssetImage('assets/logo.png')),
@@ -326,10 +321,11 @@ class About extends StatelessWidget {
                     Text(
                       'Project description',
                       style: TextStyle(
-                      color: ThemeColors.primaryColor,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ),),
+                        color: ThemeColors.primaryColor,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(30, 20, 30, 30),
                       child: Column(
@@ -396,5 +392,5 @@ class About extends StatelessWidget {
       overflow: TextOverflow.visible,
     );
   }
-  }
+}
 

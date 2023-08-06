@@ -936,7 +936,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => Compass()));
+                              builder: (context) => const Compass()));
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent,foregroundColor: ThemeColors.textPrimary, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),side: const BorderSide(color: Colors.black12))),
                     child: const Row(
@@ -1018,8 +1018,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: ThemeColors.textPrimary,
-                        decoration: TextDecoration.underline,
+                        color: ThemeColors.secondaryColor,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = (){
@@ -1051,7 +1050,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: ThemeColors.primaryColor,
+                              color: ThemeColors.secondaryColor,
                             ),
                             recognizer: TapGestureRecognizer()
                               ..onTap = (){
@@ -1540,9 +1539,13 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             }
           });
         }).catchError((error) {
-          print(error);
+          if (kDebugMode) {
+            print(error);
+          }
         });
-        showSnackbar(context,'Device connected');
+        if(mounted){
+          showSnackbar(context,'Device connected');
+        }
 
         setState(() {
           _isButtonUnavailable = false;
