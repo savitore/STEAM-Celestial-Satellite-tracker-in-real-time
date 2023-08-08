@@ -241,7 +241,7 @@ class Help extends StatelessWidget {
                                             }
                                       ),
                                       TextSpan(
-                                        text: ' and check if the device responds If it doesn\'t, replace the device and try again.',
+                                        text: ' and check if the device responds. If it doesn\'t, replace the device and try again.',
                                         style: TextStyle(
                                           color: ThemeColors.textPrimary,
                                           fontSize: 20,
@@ -250,6 +250,17 @@ class Help extends StatelessWidget {
                                     ]
                                 )
                             ),
+                            const SizedBox(height: 40),
+                            Text(
+                              'Credits:',
+                              style: TextStyle(
+                                color: ThemeColors.primaryColor,
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            _buildDescriptionParagraph('◼️  This app has been developed thanks to mentor, Otávio J. França Oliveira, organization admin, Andreu Ibáñez Perales, Liquid Galaxy LAB testers: Mohamed Zazou, Navdeep Singh and Imad Laichi, SatNOGS project author, Michell Algarra and Sayed Nowroz, who inspired the Arduino-controlled pointer.'),
                           ],
                         ),
                       ),

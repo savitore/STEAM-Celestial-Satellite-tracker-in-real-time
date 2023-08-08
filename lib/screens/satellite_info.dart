@@ -47,7 +47,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   LGService get _lgService => GetIt.I<LGService>();
   LocalStorageService get _localStorageService => GetIt.I<LocalStorageService>();
 
-  bool tleExists = false, lgConnected=false, _satelliteBalloonVisible = true,_viewingLG=false,_orbit=false, _simulate=false, websiteDialog=true,checkbox=false;
+  bool tleExists = false, lgConnected=false, _satelliteBalloonVisible = true,_viewingLG=false,_orbit=false, _simulate=false, _uploadingLG=false;
+  bool websiteDialog=true,checkbox=false;
   late TLEModel tleModel;
   double _orbitPeriod=3;
 
@@ -64,7 +65,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   bool isDisconnecting = false,_btConnected=false,_btDataSent=false;
   bool _isButtonUnavailable = false, _isConnecting=false;
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
-  String _location='',latitude='',longitude='',altitude='',satAltitude='';
+  String _location='';
+  double latitude=0,longitude=0,altitude=0;
   String btReceived='', _btDataToSend='';
 
   final double _height1=10 ,_height2=30;
@@ -725,7 +727,20 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Flexible(child: Icon(Icons.travel_explore_rounded,color: _viewingLG  ? ThemeColors.backgroundColor : ThemeColors.primaryColor,size: 26,)),
+                      Flexible(
+                          child: _uploadingLG ?
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 3,color: ThemeColors.primaryColor
+                            ),
+                          ) : Icon(
+                            Icons.travel_explore_rounded,
+                            color: _viewingLG  ? ThemeColors.backgroundColor : ThemeColors.primaryColor,
+                            size: 26,
+                          )
+                      ),
                       const SizedBox(width: 10),
                       Flexible(child: Text(_viewingLG ? 'STOP VIEWING' : 'VIEW IN LG',style: const TextStyle(fontSize: 18,letterSpacing: 1),overflow: TextOverflow.visible,)),
                     ],
@@ -1371,12 +1386,20 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     DateTime date = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
     TLE = "$TLE,${date.year},${date.month},${date.day},${date.hour},${date.minute},${date.second}";
     TLE = "$TLE,$latitude,$longitude,$altitude";
-    print(TLE);
     return TLE;
   }
 
   /// Determine the current position of the device.
   void _determinePosition() async {
+    if(_localStorageService.hasItem('latitude')){
+      setState(() {
+        _location='access';
+        latitude=_localStorageService.getItem('latitude');
+        longitude=_localStorageService.getItem('longitude');
+        altitude=_localStorageService.getItem('altitude');
+        print('1');
+      });
+    }
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -1395,10 +1418,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       if (permission == LocationPermission.denied) {
         _location='Location permissions are denied';
         // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
+        // requesting permissions again
       }
     }
 
@@ -1412,10 +1432,13 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     Position position = await Geolocator.getCurrentPosition();
     setState(() {
       _location='access';
-      latitude=position.latitude.toString();
-      longitude=position.longitude.toString();
-      altitude=position.altitude.toString();
-      print('latitude: $latitude');
+      latitude=position.latitude;
+      longitude=position.longitude;
+      altitude=position.altitude;
+      _localStorageService.setItem('latitude', latitude);
+      _localStorageService.setItem('longitude', longitude);
+      _localStorageService.setItem('altitude', altitude);
+      print('2');
     });
     // Location location = Location();
     //
@@ -1545,9 +1568,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             print(error);
           }
         });
-        if(mounted){
-          showSnackbar(context,'Device connected');
-        }
 
         setState(() {
           _isButtonUnavailable = false;
@@ -1565,7 +1585,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     });
 
     await _connection?.close();
-    showSnackbar(context,'Device disconnected');
     if (!_connection!.isConnected) {
       setState(() {
         _btConnected = false;
@@ -1584,6 +1603,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     else{
 
       try {
+        setState(() {
+          _uploadingLG=true;
+        });
         final tleCoord = tleModel.read();
         final placemark = _satelliteService.buildPlacemark(
           satellite,
@@ -1666,6 +1688,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         }
         setState(() {
           _viewingLG=true;
+          _uploadingLG=false;
         });
       } on Exception catch (_) {
         showSnackbar(context, 'Connection failed!');

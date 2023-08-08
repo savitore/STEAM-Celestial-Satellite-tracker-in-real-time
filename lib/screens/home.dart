@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -58,6 +60,9 @@ class _HomeState extends State<Home> {
       }
     });
     _dropDownOperators();
+    Timer.periodic(const Duration(seconds: 3), (timer) {
+      checkLGConnection();
+    });
     // _scrollController = ScrollController()
     //   ..addListener(() {
     //     setState(() {
@@ -116,7 +121,7 @@ class _HomeState extends State<Home> {
                 foregroundColor: ThemeColors.textPrimary,
                 backgroundColor: ThemeColors.backgroundCardColor,
                 elevation: 0,
-                title: const Text('STEAM Celestial Satellite tracker in real time',style: TextStyle(fontWeight: FontWeight.bold),),
+                title: const Text('STEAM Celestial Satellite tracker',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 24),),
                 actions: [
                   IconButton(
                       onPressed: (){},
@@ -471,7 +476,7 @@ class _HomeState extends State<Home> {
       foregroundColor: ThemeColors.textPrimary,
       backgroundColor: ThemeColors.backgroundCardColor,
       elevation: 0,
-      title: const Text('STEAM Celestial Satellite tracker in real time',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 22),),
+      title: const Text('STEAM Celestial Satellite tracker',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 24),),
       actions: [
         TextButton(
           onPressed: null,

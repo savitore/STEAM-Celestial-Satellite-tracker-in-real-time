@@ -20,7 +20,7 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
 
   bool tools=false, lgConnected=false;
-  bool _settingRefresh = false, _resetingRefresh = false, _clearingKml = false, _rebooting = false, _relaunching = false, _shuttingDown = false;
+  bool _settingRefresh = false, _resetingRefresh = false, _clearingKml = false, _rebooting = false, _relaunching = false, _shuttingDown = false, _showingLogos=false;
 
   LGService get _lgService => GetIt.I<LGService>();
   LocalStorageService get _localStorageService => GetIt.I<LocalStorageService>();
@@ -222,7 +222,7 @@ class _SettingsState extends State<Settings> {
               ],
             ),
           ),
-          const SizedBox(height: 5,),
+          const SizedBox(height: 5),
           ElevatedButton(
             onPressed: (){
               checkLGConnection();
@@ -281,7 +281,7 @@ class _SettingsState extends State<Settings> {
               ],
             ),
           ),
-          const SizedBox(height: 5,),
+          const SizedBox(height: 5),
           ElevatedButton(
             onPressed: () async {
               checkLGConnection();
@@ -324,7 +324,51 @@ class _SettingsState extends State<Settings> {
               ],
             ),
           ),
-          const SizedBox(height: 20,),
+          const SizedBox(height: 5,),
+          ElevatedButton(
+            onPressed: () async {
+              checkLGConnection();
+              if(!lgConnected){
+                errorTaskButton();
+              }else{
+
+                if (_showingLogos) {
+                  return;
+                }
+
+                setState(() {
+                  _showingLogos = true;
+                });
+
+                try {
+                  await _lgService.setLogos();
+                } finally {
+                  setState(() {
+                    _showingLogos = false;
+                  });
+                }
+
+              }
+            },
+            style: _style,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buttonText('SHOW LOGOS'),
+                const SizedBox(
+                  width: 5,
+                ),
+                _showingLogos
+                    ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.secondaryColor),
+                )
+                    : const Icon(Icons.smart_display_outlined)
+              ],
+            ),
+          ),
+          const SizedBox(height: 40),
           ElevatedButton(
             onPressed: () async {
               checkLGConnection();
@@ -382,7 +426,7 @@ class _SettingsState extends State<Settings> {
               ],
             ),
           ),
-          const SizedBox(height: 5,),
+          const SizedBox(height: 5),
           ElevatedButton(
             onPressed: () async {
               checkLGConnection();
@@ -440,7 +484,7 @@ class _SettingsState extends State<Settings> {
               ],
             ),
           ),
-          const SizedBox(height: 5,),
+          const SizedBox(height: 5),
           ElevatedButton(
             onPressed: () async {
               checkLGConnection();
@@ -498,7 +542,7 @@ class _SettingsState extends State<Settings> {
               ],
             ),
           ),
-          const SizedBox(height: 10,),
+          const SizedBox(height: 10),
         ],
       ),
     );

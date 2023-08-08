@@ -8,12 +8,6 @@ import '../utils/colors.dart';
 class About extends StatelessWidget {
   About({super.key});
 
-
-  final _mentors = [
-    'Andreu Ibáñez Perales',
-    'Otávio J. França Oliveira'
-  ];
-
   /// Property that defines the author email.
   final _authorEmail = 'krishna.agrawal@icloud.com';
 
@@ -141,7 +135,7 @@ class About extends StatelessWidget {
                     RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(
-                            text: 'Author - ',
+                            text: 'Made by - ',
                             style: TextStyle(
                               color: ThemeColors.primaryColor,
                               fontSize: 25,
@@ -200,28 +194,6 @@ class About extends StatelessWidget {
                           },
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 32),
-                    RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(
-                          text: 'Mentors - ',
-                          style: TextStyle(
-                            color: ThemeColors.primaryColor,
-                            fontSize: 25,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: '${_mentors[1]}, ${_mentors[0]}',
-                              style: TextStyle(
-                                color: ThemeColors.textPrimary,
-                                fontSize: 25,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          ]
-                        )
                     ),
                     const SizedBox(height: 32),
                     RichText(
@@ -312,6 +284,72 @@ class About extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 32),
+                    RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          text: 'Mentor - ',
+                          style: TextStyle(
+                            color: ThemeColors.primaryColor,
+                            fontSize: 25,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'Otávio J. França Oliveira',
+                              style: TextStyle(
+                                color: ThemeColors.textPrimary,
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          ]
+                        )
+                    ),
+                    const SizedBox(height: 32),
+                    RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                            text: 'Organization admin - ',
+                            style: TextStyle(
+                              color: ThemeColors.primaryColor,
+                              fontSize: 25,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Andreu Ibáñez Perales',
+                                style: TextStyle(
+                                  color: ThemeColors.textPrimary,
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            ]
+                        )
+                    ),
+                    const SizedBox(height: 32),
+                    RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                            text: 'Liquid Galaxy LAB testers - ',
+                            style: TextStyle(
+                              color: ThemeColors.primaryColor,
+                              fontSize: 25,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Mohamed Zazou, Navdeep Singh and Imad Laichi',
+                                style: TextStyle(
+                                  color: ThemeColors.textPrimary,
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            ]
+                        )
+                    ),
                     const SizedBox(height: 50),
                     const SizedBox(
                       width: double.infinity,
@@ -364,9 +402,6 @@ class About extends StatelessWidget {
                           const SizedBox(height: 10,),
                           _buildDescriptionParagraph(
                               '◼️  It\'s possible to search, filter and sort satellites, synchronize the data between the application and the database, run some of the Liquid Galaxy system commands, check the orbit of satellites, play orbit tours and more.'),
-                          const SizedBox(height: 10,),
-                          _buildDescriptionParagraph(
-                              '◼️  This app has been developed thanks to the Liquid Galaxy LAB testers: Mohamed Zazou, Navdeep Singh and Imad Laichi.'),
                         ],
                       ),
                     ),
