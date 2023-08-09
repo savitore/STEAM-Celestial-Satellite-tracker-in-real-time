@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/foundation.dart';
@@ -51,6 +50,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   bool websiteDialog=true,checkbox=false;
   late TLEModel tleModel;
   double _orbitPeriod=3;
+  int flag=0;
 
   PlacemarkEntity? _satellitePlacemark;
 
@@ -480,7 +480,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           Row(
             children: [
               _title('Additional Information'),
-              const SizedBox(width: 10,),
+              SizedBox(width: _height1),
               Tooltip(
                 message: 'Orbit Period: The amount of time to complete one revolution around the Earth. \nApogee: The point where the satellite is farthest from Earth. \nPerigee: The point where the satellite is closest to Earth. \nInclination: It is the angle between orbital and equitorial plane. ',
                 textStyle: const TextStyle(color: Colors.white,fontSize: 20),
@@ -768,7 +768,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               child: Text('No TLE information available',overflow: TextOverflow.visible,style: TextStyle(color: ThemeColors.textPrimary,fontSize: 18),),
               )
           ),
-        const SizedBox(height: 20,)
+        const SizedBox(height: 20)
       ],
     );
   }
@@ -778,14 +778,18 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       getPairedDevices();
     }
     if(_location!="access"){
-      return Padding(
+      if(flag==1){
+        _determinePosition();
+      }
+      return flag ==1 ?
+      Padding(
         padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Please grant location permission in order to view in 3D.',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,),
-            const SizedBox(height: 20,),
+            const SizedBox(height: 20),
             SizedBox(
               height: 45,
               child: ElevatedButton(
@@ -801,6 +805,22 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             )
           ],
         ),
+      ) :
+      Padding(
+          padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CircularProgressIndicator(color: ThemeColors.primaryColor,),
+                  const SizedBox(width: 10),
+                  Text('Loading..',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.ellipsis,)
+                ],
+              )
+            ],
+          ),
       );
     }
     return Padding(
@@ -1006,7 +1026,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                btReceived=='' ? Row(
                  children: [
                    CircularProgressIndicator(color: ThemeColors.primaryColor,),
-                   const SizedBox(width: 5,),
+                   const SizedBox(width: 15,),
                    Text('Waiting for response',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,)
                  ],
                ) :
@@ -1407,6 +1427,11 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       _location='Location services are disabled.';
+      if(mounted){
+        setState(() {
+          flag=1;
+        });
+      }
       // Location services are not enabled don't continue
       // accessing the position and request users of the
       // App to enable the location services.
@@ -1417,6 +1442,11 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         _location='Location permissions are denied';
+        if(mounted){
+          setState(() {
+            flag=1;
+          });
+        }
         // Permissions are denied, next time you could try
         // requesting permissions again
       }
@@ -1424,22 +1454,35 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
     if (permission == LocationPermission.deniedForever) {
       _location='Location permissions are permanently denied, we cannot request permissions.';
+      if(mounted){
+        setState(() {
+          flag=1;
+        });
+      }
       // Permissions are denied forever, handle appropriately.
     }
 
+    // if(mounted){
+    //   setState(() {
+    //     flag=0;
+    //   });
+    // }
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
+
     Position position = await Geolocator.getCurrentPosition();
-    setState(() {
-      _location='access';
-      latitude=position.latitude;
-      longitude=position.longitude;
-      altitude=position.altitude;
-      _localStorageService.setItem('latitude', latitude);
-      _localStorageService.setItem('longitude', longitude);
-      _localStorageService.setItem('altitude', altitude);
-      print('2');
-    });
+    if(mounted){
+      setState(() {
+        _location='access';
+        latitude=position.latitude;
+        longitude=position.longitude;
+        altitude=position.altitude;
+        _localStorageService.setItem('latitude', latitude);
+        _localStorageService.setItem('longitude', longitude);
+        _localStorageService.setItem('altitude', altitude);
+        print('2');
+      });
+    }
     // Location location = Location();
     //
     // bool serviceEnabled;
