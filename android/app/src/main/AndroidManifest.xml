@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.steam_celestial_satellite_tracker_in_real_time"
+    package="com.savitore.steam_celestial_satellite_tracker_in_real_time"
     xmlns:tools="http://schemas.android.com/tools"
     >
 
