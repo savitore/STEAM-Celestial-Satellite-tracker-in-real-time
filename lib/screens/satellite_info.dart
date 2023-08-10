@@ -815,8 +815,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               Row(
                 children: [
                   CircularProgressIndicator(color: ThemeColors.primaryColor,),
-                  const SizedBox(width: 10),
-                  Text('Loading..',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.ellipsis,)
+                  const SizedBox(width: 15),
+                  Text('Loading...',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.ellipsis,)
                 ],
               )
             ],

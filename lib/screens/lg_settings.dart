@@ -152,13 +152,13 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                                   onPressed: (){
                                     FocusManager.instance.primaryFocus?.unfocus();
                                     _localStorageService.setItem('screen', _screensController.text.toString());
+                                    _localStorageService.setItem('lgConnected', "not");
                                     _onConnect();
                                     Timer(const Duration(seconds: 3), () async {
                                       if (isAuthenticated) {
                                         await _lgService.setLogos();
                                       }else{
                                         showSnackbar(context, 'Connection failed');
-                                        _localStorageService.setItem('lgConnected', "not");
                                       }
                                       setState(() {
                                         _loading=false;
