@@ -32,7 +32,7 @@ double dSatAZ   = 0; // Satellite azimuth
 double dSatEL   = 0; // Satellite elevation 
 
 void setup() {
-  setTime(CurrentHour,CurrentMin,CurrentSec,CurrentDay,CurrentMonth,CurrentYear);
+  // setTime(CurrentHour,CurrentMin,CurrentSec,CurrentDay,CurrentMonth,CurrentYear);
   elevation.attach(9); 
   azimuth.attach(10);
   elevation.write(epos);
@@ -150,6 +150,11 @@ void loop() {
      setTime(CurrentHour,CurrentMin,CurrentSec,CurrentDay,CurrentMonth,CurrentYear);//set the current time which we get from flutter app
      elevation.write(0);
      azimuth.write(0);
+     Serial.println(l0);
+     Serial.println(l1);
+     Serial.println(l2);
+     Serial.println(dMyLON);
+     Serial.println(dMyLAT);
      read="done";
   }
      if(read=="done"){
@@ -179,10 +184,10 @@ void loop() {
       apos = (int)dSatAZ;    
 
       if (epos < 0) {
-        Serial.println("Out of range. Please try another satellite.");
+        Serial.write("Out of range. Please try another satellite.");
       } 
       else {
-        Serial.println("In range, satellite can be viewed.");
+        Serial.write("In range, satellite can be viewed.");
         if(apos < 180) {  
           apos = abs(180 - (apos)); 
           epos = 180-epos; 
@@ -196,10 +201,10 @@ void loop() {
         elevation.write(epos); 
       }        
 
-      // Serial.print("azimuth: ");
-      // Serial.println(apos);
-      // Serial.print("elevation: ");
-      // Serial.println(epos);
+      Serial.print("azimuth: ");
+      Serial.println(apos);
+      Serial.print("elevation: ");
+      Serial.println(epos);
      }
     
 }
