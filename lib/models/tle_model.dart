@@ -60,27 +60,57 @@ class TLEModel {
     };
   }
 
-  /// Converts the current [TLEModel] to a [Map].
-  Map<String, dynamic> toMap() {
+  Map<String, double> getServoAngles(double latitude, double longitude, double altitude){
+
+    final Site myLocation =
+    Site.fromLatLngAlt(latitude, longitude, altitude / 1000.0);
+
+    /// Get the current date and time
+    final dateTime = DateTime.now();
+
+    /// Parse the TLE
+    final TLE tleSGP4 = TLE(line0, line1, line2);
+
+    ///Create a orbit object and print if is
+    ///SGP4, for "near-Earth" objects, or SDP4 for "deep space" objects.
+    final Orbit orbit = Orbit(tleSGP4);
+
+    /// get the utc time in Julian Day
+    ///  + 4/24 need it, diferent time zone (Cuba -4 hrs )
+    final double utcTime = Julian.fromFullDate(dateTime.year, dateTime.month,
+        dateTime.day, dateTime.hour, dateTime.minute)
+        .getDate() +
+        3.3 / 24.0;
+
+    final Eci eciPos =
+    orbit.getPosition((utcTime - orbit.epoch().getDate()) * MIN_PER_DAY);
+
+
+    CoordTopo topo = myLocation.getLookAngle(eciPos);
+
     return {
-      'tle0': line0,
-      'tle1': line1,
-      'tle2': line2,
-      'sat_id': satelliteId,
-      'norad_cat_id': noradId,
-      'updated': updated,
+      'az': rad2deg(topo.az),
+      'el': rad2deg(topo.el)
     };
   }
 
-  /// Gets a [TLEModel] from the given [map].
-  factory TLEModel.fromMap(Map map) {
-    return TLEModel(
-      line0: map['tle0'],
-      line1: map['tle1'],
-      line2: map['tle2'],
-      satelliteId: map['sat_id'],
-      noradId: map['norad_cat_id'],
-      updated: map['updated'],
-    );
-  }
+
+  factory TLEModel.fromJson(Map<String, dynamic> json) => TLEModel(
+    line0: json['tle0'],
+    line1: json['tle1'],
+    line2: json['tle2'],
+    satelliteId: json['sat_id'],
+    noradId: json['norad_cat_id'],
+    updated: json['updated'],
+  );
+
+  Map<String, dynamic> toJson() => {
+    'tle0': line0,
+    'tle1': line1,
+    'tle2': line2,
+    'sat_id': satelliteId,
+    'norad_cat_id': noradId,
+    'updated': updated,
+  };
+
 }

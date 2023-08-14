@@ -17,6 +17,11 @@ class SatelliteModel {
   String? countries;
   String? updated;
   String? citation;
+  String? line0;
+  String? line1;
+  String? line2;
+  double? azimuth;
+  double? elevation;
 
   SatelliteModel(
       {required this.satId,
@@ -33,7 +38,12 @@ class SatelliteModel {
         required this.operator,
         required this.countries,
         required this.updated,
-        required this.citation,});
+        required this.citation,
+        this.line0,
+        this.line1,
+        this.line2,
+        this.azimuth,
+        this.elevation});
 
 
 

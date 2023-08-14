@@ -1,18 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_cubit.dart';
-import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_info_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/compass.dart';
@@ -34,7 +31,11 @@ import '../widgets/shimmer.dart';
 
 class SatelliteInfo extends StatefulWidget {
   final SatelliteModel satelliteModel;
-  const SatelliteInfo(this.satelliteModel, {super.key});
+  final String location;
+  final double lat;
+  final double lon;
+  final double alt;
+  const SatelliteInfo(this.satelliteModel, this.location, this.lat, this.lon, this.alt, {super.key});
 
   @override
   State<SatelliteInfo> createState() => _SatelliteInfoState();
@@ -47,8 +48,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   LocalStorageService get _localStorageService => GetIt.I<LocalStorageService>();
 
   bool tleExists = false, lgConnected=false, _satelliteBalloonVisible = true,_viewingLG=false,_orbit=false, _simulate=false, _uploadingLG=false;
-  bool websiteDialog=true,checkbox=false;
+  bool websiteDialog=true, checkbox=false, internet=true;
   late TLEModel tleModel;
+  late final servoAngles;
   double _orbitPeriod=3;
   int flag=0;
 
@@ -65,19 +67,17 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   bool isDisconnecting = false,_btConnected=false,_btDataSent=false;
   bool _isButtonUnavailable = false, _isConnecting=false;
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
-  String _location='';
-  double latitude=0,longitude=0,altitude=0;
-  String btReceived='', _btDataToSend='';
+  double elevation=0, azimuth=0;
+  final double _height1=10 , _height2=30;
 
-  final double _height1=10 ,_height2=30;
-
-  // static final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-  // Map<String, dynamic> _deviceData = <String, dynamic>{};
 
   @override
   void initState() {
+    tleModel = TLEModel(line0: widget.satelliteModel.line0.toString(), line1: widget.satelliteModel.line1.toString(), line2: widget.satelliteModel.line2.toString(), satelliteId: widget.satelliteModel.satId.toString(), noradId: widget.satelliteModel.noradCatId!, updated: widget.satelliteModel.updated.toString());
+    servoAngles = tleModel.getServoAngles(widget.lat, widget.lon, widget.alt);
+    checkTLE(widget.satelliteModel.line0.toString());
+    checkInternetConnectivity();
     checkLGConnection();
-    _determinePosition();
     checkWebsiteDialog();
     super.initState();
   }
@@ -90,10 +90,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       _connection?.dispose();
       _connection = null;
     }
-    btReceived='';
     super.dispose();
   }
-
 
   //check if lg is connected
   void checkLGConnection() {
@@ -108,126 +106,47 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: BlocProvider(
-        create: (context) => SatelliteInfoCubit(widget.satelliteModel.noradCatId.toString() !='null' ? widget.satelliteModel.noradCatId! : 0),
-        child: Scaffold(
-          backgroundColor: ThemeColors.backgroundCardColor,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            foregroundColor: ThemeColors.textPrimary,
-            elevation: 0,
-            leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context); },),
-          ),
-          body: SafeArea(
-            child: BlocConsumer<SatelliteInfoCubit, SatelliteInfoState>(
-              listener: (context,state){
-                if(state is SatelliteErrorState){
-                  showSnackbar(context, state.error);
-                }
-              },
-              builder: (context,state){
-                if(state is SatelliteLoadingState){
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                    child: SingleChildScrollView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ShimmerEffect().shimmer(Container(
-                              height: 15,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.grey))),
-                          const SizedBox(height: 10,),
-                          ShimmerEffect().shimmer(Container(
-                              height: 15,
-                              width: 150,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.grey))),
-                          divider(),
-                          const SizedBox(height: 20,),
-                          widget.satelliteModel.image.toString().isEmpty ? Container() :
-                              ShimmerEffect().shimmer(Container(
-                                  height: 150,
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.grey))),
-                          const SizedBox(height: 20,),
-                          shimmerTile(),
-                          shimmerTile(),
-                          shimmerTile(),
-                          shimmerTile(),
-                          shimmerTile(),
-                          ShimmerEffect().shimmer(Container(
-                              height: 15,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.grey))),
-                          const SizedBox(height: 10),
-                          ShimmerEffect().shimmer(Container(
-                              height: 50,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.grey))),
-                          const SizedBox(height: 30),
-                          shimmerTile(),
-                          shimmerTile(),
-                          shimmerTile(),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-                else if(state is SatelliteLoadedState){
-                  checkTLE(state.tle);
-                  return Container(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(widget.satelliteModel.name.toString(),overflow: TextOverflow.visible,style: TextStyle(fontWeight: FontWeight.bold,color: ThemeColors.textPrimary,fontSize: 40),),
-                          const SizedBox(height: 20,),
-                          _buildSatelliteStatus(),
-                          const SizedBox(height: 20),
-                          _buildSatelliteImage(),
-                          _buildViewButtons(context,state.TLE),
-                          _buildVisualisingInLG(),
-                          _buildTitle('Satellite ID', widget.satelliteModel.satId.toString()),
-                          _buildTitle('NORAD ID', widget.satelliteModel.noradCatId.toString()),
-                          _buildTitle('NORAD Follow ID', widget.satelliteModel.noradFollowId.toString()),
-                          _buildTitle('Alternate names', widget.satelliteModel.names.toString()),
-                          _buildDate('Launch date', widget.satelliteModel.launched.toString()),
-                          _buildDate('Deploy date', widget.satelliteModel.deployed.toString()),
-                          _buildDate('Decay date', widget.satelliteModel.decayed.toString()),
-                          _buildCountry(widget.satelliteModel.countries.toString()),
-                          _buildTitle('Operator', widget.satelliteModel.operator.toString()),
-                          _buildWebsite(widget.satelliteModel.website.toString()),
-                          _buildTLE(state.tle),
-                          _buildDate('Updated', widget.satelliteModel.updated.toString()),
-                          _buildAdditional(),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-                return Center(
-                  child: Text("An error occurred!",style: TextStyle(color: ThemeColors.textPrimary),),
-                );
-              }
+    return Scaffold(
+        backgroundColor: ThemeColors.backgroundCardColor,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: ThemeColors.textPrimary,
+          elevation: 0,
+          leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context); },),
+        ),
+        body: SafeArea(
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(widget.satelliteModel.name.toString(),overflow: TextOverflow.visible,style: TextStyle(fontWeight: FontWeight.bold,color: ThemeColors.textPrimary,fontSize: 40),),
+                  const SizedBox(height: 20,),
+                  _buildSatelliteStatus(),
+                  const SizedBox(height: 20),
+                  _buildSatelliteImage(),
+                  _buildViewButtons(context),
+                  _buildVisualisingInLG(),
+                  _buildTitle('Satellite ID', widget.satelliteModel.satId.toString()),
+                  _buildTitle('NORAD ID', widget.satelliteModel.noradCatId.toString()),
+                  _buildTitle('NORAD Follow ID', widget.satelliteModel.noradFollowId.toString()),
+                  _buildTitle('Alternate names', widget.satelliteModel.names.toString()),
+                  _buildDate('Launch date', widget.satelliteModel.launched.toString()),
+                  _buildDate('Deploy date', widget.satelliteModel.deployed.toString()),
+                  _buildDate('Decay date', widget.satelliteModel.decayed.toString()),
+                  _buildCountry(widget.satelliteModel.countries.toString()),
+                  _buildTitle('Operator', widget.satelliteModel.operator.toString()),
+                  _buildWebsite(widget.satelliteModel.website.toString()),
+                  _buildTLE(widget.satelliteModel.line0.toString(), widget.satelliteModel.line1.toString(), widget.satelliteModel.line2.toString()),
+                  _buildDate('Updated', widget.satelliteModel.updated.toString()),
+                  _buildAdditional(),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _title(String text){
@@ -426,49 +345,53 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
   Widget _buildSatelliteImage() {
-    final image = widget.satelliteModel.image;
-    return image.toString().isEmpty
-        ? Container()
-        : Padding(
-            padding: const EdgeInsets.only(bottom: 20),
-            child: Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ZoomedScreen(
-                            image:
-                                'https://db-satnogs.freetls.fastly.net/media/$image'),
-                      ),
-                    );
-                  },
-                  child: Image.network(
-                    'https://db-satnogs.freetls.fastly.net/media/$image',
-                    // width: 180,
+    if(internet){
+      final image = widget.satelliteModel.image;
+      return image.toString().isEmpty
+          ? Container()
+          : Padding(
+        padding: const EdgeInsets.only(bottom: 20),
+        child: Center(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ZoomedScreen(
+                        image:
+                        'https://db-satnogs.freetls.fastly.net/media/$image'),
                   ),
-                ),
+                );
+              },
+              child: Image.network(
+                'https://db-satnogs.freetls.fastly.net/media/$image',
+                // width: 180,
               ),
             ),
-          );
+          ),
+        ),
+      );
+    }else{
+      return const SizedBox();
+    }
   }
 
-  Widget _buildTLE(List<String> tle){
+  Widget _buildTLE(String line0, String line1, String line2){
     if(tleExists){
-      tleModel = TLEModel(line0: tle[0], line1: tle[1], line2: tle[2], satelliteId: widget.satelliteModel.satId!, noradId: widget.satelliteModel.noradCatId!, updated: widget.satelliteModel.updated!);
+      tleModel = TLEModel(line0: line0, line1: line1, line2: line2, satelliteId: widget.satelliteModel.satId!, noradId: widget.satelliteModel.noradCatId!, updated: widget.satelliteModel.updated!);
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _title('Latest Two-Line Element (TLE)'),
           SizedBox(height: _height1),
-          _paragraph('${tle[0]}\n${tle[1]}\n${tle[2]}'),
+          _paragraph('$line0\n$line1\n$line2'),
           SizedBox(height: _height2)
         ],
       );
     }
-    return Container();
+    return const SizedBox();
   }
 
   Widget _buildAdditional(){
@@ -645,7 +568,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     );
   }
 
-  Widget _buildViewButtons(BuildContext context, String TLE){
+  Widget _buildViewButtons(BuildContext context){
     return tleExists ?
     Column(
       children: [
@@ -655,12 +578,12 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             SizedBox(
               height: 60,
               width: MediaQuery.of(context).size.width*0.5-20,
-              child: ElevatedButton(
+              child: elevation > 0 ? ElevatedButton(
                   onPressed: (){
                     btInit();
-                    if(_bluetoothState==BluetoothState.STATE_ON){
-                      getPairedDevices();
-                    }
+                    // if(_bluetoothState==BluetoothState.STATE_ON){
+                    //   getPairedDevices();
+                    // }
                     showModalBottomSheet(
                       isDismissible: true,
                       enableDrag: false,
@@ -668,7 +591,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       context: context,
                       builder: (_context) => StatefulBuilder(
                           builder: (BuildContext _context, StateSetter _setState){
-                            return btConnection(context,_setState,TLE);
+                            return btConnection(context,_setState);
                           }),
                       isScrollControlled: true,
                     );
@@ -689,6 +612,43 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       Flexible(child: Image.asset('assets/3d.png',width: 28,height: 28,color: ThemeColors.primaryColor,)),
                       const SizedBox(width: 10),
                       Flexible(child: Text('VIEW IN 3D',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 18,letterSpacing: 1,overflow: TextOverflow.visible))),
+                    ],
+                  )
+              ) :
+              widget.location == "access" ? ElevatedButton(
+                  onPressed: null,
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: ThemeColors.backgroundColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              bottomLeft: Radius.circular(30)
+                          ),
+                          side: BorderSide(color: ThemeColors.primaryColor)
+                      )
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(child: Text('Satellite is out of range',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 18,overflow: TextOverflow.visible))),
+                    ],
+                  )
+              ) : ElevatedButton(
+                  onPressed: null,
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: ThemeColors.backgroundColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              bottomLeft: Radius.circular(30)
+                          ),
+                          side: BorderSide(color: ThemeColors.primaryColor)
+                      )
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(child: Text('Location permission is required to view in 3D',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 18,overflow: TextOverflow.visible))),
                     ],
                   )
               ),
@@ -773,15 +733,11 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     );
   }
 
-  Widget btConnection(BuildContext context, StateSetter _setState, String tle){
+  Widget btConnection(BuildContext context, StateSetter _setState){
     if(_bluetoothState == BluetoothState.STATE_ON){
-      getPairedDevices();
+      getPairedDevices(_setState);
     }
-    if(_location!="access"){
-      if(flag==1){
-        _determinePosition();
-      }
-      return flag ==1 ?
+    if(widget.location!="access"){
       Padding(
         padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
         child: Column(
@@ -795,7 +751,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               child: ElevatedButton(
                   onPressed: (){
                     openAppSettings();
-                    Future.delayed(const Duration(seconds: 5),() => _determinePosition());
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
@@ -805,22 +760,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             )
           ],
         ),
-      ) :
-      Padding(
-          padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircularProgressIndicator(color: ThemeColors.primaryColor,),
-                  const SizedBox(width: 15),
-                  Text('Loading...',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.ellipsis,)
-                ],
-              )
-            ],
-          ),
       );
     }
     return Padding(
@@ -893,7 +832,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
               ),
               InkWell(
                 onTap: () async{
-                  await getPairedDevices().then((_) {
+                  await getPairedDevices(_setState).then((_) {
                     showSnackbar(context,'Device list refreshed');
                   });
                 },
@@ -939,18 +878,14 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                   child: ElevatedButton(
                     onPressed:
                     _btConnected ? (){
-                      _disconnect();
+                      _disconnect(_setState);
                       _setState(() {
                         _btDataSent=false;
                         _btConnected=false;
                       });
                     } :
                         (){
-                      _connect();
-                      setState(() {
-                        _btDataToSend= btData(tle);
-                      });
-                      print(_btDataToSend);
+                      _connect(_setState);
                     },
                     style: ElevatedButton.styleFrom(
                         backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
@@ -998,8 +933,21 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             height: 45,
             child: ElevatedButton(
                 onPressed: (){
-                  send(_btDataToSend);
-                  setState(() {
+                  final servoAngles = tleModel.getServoAngles(widget.lat, widget.lon, widget.alt);
+                  String _angles = "${servoAngles['az']},${servoAngles['el']}";
+                  send(_angles);
+                  Timer.periodic(const Duration(seconds: 3), (timer) {
+                    final servoAngles = tleModel.getServoAngles(widget.lat, widget.lon, widget.alt);
+                    String _angles = "${servoAngles['az']},${servoAngles['el']}";
+                    print(_angles);
+                    if (_connection != null && isConnected) {
+                      send(_angles);
+                    }
+                    else {
+                      timer.cancel(); // Stop the timer if the connection is lost
+                    }
+                  });
+                  _setState(() {
                     _btDataSent=true;
                   });
                 },
@@ -1022,15 +970,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
              crossAxisAlignment: CrossAxisAlignment.start,
              children: [
                Text('Data Sent',style: TextStyle(color: ThemeColors.textPrimary),),
-               const SizedBox(height: 10),
-               btReceived=='' ? Row(
-                 children: [
-                   CircularProgressIndicator(color: ThemeColors.primaryColor,),
-                   const SizedBox(width: 15,),
-                   Text('Waiting for response',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,)
-                 ],
-               ) :
-               Text(btReceived,style: TextStyle(color: ThemeColors.secondaryColor,fontSize: 25,fontWeight: FontWeight.bold),overflow: TextOverflow.visible,),
              ],
            ) :
            const SizedBox(),
@@ -1118,7 +1057,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     Uint8List data = Uint8List.fromList(bytes);
     _connection?.output.add(data);
     await _connection?.output.allSent;
-    print(data);
+    // print(data);
   }
 
   Widget _buildVisualisingInLG(){
@@ -1362,10 +1301,16 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     );
   }
 
-  void checkTLE(List<String> tle){
-    int numLines = tle.length;
-    if(numLines==4){
+  void checkTLE(String line0){
+    if(line0!='null'){
       tleExists=true;
+      if(widget.location=="access"){
+        setState(() {
+          azimuth = servoAngles['az']!;
+          elevation = servoAngles['el']!;
+          print('az$azimuth el$elevation');
+        });
+      }
     }
   }
 
@@ -1396,127 +1341,11 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         if (_bluetoothState == BluetoothState.STATE_OFF) {
           _isButtonUnavailable = true;
         }
-        getPairedDevices();
+        // getPairedDevices();
       });
     });
   }
 
-  String btData(String TLE){
-    DateTime now = DateTime.now();
-    DateTime date = DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second);
-    TLE = "$TLE,${date.year},${date.month},${date.day},${date.hour},${date.minute},${date.second}";
-    TLE = "$TLE,$latitude,$longitude,$altitude";
-    return TLE;
-  }
-
-  /// Determine the current position of the device.
-  void _determinePosition() async {
-    if(_localStorageService.hasItem('latitude')){
-      setState(() {
-        _location='access';
-        latitude=_localStorageService.getItem('latitude');
-        longitude=_localStorageService.getItem('longitude');
-        altitude=_localStorageService.getItem('altitude');
-        print('1');
-      });
-    }
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      _location='Location services are disabled.';
-      if(mounted){
-        setState(() {
-          flag=1;
-        });
-      }
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        _location='Location permissions are denied';
-        if(mounted){
-          setState(() {
-            flag=1;
-          });
-        }
-        // Permissions are denied, next time you could try
-        // requesting permissions again
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      _location='Location permissions are permanently denied, we cannot request permissions.';
-      if(mounted){
-        setState(() {
-          flag=1;
-        });
-      }
-      // Permissions are denied forever, handle appropriately.
-    }
-
-    // if(mounted){
-    //   setState(() {
-    //     flag=0;
-    //   });
-    // }
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-
-    Position position = await Geolocator.getCurrentPosition();
-    if(mounted){
-      setState(() {
-        _location='access';
-        latitude=position.latitude;
-        longitude=position.longitude;
-        altitude=position.altitude;
-        _localStorageService.setItem('latitude', latitude);
-        _localStorageService.setItem('longitude', longitude);
-        _localStorageService.setItem('altitude', altitude);
-        print('2');
-      });
-    }
-    // Location location = Location();
-    //
-    // bool serviceEnabled;
-    // PermissionStatus permissionGranted;
-    // LocationData locationData;
-    //
-    // serviceEnabled = await location.serviceEnabled();
-    // if (!serviceEnabled) {
-    //   serviceEnabled = await location.requestService();
-    //   if (!serviceEnabled) {
-    //     return;
-    //   }
-    // }
-    //
-    // permissionGranted = await location.hasPermission();
-    // if (permissionGranted == PermissionStatus.denied) {
-    //   permissionGranted = await location.requestPermission();
-    //   if (permissionGranted != PermissionStatus.granted) {
-    //     return;
-    //   }
-    // }
-    //
-    // locationData = await location.getLocation();
-    // setState(() {
-    //   _location="granted";
-    //   latitude=locationData.latitude.toString();
-    //   longitude=locationData.longitude.toString();
-    //   altitude=locationData.altitude.toString();
-    //   if(double.parse(altitude) < 0){
-    //     altitude="0";
-    //   }
-    // });
-    // print("$latitude $longitude $altitude");
-  }
 
   // Request Bluetooth permission from the user
   // Future<bool> enableBluetooth() async {
@@ -1537,7 +1366,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   // For retrieving and storing the paired devices
   // in a list.
-  Future<void> getPairedDevices() async {
+  Future<void> getPairedDevices(StateSetter _setState) async {
     List<BluetoothDevice> devices = [];
 
     // To get the list of paired devices
@@ -1556,7 +1385,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
     // Store the [devices] list in the [_devicesList] for accessing
     // the list outside this class
-    setState(() {
+    _setState(() {
       _devicesList = devices;
     });
   }
@@ -1580,8 +1409,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
 // Method to connect to bluetooth
-  void _connect() async {
-    setState(() {
+  void _connect(StateSetter _setState) async {
+    _setState(() {
       _isButtonUnavailable = true;
       _isConnecting=true;
     });
@@ -1593,18 +1422,13 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         await BluetoothConnection.toAddress(_device?.address)
             .then((connection) {
           _connection = connection;
-          setState(() {
+          _setState(() {
             _btConnected = true;
           });
 
           //get data from HC-05
           _connection?.input?.listen((Uint8List data) {
-            setState(() {
-              btReceived=utf8.decode(data);
-            });
-            if (mounted) {
-              setState(() {});
-            }
+
           });
         }).catchError((error) {
           if (kDebugMode) {
@@ -1612,24 +1436,27 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           }
         });
 
-        setState(() {
+        _setState(() {
           _isButtonUnavailable = false;
           _isConnecting=false;
+        });
+        setState(() {
+
         });
       }
     }
   }
 
   // Method to disconnect bluetooth
-  void _disconnect() async {
-    setState(() {
+  void _disconnect(StateSetter _setState) async {
+    _setState(() {
       _isButtonUnavailable = true;
       _deviceState = 0;
     });
 
     await _connection?.close();
     if (!_connection!.isConnected) {
-      setState(() {
+      _setState(() {
         _btConnected = false;
         _isButtonUnavailable = false;
       });
@@ -1742,6 +1569,20 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
     }
 
+  }
+
+  void checkInternetConnectivity() async{
+    final connectivityResult = await (Connectivity().checkConnectivity());
+
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        internet=false;
+      });
+    } else {
+      setState(() {
+        internet=true;
+      });
+    }
   }
 
 }

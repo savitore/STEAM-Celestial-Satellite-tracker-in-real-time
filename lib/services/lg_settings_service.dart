@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:get_it/get_it.dart';
 
-import '../models/lg_settings_entity.dart';
+import '../models/lg_settings_model.dart';
 import '../utils/storage_keys.dart';
 import 'local_storage_service.dart';
 

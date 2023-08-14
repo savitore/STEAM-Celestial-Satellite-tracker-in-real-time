@@ -2,14 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/satellite_info.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/settings.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/utils/storage_keys.dart';
 
 import '../repositories/countries_iso.dart';
 import '../services/local_storage_service.dart';
@@ -48,10 +51,14 @@ class _HomeState extends State<Home> {
   List iso = ISO().iso;
   bool decayed = false, launched=false, deployed=false, filter=false,sort=false;
   bool featured=true, launchNew=false, launchOld=false;
+  String location = "";
+  double latitude=0, longitude=0, altitude=0;
+  bool gotServo = false, range3d=false;
 
   @override
   void initState() {
     super.initState();
+    _determinePosition();
     _dropDownCountries();
     checkFilter();
     _searchFocusNode.addListener(() {
@@ -237,7 +244,7 @@ class _HomeState extends State<Home> {
                                                   Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
-                                                          builder: (context) => SatelliteInfo(satellites[index])));
+                                                          builder: (context) => SatelliteInfo(satellites[index], location, latitude, longitude, altitude)));
                                                 },
                                                 child: _buildList(context, satellites[index]),
                                               );
@@ -306,7 +313,7 @@ class _HomeState extends State<Home> {
                                                   Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
-                                                          builder: (context) => SatelliteInfo(searchedSatellites[index])));
+                                                          builder: (context) => SatelliteInfo(searchedSatellites[index],location, latitude, longitude, altitude)));
                                                 },
                                                 child: _buildList(context, searchedSatellites[index]),
                                               );
@@ -484,7 +491,6 @@ class _HomeState extends State<Home> {
             lgConnected ? 'LG: CONNECTED' : 'LG: NOT CONNECTED',style: TextStyle(color: lgConnected ? ThemeColors.success : ThemeColors.alert,fontSize: 19),overflow: TextOverflow.visible,
           ),
         ),
-        // const SizedBox(width: 5,),
         IconButton(
               icon: Icon(Icons.settings,color: ThemeColors.textPrimary,),
               tooltip: 'Settings',
@@ -495,7 +501,9 @@ class _HomeState extends State<Home> {
                      checkLGConnection();
                    }
                    if(result=="refresh"){
-                     refresh(context, state);
+                     if(mounted){
+                       refresh(context, state);
+                     }
                    }
               },
         ),
@@ -521,7 +529,7 @@ class _HomeState extends State<Home> {
                         focusNode: _searchFocusNode,
                         controller: _searchController,
                         onChanged: (val){
-                          context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed,dropdownvalueOperators,featured,launchNew,launchOld);
+                          context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed,dropdownvalueOperators,featured,launchNew,launchOld, range3d);
                         },
                         keyboardType: TextInputType.text,
                         cursorColor: ThemeColors.primaryColor,
@@ -610,7 +618,8 @@ class _HomeState extends State<Home> {
                         dropdownvalueOperators,
                         featured,
                         launchNew,
-                        launchOld);
+                        launchOld,
+                        range3d);
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 15),
@@ -637,7 +646,8 @@ class _HomeState extends State<Home> {
                       dropdownvalueOperators,
                       featured,
                       launchNew,
-                      launchOld);
+                      launchOld,
+                      range3d);
               },
               child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 15),
@@ -664,7 +674,8 @@ class _HomeState extends State<Home> {
                       dropdownvalueOperators,
                       featured,
                       launchNew,
-                      launchOld);
+                      launchOld,
+                      range3d);
               },
               child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 15),
@@ -844,6 +855,25 @@ class _HomeState extends State<Home> {
                     )
                   ],
                 ),
+                const SizedBox(height: 20,),
+                location=="access" ?
+                Row(
+                  children: [
+                    Checkbox(
+                      value: range3d,
+                      onChanged: (bool? value){
+                        _setState(() {
+                          range3d = value!;
+                          checkFilter();
+                        });
+                      },
+                      checkColor: ThemeColors.backgroundColor,
+                      activeColor: ThemeColors.primaryColor,
+                    ),
+                    Flexible(child: Text('Only show the satellites that are in range to view in 3D',style: TextStyle(fontSize: 18, color: ThemeColors.textPrimary),overflow: TextOverflow.visible)),
+                  ],
+                ) :
+                const SizedBox(),
               ],
             ),
           ),
@@ -869,6 +899,7 @@ class _HomeState extends State<Home> {
                         deployed=false;
                         decayed=false;
                         launched=false;
+                        range3d=false;
                       });
                       setState(() {
 
@@ -885,7 +916,8 @@ class _HomeState extends State<Home> {
                           dropdownvalueOperators,
                           featured,
                           launchNew,
-                          launchOld);
+                          launchOld,
+                          range3d);
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.backgroundColor,elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),side: const BorderSide(color: Colors.black12))),
                     child: Text('CLEAR',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 20),),
@@ -898,7 +930,6 @@ class _HomeState extends State<Home> {
                     onPressed: (){
                       checkFilter();
                       Navigator.pop(context);
-                      if(filter) {
                         context.read<SatelliteCubit>().filterSearchData(
                             _searchController.text,
                             dropdownvalueCountries,
@@ -909,8 +940,8 @@ class _HomeState extends State<Home> {
                             dropdownvalueOperators,
                             featured,
                             launchNew,
-                            launchOld);
-                      }
+                            launchOld,
+                            range3d);
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
                     child: Text('APPLY',style: TextStyle(color: ThemeColors.backgroundColor,fontSize: 20),),
@@ -1026,7 +1057,7 @@ class _HomeState extends State<Home> {
   }
 
   void checkFilter(){
-    if(decayed == false && deployed == false && launched == false && dropdownvalueCountries == 'ALL' && dropdownvalueStatus == 'ALL' && dropdownvalueOperators=='ALL'){
+    if(decayed == false && deployed == false && launched == false && range3d == false && dropdownvalueCountries == 'ALL' && dropdownvalueStatus == 'ALL' && dropdownvalueOperators=='ALL'){
       setState(() {
         filter=false;
       });
@@ -1037,6 +1068,62 @@ class _HomeState extends State<Home> {
       });
     }
   }
+
+  void _determinePosition() async {
+    if(_localStorageService.hasItem(StorageKeys.latitude)){
+      setState(() {
+        location=_localStorageService.getItem(StorageKeys.location);
+        latitude=_localStorageService.getItem(StorageKeys.latitude);
+        longitude=_localStorageService.getItem(StorageKeys.longitude);
+        altitude=_localStorageService.getItem(StorageKeys.altitude);
+        print('1');
+      });
+    }
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      location='Location services are disabled.';
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        location='Location permissions are denied';
+        // Permissions are denied, next time you could try
+        // requesting permissions again
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      location='Location permissions are permanently denied, we cannot request permissions.';
+      // Permissions are denied forever, handle appropriately.
+    }
+
+    print(location);
+    setState(() {
+      location="granted";
+    });
+    Position position = await Geolocator.getCurrentPosition();
+      setState(() {
+        location='access';
+        latitude=position.latitude;
+        longitude=position.longitude;
+        altitude=position.altitude;
+        _localStorageService.setItem(StorageKeys.location, location);
+        _localStorageService.setItem(StorageKeys.latitude, latitude);
+        _localStorageService.setItem(StorageKeys.longitude, longitude);
+        _localStorageService.setItem(StorageKeys.altitude, altitude);
+        print('2');
+      });
+  }
+
 
   String checkLaunch(String _datetime){
     String current = DateTime.now().toString();

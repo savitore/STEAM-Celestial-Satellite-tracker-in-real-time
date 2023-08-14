@@ -7,7 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/local_storage_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
 
-import '../models/lg_settings_entity.dart';
+import '../models/lg_settings_model.dart';
 import '../services/lg_service.dart';
 import '../services/lg_settings_service.dart';
 import '../utils/snackbar.dart';
