@@ -309,11 +309,25 @@ class _HomeState extends State<Home> {
                                             itemCount: searchedSatellites.length,
                                             itemBuilder:(context, index){
                                               return InkWell(
-                                                onTap: () {
-                                                  Navigator.push(
+                                                onTap: () async{
+                                                  final result = await Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
                                                           builder: (context) => SatelliteInfo(searchedSatellites[index],location, latitude, longitude, altitude)));
+                                                  if(result == "range" && range3d && filter && mounted){
+                                                      context.read<SatelliteCubit>().filterSearchData(
+                                                          _searchController.text,
+                                                          dropdownvalueCountries,
+                                                          dropdownvalueStatus,
+                                                          decayed,
+                                                          launched,
+                                                          deployed,
+                                                          dropdownvalueOperators,
+                                                          featured,
+                                                          launchNew,
+                                                          launchOld,
+                                                          range3d);
+                                                  }
                                                 },
                                                 child: _buildList(context, searchedSatellites[index]),
                                               );
@@ -339,7 +353,6 @@ class _HomeState extends State<Home> {
               // ),
             );
           }
-
           return Scaffold(
             backgroundColor: ThemeColors.backgroundColor,
             body: Center(
@@ -413,9 +426,9 @@ class _HomeState extends State<Home> {
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                   child: Text('${checkLaunch(satellites.launched!)}  -  ${parseDateString(satellites.launched!)}',overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 18,color: ThemeColors.textSecondary)),
             ),
-            const SizedBox(height: 15,),
+            const SizedBox(height: 15),
             Text('# ${satellites.satId}',overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 18,color: ThemeColors.textPrimary)),
-            const SizedBox(height: 20,),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

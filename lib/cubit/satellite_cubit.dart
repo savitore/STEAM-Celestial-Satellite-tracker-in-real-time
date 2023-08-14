@@ -156,8 +156,18 @@ class SatelliteCubit extends Cubit<SatelliteState> {
           .compareTo(b.launched.toString().toLowerCase()));
     }
     if(range3d){
+      double latitude = _localStorageService.getItem(StorageKeys.latitude);
+      double longitude = _localStorageService.getItem(StorageKeys.longitude);
+      double altitude = _localStorageService.getItem(StorageKeys.altitude);
+      for(int i =0; i< filteredList.length; i++){
+        if(filteredList[i].line0.toString()!="null"){
+          final tleModel = TLEModel(line0: filteredList[i].line0.toString(), line1: filteredList[i].line1.toString(), line2: filteredList[i].line2.toString(), satelliteId: filteredList[i].satId.toString(), noradId: filteredList[i].noradCatId!, updated: filteredList[i].updated.toString());
+          filteredList[i].azimuth=tleModel.getServoAngles(latitude, longitude, altitude)['az'];
+          filteredList[i].elevation=tleModel.getServoAngles(latitude, longitude, altitude)['el'];
+        }
+      }
       filteredList = filteredList.where((data) =>
-      data.line0.toString() != "null" && data.elevation! >0)
+      data.line0.toString() != "null" && data.elevation! >5)
           .toList();
     }
 

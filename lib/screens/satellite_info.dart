@@ -69,7 +69,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   double elevation=0, azimuth=0;
   final double _height1=10 , _height2=30;
-
+  bool showAngles= false;
 
   @override
   void initState() {
@@ -112,7 +112,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           backgroundColor: Colors.transparent,
           foregroundColor: ThemeColors.textPrimary,
           elevation: 0,
-          leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context); },),
+          leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context,"range"); },),
         ),
         body: SafeArea(
           child: Container(
@@ -578,7 +578,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             SizedBox(
               height: 60,
               width: MediaQuery.of(context).size.width*0.5-20,
-              child: elevation > 0 ? ElevatedButton(
+              child: widget.satelliteModel.elevation! > 0 ? ElevatedButton(
                   onPressed: (){
                     btInit();
                     // if(_bluetoothState==BluetoothState.STATE_ON){
@@ -935,11 +935,12 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                 onPressed: (){
                   final servoAngles = tleModel.getServoAngles(widget.lat, widget.lon, widget.alt);
                   String _angles = "${servoAngles['az']},${servoAngles['el']}";
+                  getAngles(servoAngles['az']!,servoAngles['el']!, _setState);
                   send(_angles);
                   Timer.periodic(const Duration(seconds: 3), (timer) {
                     final servoAngles = tleModel.getServoAngles(widget.lat, widget.lon, widget.alt);
                     String _angles = "${servoAngles['az']},${servoAngles['el']}";
-                    print(_angles);
+                    getAngles(servoAngles['az']!,servoAngles['el']!, _setState);
                     if (_connection != null && isConnected) {
                       send(_angles);
                     }
@@ -969,11 +970,34 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
            Column(
              crossAxisAlignment: CrossAxisAlignment.start,
              children: [
-               Text('Data Sent',style: TextStyle(color: ThemeColors.textPrimary),),
+               TextButton(
+                   onPressed: (){
+                     _setState(() {
+                       showAngles=!showAngles;
+                     });
+                   },
+                   child: Text(
+                       !showAngles ? 'SHOW ANGLES' : 'HIDE ANGLES',
+                       style: TextStyle(
+                           color: ThemeColors.secondaryColor,
+                           fontSize: 20
+                       )
+                   )
+               )
              ],
            ) :
            const SizedBox(),
-          const SizedBox(height: 30,),
+          const SizedBox(height: 15,),
+          showAngles ?
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('ELEVATION: ${elevation.toStringAsFixed(0)}°',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 18),),
+              const SizedBox(height: 5,),
+              Text('AZIMUTH: ${azimuth.toStringAsFixed(0)}°',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 18),),
+            ],
+          ) :
+          const SizedBox(),
           !_btConnected ?
           RichText(
               text: TextSpan(
@@ -1304,13 +1328,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   void checkTLE(String line0){
     if(line0!='null'){
       tleExists=true;
-      if(widget.location=="access"){
-        setState(() {
-          azimuth = servoAngles['az']!;
-          elevation = servoAngles['el']!;
-          print('az$azimuth el$elevation');
-        });
-      }
     }
   }
 
@@ -1583,6 +1600,19 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         internet=true;
       });
     }
+  }
+
+  void getAngles(double apos, double epos, StateSetter _setState) {
+    _setState(() {
+      if(apos < 180) {
+        azimuth = (180 - (apos)).abs();
+        elevation = 180-epos;
+      }
+      else {
+        azimuth = (360-apos);
+        elevation = epos;
+      }
+    });
   }
 
 }
