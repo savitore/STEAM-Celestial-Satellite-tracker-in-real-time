@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:get_it/get_it.dart';
 import 'package:dartssh2/dartssh2.dart';
 
-import '../models/ssh_entity.dart';
+import '../models/ssh_model.dart';
 import 'lg_settings_service.dart';
 import 'local_storage_service.dart';
 

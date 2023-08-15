@@ -1,5 +1,5 @@
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.dart';
-import 'package:steam_celestial_satellite_tracker_in_real_time/widgets/date.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/utils/date.dart';
 
 class SatelliteModel {
   String? satId;

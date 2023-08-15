@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_icons/simple_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -350,12 +349,12 @@ class About extends StatelessWidget {
                             ]
                         )
                     ),
-                    const SizedBox(height: 50),
+                    const SizedBox(height: 20),
                     const SizedBox(
                       width: double.infinity,
                       child: Image(image: AssetImage('assets/aLogo.png')),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 20),
                     Text(
                       'Project description',
                       style: TextStyle(
@@ -401,7 +400,7 @@ class About extends StatelessWidget {
                               '◼️  The data is visible into the Google Earth (running on the Liquid Galaxy rig) as placemarks, polygons, balloons and more.'),
                           const SizedBox(height: 10,),
                           _buildDescriptionParagraph(
-                              '◼️  It\'s possible to search, filter and sort satellites, synchronize the data between the application and the database, run some of the Liquid Galaxy system commands, check the orbit of satellites, play orbit tours and more.'),
+                              '◼️  It\'s possible to search, filter and sort satellites, synchronize the data between the application and the database, run some of the Liquid Galaxy system commands, check the orbit of satellites, view the satellites in your range and more.'),
                         ],
                       ),
                     ),

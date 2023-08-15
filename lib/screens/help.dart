@@ -175,7 +175,7 @@ class Help extends StatelessWidget {
                                 )
                             ),
                             const SizedBox(height: 10),
-                            _buildDescriptionParagraph('◼️  After the setup is complete, select a satellite from the home screen and go to the Satellite Information screen. Click on the \"View in 3D\" button. You will see something like this:'),
+                            _buildDescriptionParagraph('◼️  After the setup is complete, select a satellite from the home screen and go to the Satellite Information screen. If the satellite is in range, you will see a \"View in 3D\" button. Hit that button. You will see something like this:'),
                             const SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -205,7 +205,7 @@ class Help extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 15),
-                            _buildDescriptionParagraph('◼️  Click on \"View in 3D\" button. The data is now sent to the Arduino board. If the satellite is in your range, then you can see the direction of the satellite from the Arduino-controlled pointer. If it\'s not, then try another satellite.'),
+                            _buildDescriptionParagraph('◼️  Click on \"View in 3D\" button. The data is sent to the Arduino board. You can now see the direction of the satellite from the Arduino-controlled pointer.'),
                             const SizedBox(height: 40),
                             Text(
                               'Troubleshooting:',
@@ -218,11 +218,13 @@ class Help extends StatelessWidget {
                             const SizedBox(height: 20),
                             _buildDescriptionParagraph('◼️  If you are unable to connect to the LG rig, make sure that the application and the LG rig are both on the same network. Also, make sure that the credentials that you enter in the LG Connection screen are correct.'),
                             const SizedBox(height: 10),
-                            _buildDescriptionParagraph('◼️  While using the Arduino-controlled pointer, make sure that all the components are correctly connected as required.'),
+                            _buildDescriptionParagraph('◼️  The Arduino-controlled pointer feature is targeted for Android versions till Android 11. Any Android version greater than 11 is incompatible to work the Arduino-controlled pointer.'),
+                            const SizedBox(height: 10),
+                            _buildDescriptionParagraph('◼️  While using the pointer, make sure that all the components are correctly connected as required.'),
                             const SizedBox(height: 10),
                             RichText(
                                 text: TextSpan(
-                                    text: '◼️  If after sending the data to the Arduino board, the satellite is in range and you are unable to see the satellite\'s direction, it is possible that your HC-05 device is not working properly. Perform ',
+                                    text: '◼️  If after sending data to the Arduino board, you are unable to see the satellite\'s direction, it is possible that your HC-05 device is not working properly. Perform ',
                                     style: TextStyle(
                                       color: ThemeColors.textPrimary,
                                       fontSize: 20,

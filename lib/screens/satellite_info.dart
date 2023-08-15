@@ -13,7 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/compass.dart';
-import 'package:steam_celestial_satellite_tracker_in_real_time/screens/zoomed_screen.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/widgets/zoomed_screen.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/local_storage_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/snackbar.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/storage_keys.dart';
@@ -26,7 +26,7 @@ import '../repositories/countries_iso.dart';
 import '../services/lg_service.dart';
 import '../services/satellite_service.dart';
 import '../utils/colors.dart';
-import '../widgets/date.dart';
+import '../utils/date.dart';
 import '../widgets/shimmer.dart';
 
 class SatelliteInfo extends StatefulWidget {
@@ -73,9 +73,11 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   @override
   void initState() {
-    tleModel = TLEModel(line0: widget.satelliteModel.line0.toString(), line1: widget.satelliteModel.line1.toString(), line2: widget.satelliteModel.line2.toString(), satelliteId: widget.satelliteModel.satId.toString(), noradId: widget.satelliteModel.noradCatId!, updated: widget.satelliteModel.updated.toString());
-    servoAngles = tleModel.getServoAngles(widget.lat, widget.lon, widget.alt);
     checkTLE(widget.satelliteModel.line0.toString());
+    if(tleExists){
+      tleModel = TLEModel(line0: widget.satelliteModel.line0.toString(), line1: widget.satelliteModel.line1.toString(), line2: widget.satelliteModel.line2.toString(), satelliteId: widget.satelliteModel.satId.toString(), noradId: widget.satelliteModel.noradCatId!, updated: widget.satelliteModel.updated.toString());
+      servoAngles = tleModel.getServoAngles(widget.lat, widget.lon, widget.alt);
+    }
     checkInternetConnectivity();
     checkLGConnection();
     checkWebsiteDialog();
@@ -578,7 +580,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             SizedBox(
               height: 60,
               width: MediaQuery.of(context).size.width*0.5-20,
-              child: widget.satelliteModel.elevation! > 0 ? ElevatedButton(
+              child: widget.satelliteModel.elevation! > 0 ?
+              ElevatedButton(
                   onPressed: (){
                     btInit();
                     // if(_bluetoothState==BluetoothState.STATE_ON){
@@ -615,7 +618,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                     ],
                   )
               ) :
-              widget.location == "access" ? ElevatedButton(
+              widget.location == "access" ?
+              ElevatedButton(
                   onPressed: null,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: ThemeColors.backgroundColor,
@@ -633,7 +637,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       Flexible(child: Text('Satellite is out of range',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 18,overflow: TextOverflow.visible))),
                     ],
                   )
-              ) : ElevatedButton(
+              ) :
+              ElevatedButton(
                   onPressed: null,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: ThemeColors.backgroundColor,
@@ -882,6 +887,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                       _setState(() {
                         _btDataSent=false;
                         _btConnected=false;
+                        showAngles=false;
                       });
                     } :
                         (){
@@ -934,12 +940,13 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             child: ElevatedButton(
                 onPressed: (){
                   final servoAngles = tleModel.getServoAngles(widget.lat, widget.lon, widget.alt);
-                  String _angles = "${servoAngles['az']},${servoAngles['el']}";
+                  String angles = "${servoAngles['az']},${servoAngles['el']}";
                   getAngles(servoAngles['az']!,servoAngles['el']!, _setState);
-                  send(_angles);
+                  send(angles);
                   Timer.periodic(const Duration(seconds: 3), (timer) {
                     final servoAngles = tleModel.getServoAngles(widget.lat, widget.lon, widget.alt);
                     String _angles = "${servoAngles['az']},${servoAngles['el']}";
+                    print(_angles);
                     getAngles(servoAngles['az']!,servoAngles['el']!, _setState);
                     if (_connection != null && isConnected) {
                       send(_angles);
@@ -1329,6 +1336,10 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     if(line0!='null'){
       tleExists=true;
     }
+    if(widget.location!="access"){
+      widget.satelliteModel.elevation=-1;
+      widget.satelliteModel.azimuth=-1;
+    }
   }
 
   void checkWebsiteDialog(){
@@ -1603,16 +1614,18 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
   void getAngles(double apos, double epos, StateSetter _setState) {
-    _setState(() {
-      if(apos < 180) {
-        azimuth = (180 - (apos)).abs();
-        elevation = 180-epos;
-      }
-      else {
-        azimuth = (360-apos);
-        elevation = epos;
-      }
-    });
+    if(mounted){
+      _setState(() {
+        if(apos < 180) {
+          azimuth = (180 - (apos)).abs();
+          elevation = 180-epos;
+        }
+        else {
+          azimuth = (360-apos);
+          elevation = epos;
+        }
+      });
+    }
   }
 
 }

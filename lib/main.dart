@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/splash.dart';
@@ -37,7 +38,9 @@ class MyApp extends StatelessWidget{
     try {
       await GetIt.I<LGService>().setLogos();
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 

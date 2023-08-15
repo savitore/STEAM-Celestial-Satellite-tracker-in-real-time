@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_cubit.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/cubit/satellite_state.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
-import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/satellite_info.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/settings.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
@@ -17,7 +16,7 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/utils/storage_key
 import '../repositories/countries_iso.dart';
 import '../services/local_storage_service.dart';
 import '../utils/snackbar.dart';
-import '../widgets/date.dart';
+import '../utils/date.dart';
 import '../widgets/shimmer.dart';
 
 class Home extends StatefulWidget {

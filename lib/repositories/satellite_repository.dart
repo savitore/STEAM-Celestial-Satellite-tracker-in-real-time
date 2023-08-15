@@ -5,7 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/repositories/satellite_api.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
-import 'package:steam_celestial_satellite_tracker_in_real_time/repositories/tleApi.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/repositories/tle_api.dart';
 
 import '../services/local_storage_service.dart';
 import '../utils/storage_keys.dart';
