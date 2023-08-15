@@ -14,6 +14,7 @@ Arduino-controlled pointer and a Liquid Galaxy rig through a mobile application.
 
 * Arduino UNO
 * HC-05 Bluetooth module
+* SG90 Servo motor
 * C ++
 * Dart
 
