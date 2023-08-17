@@ -480,6 +480,7 @@ class _HomeState extends State<Home> {
       launchOld=false;
       sort=false;
       filter=false;
+      _searchController.text = "";
     });
     context.read<SatelliteCubit>().fetchData(refresh: true);
     context.read<SatelliteCubit>().emit(SatelliteLoadingState());

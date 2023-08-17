@@ -24,11 +24,21 @@ class _SettingsState extends State<Settings> {
 
   LGService get _lgService => GetIt.I<LGService>();
   LocalStorageService get _localStorageService => GetIt.I<LocalStorageService>();
+  final ScrollController _scrollController = ScrollController();
+  bool _showTextInAppBar = false;
 
   @override
   void initState() {
     checkLGConnection();
+    _scrollController.addListener(_scrollListener);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -48,6 +58,18 @@ class _SettingsState extends State<Settings> {
     }
   }
 
+  void _scrollListener() {
+    if (_scrollController.position.pixels >= 45) {
+      setState(() {
+        _showTextInAppBar = true;
+      });
+    } else {
+      setState(() {
+        _showTextInAppBar = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,8 +79,10 @@ class _SettingsState extends State<Settings> {
         backgroundColor: Colors.transparent,
         foregroundColor: ThemeColors.textPrimary,
         leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context,"pop"); },),
+        title: _showTextInAppBar ? const Text('Settings',style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold)) : const Text(''),
       ),
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(5, 0, 0, 20),
           child: Column(
@@ -85,7 +109,7 @@ class _SettingsState extends State<Settings> {
               ListTile(
                 onTap: (){
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Help()));
+                      MaterialPageRoute(builder: (context) => const Help()));
                 },
                 title: _buildTitle('Help'),
                 trailing: const Icon(Icons.arrow_forward),
@@ -324,7 +348,7 @@ class _SettingsState extends State<Settings> {
               ],
             ),
           ),
-          const SizedBox(height: 5,),
+          const SizedBox(height: 5),
           ElevatedButton(
             onPressed: () async {
               checkLGConnection();

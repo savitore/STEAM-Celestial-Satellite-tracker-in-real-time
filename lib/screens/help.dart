@@ -4,9 +4,14 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/colors.dart';
 
-class Help extends StatelessWidget {
-  const Help({super.key});
+class Help extends StatefulWidget {
+  const Help({Key? key}) : super(key: key);
 
+  @override
+  State<Help> createState() => _HelpState();
+}
+
+class _HelpState extends State<Help> {
   /// Property that defines the project GitHub.
   final _projectGitHub = 'https://github.com/savitore/STEAM-Celestial-Satellite-tracker-in-real-time';
 
@@ -24,6 +29,34 @@ class Help extends StatelessWidget {
     }
   }
 
+  final ScrollController _scrollController = ScrollController();
+  bool _showTextInAppBar = false;
+
+  @override
+  void initState() {
+    _scrollController.addListener(_scrollListener);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels >= 60) {
+      setState(() {
+        _showTextInAppBar = true;
+      });
+    } else {
+      setState(() {
+        _showTextInAppBar = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -31,18 +64,21 @@ class Help extends StatelessWidget {
       backgroundColor: ThemeColors.backgroundCardColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        foregroundColor: ThemeColors.textPrimary,
         elevation: 0,
         leading: IconButton(
             icon: Icon(Icons.arrow_back_rounded,color: ThemeColors.textPrimary,),
             onPressed: () {
               Navigator.pop(context);
             }),
+        title: _showTextInAppBar ? const Text('Help Page',style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold)) : const Text(''),
       ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(
               child: SingleChildScrollView(
+                controller: _scrollController,
                 physics: const BouncingScrollPhysics(),
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
@@ -205,7 +241,7 @@ class Help extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 15),
-                            _buildDescriptionParagraph('◼️  Click on \"View in 3D\" button. The data is sent to the Arduino board. You can now see the direction of the satellite from the Arduino-controlled pointer.'),
+                            _buildDescriptionParagraph('◼️  Click on \"View in 3D\" button. You can now see the direction of the satellite from the Arduino-controlled pointer. You can also see the servo angles by clicking on \"SHOW ANGLES\" button.'),
                             const SizedBox(height: 40),
                             Text(
                               'Troubleshooting:',
@@ -288,5 +324,4 @@ class Help extends StatelessWidget {
       overflow: TextOverflow.visible,
     );
   }
-
 }

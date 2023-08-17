@@ -34,16 +34,39 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
   final _pwController = TextEditingController();
   final _screensController = TextEditingController();
 
+  final ScrollController _scrollController = ScrollController();
+  bool _showTextInAppBar = false;
+
   @override
   void initState() {
     super.initState();
     _initNetworkState();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
   void setState(fn) {
     if(mounted) {
       super.setState(fn);
+    }
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels >= 45) {
+      setState(() {
+        _showTextInAppBar = true;
+      });
+    } else {
+      setState(() {
+        _showTextInAppBar = false;
+      });
     }
   }
 
@@ -61,8 +84,10 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
             foregroundColor: ThemeColors.textPrimary,
             elevation: 0,
             backgroundColor: Colors.transparent,
+            title: _showTextInAppBar ? const Text('LG Settings',style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold)) : const Text(''),
           ),
           body: SingleChildScrollView(
+            controller: _scrollController,
             child: Column(
                 children: [
                   Padding(

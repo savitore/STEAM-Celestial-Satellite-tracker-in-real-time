@@ -4,9 +4,14 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/colors.dart';
 
-class About extends StatelessWidget {
-  About({super.key});
+class About extends StatefulWidget {
+  const About({Key? key}) : super(key: key);
 
+  @override
+  State<About> createState() => _AboutState();
+}
+
+class _AboutState extends State<About> {
   /// Property that defines the author email.
   final _authorEmail = 'krishna.agrawal@icloud.com';
 
@@ -88,6 +93,34 @@ class About extends StatelessWidget {
     }
   }
 
+  final ScrollController _scrollController = ScrollController();
+  bool _showTextInAppBar = false;
+
+  @override
+  void initState() {
+    _scrollController.addListener(_scrollListener);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels >= 50) {
+      setState(() {
+        _showTextInAppBar = true;
+      });
+    } else {
+      setState(() {
+        _showTextInAppBar = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -95,18 +128,21 @@ class About extends StatelessWidget {
       backgroundColor: ThemeColors.backgroundCardColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        foregroundColor: ThemeColors.textPrimary,
         elevation: 0,
         leading: IconButton(
             icon: Icon(Icons.arrow_back_rounded,color: ThemeColors.textPrimary,),
             onPressed: () {
               Navigator.pop(context);
             }),
+        title: _showTextInAppBar ? const Text('About Page',style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold)) : const Text(''),
       ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(
             child: SingleChildScrollView(
+              controller: _scrollController,
               physics: const BouncingScrollPhysics(),
               child: Padding(
                 padding: const EdgeInsets.all(15),

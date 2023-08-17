@@ -70,9 +70,12 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   double elevation=0, azimuth=0;
   final double _height1=10 , _height2=30;
   bool showAngles= false;
+  final ScrollController _scrollController = ScrollController();
+  bool _showTextInAppBar = false;
 
   @override
   void initState() {
+    _scrollController.addListener(_scrollListener);
     checkTLE(widget.satelliteModel.line0.toString());
     if(tleExists){
       tleModel = TLEModel(line0: widget.satelliteModel.line0.toString(), line1: widget.satelliteModel.line1.toString(), line2: widget.satelliteModel.line2.toString(), satelliteId: widget.satelliteModel.satId.toString(), noradId: widget.satelliteModel.noradCatId!, updated: widget.satelliteModel.updated.toString());
@@ -92,7 +95,21 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       _connection?.dispose();
       _connection = null;
     }
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels >= 35) {
+      setState(() {
+        _showTextInAppBar = true;
+      });
+    } else {
+      setState(() {
+        _showTextInAppBar = false;
+      });
+    }
   }
 
   //check if lg is connected
@@ -115,11 +132,13 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           foregroundColor: ThemeColors.textPrimary,
           elevation: 0,
           leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context,"range"); },),
+          title: _showTextInAppBar ? Text(widget.satelliteModel.name.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.bold)) : const Text(''),
         ),
         body: SafeArea(
           child: Container(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
             child: SingleChildScrollView(
+              controller: _scrollController,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
