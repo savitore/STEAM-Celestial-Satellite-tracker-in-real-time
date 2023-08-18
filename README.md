@@ -4,10 +4,12 @@
 
 # Steam Celestial Satellite tracker in real time
 
-__Welcome to the STEAM Celestial Satellite project__
+### Welcome to the STEAM Celestial Satellite project!
 
 This project represents the orbit of a satellite orbiting earth on an
 Arduino-controlled pointer and a Liquid Galaxy rig through a mobile application. This project was developed within the Google Summer of Code 2023 program.
+
+The application offers a unique way to visualize satellite orbits using the Liquid Galaxy rig (Google Earth) and a real-world Arduino-controlled pointer. It also provides insights into satellites' movements and access to vital satellite information seamlessly within the app.
 
 
  ### Main technologies and languages used
