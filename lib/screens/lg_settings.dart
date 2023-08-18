@@ -178,7 +178,6 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                                   onPressed: (){
                                     FocusManager.instance.primaryFocus?.unfocus();
                                     _localStorageService.setItem(StorageKeys.lgScreens, _screensController.text.toString());
-                                    _localStorageService.setItem(StorageKeys.lgConnection, "not");
                                     _onConnect();
                                     Timer(const Duration(seconds: 3), () async {
                                       if (isAuthenticated) {
