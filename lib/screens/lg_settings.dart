@@ -1,18 +1,17 @@
 import 'dart:async';
 
+import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/local_storage_service.dart';
-import 'package:steam_celestial_satellite_tracker_in_real_time/services/ssh_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/utils/storage_keys.dart';
 
 import '../models/lg_settings_model.dart';
-import '../models/ssh_model.dart';
 import '../services/lg_service.dart';
 import '../services/lg_settings_service.dart';
 import '../utils/snackbar.dart';
-import '../utils/storage_keys.dart';
 
 class LGSettings extends StatefulWidget {
   const LGSettings({Key? key}) : super(key: key);
@@ -29,7 +28,6 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
   LGSettingsService get _settingsService => GetIt.I<LGSettingsService>();
   LGService get _lgService => GetIt.I<LGService>();
   LocalStorageService get _localStorageService => GetIt.I<LocalStorageService>();
-  SSHService get _sshService => GetIt.I<SSHService>();
 
   final _ipController = TextEditingController();
   final _portController = TextEditingController();
@@ -180,6 +178,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                                   onPressed: (){
                                     FocusManager.instance.primaryFocus?.unfocus();
                                     _localStorageService.setItem(StorageKeys.lgScreens, _screensController.text.toString());
+                                    _localStorageService.setItem(StorageKeys.lgConnection, "not");
                                     _onConnect();
                                     Timer(const Duration(seconds: 3), () async {
                                       if (isAuthenticated) {
@@ -265,24 +264,46 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
   /// Checks and sets the connection status according to the form info.
   Future<void> _checkConnection() async {
 
+    SSHClient? _client;
+
     try {
 
       if (_ipController.text.isEmpty ||
           _usernameController.text.isEmpty ||
           _pwController.text.isEmpty ||
           _screensController.text.isEmpty ||
-          _portController.text.isEmpty) {
+          _portController.text.isEmpty)
+      {
         showSnackbar(context, 'Please enter all details');
       }
 
+
       final settings = _settingsService.getSettings();
       try{
-        _sshService.setClient(SSHEntity(
-          username: settings.username,
-          host: settings.ip,
-          passwordOrKey: settings.password,
-          port: settings.port,
-        ));
+        final socket = await SSHSocket.connect(settings.ip,settings.port);
+        String? password;
+        _client = SSHClient(
+            socket,
+            username: settings.username,
+            onPasswordRequest: (){
+              password = settings.password;
+              return password;
+            },
+            keepAliveInterval: const Duration(seconds: 3600),
+            onAuthenticated: (){
+              setState(() {
+                isAuthenticated=true;
+                _localStorageService.setItem(StorageKeys.lgConnection, "connected");
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                    'Connected successfully.',
+                    style: TextStyle(color: ThemeColors.snackBarTextColor),
+                  ),
+                  backgroundColor: ThemeColors.success,
+                ));
+              });
+            }
+        );
       }catch(e){
         if (kDebugMode) {
           print(e);
