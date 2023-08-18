@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/local_storage_service.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/ssh_service.dart';
@@ -5,6 +6,7 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/services/ssh_serv
 import '../models/kml/kml_entity.dart';
 import '../models/kml/look_at_entity.dart';
 import '../models/kml/screen_overlay_entity.dart';
+import '../utils/storage_keys.dart';
 import 'file_service.dart';
 import 'lg_settings_service.dart';
 
@@ -20,7 +22,7 @@ class LGService {
 
 
   /// Property that defines the slave screen number that has the logos. Defaults to `5`.
-  int screenAmount = 3;
+  int screenAmount = 5;
 
   /// Property that defines the logo slave screen number according to the [screenAmount] property.
   int get logoScreen {
@@ -45,7 +47,7 @@ class LGService {
   }
 
   /// Sets the logos KML into the Liquid Galaxy rig.
-  Future<void> setLogos({String name = 'SCST-logos', String content = '<name>Logos</name>'}) async {
+  Future<void> setLogos({String name = 'CST-logos', String content = '<name>Logos</name>'}) async {
     final screenOverlay = ScreenOverlayEntity.logos();
 
     final kml = KMLEntity(
@@ -57,13 +59,15 @@ class LGService {
     try {
       await sendKMLToSlave(logoScreen, kml.body);
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
   /// Gets the Liquid Galaxy rig screen amount. Returns a [String] that represents the screen amount.
   String? getScreenAmount()  {
-    String numberOfScreen = _localStorageService.getItem('screen');
+    String numberOfScreen = _localStorageService.getItem(StorageKeys.lgScreens);
     screenAmount = int.parse(numberOfScreen);
 
     return numberOfScreen;
@@ -78,15 +82,11 @@ class LGService {
 
     for (var img in images) {
       final image = await _fileService.createImage(img['name']!, img['path']!);
-      print('image created');
       await _sshService.upload(image,img['name']!);
-      print('image uploaded');
     }
 
     final kmlFile = await _fileService.createFile(fileName, kml.body);
-    print('kml created');
     await _sshService.upload(kmlFile,fileName);
-    print('kml uploaded');
     await _sshService
         .execute('echo "$_url/$fileName" > /var/www/html/kmls.txt');
   }
@@ -96,9 +96,7 @@ class LGService {
     final fileName = '$tourName.kml';
 
     final kmlFile = await _fileService.createFile(fileName, tourKml);
-    print('sendTour created');
     await _sshService.upload(kmlFile,fileName);
-    print('sendTour uploaded');
 
     await _sshService
         .execute('echo "\n$_url/$fileName" >> /var/www/html/kmls.txt');
@@ -138,7 +136,7 @@ class LGService {
   /// Setups the Google Earth in slave screens to refresh every 2 seconds.
   Future<void> setRefresh() async {
     final pw = _settingsService.getSettings().password;
-    final result = await getScreenAmount();
+    final result = getScreenAmount();
     if (result != null) {
       screenAmount = int.parse(result);
     }
@@ -172,7 +170,7 @@ class LGService {
   /// Setups the Google Earth in slave screens to stop refreshing.
   Future<void> resetRefresh() async {
     final pw = _settingsService.getSettings().password;
-    final result = await getScreenAmount();
+    final result = getScreenAmount();
     if (result != null) {
       screenAmount = int.parse(result);
     }
@@ -191,7 +189,9 @@ class LGService {
       try {
         await _sshService.execute(query);
       } catch (e) {
-        print(e);
+        if (kDebugMode) {
+          print(e);
+        }
       }
     }
 
@@ -203,7 +203,7 @@ class LGService {
     String query =
         'echo "exittour=true" > /tmp/query.txt && > /var/www/html/kmls.txt';
 
-    final result = await getScreenAmount();
+    final result = getScreenAmount();
     if (result != null) {
       screenAmount = int.parse(result);
     }
@@ -214,7 +214,7 @@ class LGService {
 
     if (keepLogos) {
       final kml = KMLEntity(
-        name: 'SVT-logos',
+        name: 'CST-logos',
         content: '<name>Logos</name>',
         screenOverlay: ScreenOverlayEntity.logos().tag,
       );
@@ -230,7 +230,7 @@ class LGService {
   Future<void> relaunch() async {
     final pw = _settingsService.getSettings().password;
     final user = _settingsService.getSettings().username;
-    final result = await getScreenAmount();
+    final result = getScreenAmount();
     if (result != null) {
       screenAmount = int.parse(result);
     }
@@ -263,7 +263,7 @@ fi
   /// Reboots the Liquid Galaxy system.
   Future<void> reboot() async {
     final pw = _settingsService.getSettings().password;
-    final result = await getScreenAmount();
+    final result = getScreenAmount();
     if (result != null) {
       screenAmount = int.parse(result);
     }
@@ -282,7 +282,7 @@ fi
   /// Shuts down the Liquid Galaxy system.
   Future<void> shutdown() async {
     final pw = _settingsService.getSettings().password;
-    final result = await getScreenAmount();
+    final result = getScreenAmount();
     if (result != null) {
       screenAmount = int.parse(result);
     }

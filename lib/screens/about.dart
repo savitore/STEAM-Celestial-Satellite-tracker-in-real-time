@@ -408,29 +408,6 @@ class _AboutState extends State<About> {
                               '◼️  This project represents the orbit of a satellite orbiting earth on a Liquid Galaxy rig and an Arduino-controlled pointer through a mobile application.'),
                           const SizedBox(height: 10,),
                           _buildDescriptionParagraph('◼️  The direction of the satellite can be viewed by using the Arduino-controlled pointer, which emits laser towards the satellite.'),
-                          // RichText(
-                          //     text: TextSpan(
-                          //         text: '◼️  To view the direction of a satellite in 3D with an Arduino-controlled pointer, follow the instructions on the ',
-                          //         style: TextStyle(
-                          //           color: ThemeColors.textPrimary,
-                          //           fontSize: 20,
-                          //         ),
-                          //         children: [
-                          //           TextSpan(
-                          //               text: 'Instruction Manual.',
-                          //               style: TextStyle(
-                          //                 color: ThemeColors.primaryColor,
-                          //                 fontSize: 20,
-                          //                 fontWeight: FontWeight.bold
-                          //               ),
-                          //               recognizer: TapGestureRecognizer()
-                          //                 ..onTap = (){
-                          //                 _openLink(_instructionManual);
-                          //                 }
-                          //           ),
-                          //         ]
-                          //     )
-                          // ),
                           const SizedBox(height: 10,),
                           _buildDescriptionParagraph(
                               '◼️  The data is visible into the Google Earth (running on the Liquid Galaxy rig) as placemarks, polygons, balloons and more.'),

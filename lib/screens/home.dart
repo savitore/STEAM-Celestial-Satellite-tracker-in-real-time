@@ -98,8 +98,8 @@ class _HomeState extends State<Home> {
 
   //check if lg is connected
   void checkLGConnection() {
-    if(_localStorageService.hasItem('lgConnected')){
-      if(_localStorageService.getItem('lgConnected')=="connected"){
+    if(_localStorageService.hasItem(StorageKeys.lgConnection)){
+      if(_localStorageService.getItem(StorageKeys.lgConnection)=="connected"){
         setState(() {
           lgConnected=true;
         });
@@ -1089,7 +1089,6 @@ class _HomeState extends State<Home> {
         latitude=_localStorageService.getItem(StorageKeys.latitude);
         longitude=_localStorageService.getItem(StorageKeys.longitude);
         altitude=_localStorageService.getItem(StorageKeys.altitude);
-        print('1');
       });
     }
     bool serviceEnabled;
@@ -1118,8 +1117,6 @@ class _HomeState extends State<Home> {
       location='Location permissions are permanently denied, we cannot request permissions.';
       // Permissions are denied forever, handle appropriately.
     }
-
-    print(location);
     setState(() {
       location="granted";
     });
@@ -1133,7 +1130,6 @@ class _HomeState extends State<Home> {
         _localStorageService.setItem(StorageKeys.latitude, latitude);
         _localStorageService.setItem(StorageKeys.longitude, longitude);
         _localStorageService.setItem(StorageKeys.altitude, altitude);
-        print('2');
       });
   }
 

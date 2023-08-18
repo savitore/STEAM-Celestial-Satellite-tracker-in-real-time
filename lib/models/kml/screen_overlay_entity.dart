@@ -55,7 +55,7 @@ class ScreenOverlayEntity {
   /// Generates a [ScreenOverlayEntity] with the logos data in it.
   factory ScreenOverlayEntity.logos() {
     return ScreenOverlayEntity(
-      name: 'LogoScST',
+      name: 'LogoCST',
       icon: 'https://github.com/savitore/STEAM-Celestial-Satellite-tracker-in-real-time/blob/8e3d132fc18d08f0f39b624e7cdb96e00a56fc0b/assets/mainLogo.jpg?raw=true',
       overlayX: 0,
       overlayY: 1,

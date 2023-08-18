@@ -114,8 +114,8 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   //check if lg is connected
   void checkLGConnection() {
-    if(_localStorageService.hasItem('lgConnected')){
-      if(_localStorageService.getItem('lgConnected')=="connected"){
+    if(_localStorageService.hasItem(StorageKeys.lgConnection)){
+      if(_localStorageService.getItem(StorageKeys.lgConnection)=="connected"){
         setState(() {
           lgConnected=true;
         });
@@ -965,7 +965,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                   Timer.periodic(const Duration(seconds: 3), (timer) {
                     final servoAngles = tleModel.getServoAngles(widget.lat, widget.lon, widget.alt);
                     String _angles = "${servoAngles['az']},${servoAngles['el']}";
-                    print(_angles);
                     getAngles(servoAngles['az']!,servoAngles['el']!, _setState);
                     if (_connection != null && isConnected) {
                       send(_angles);
@@ -1312,10 +1311,10 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
 
   // Opens the satellite `website`.
   void _openLink() async {
-    final Uri _url = Uri.parse(widget.satelliteModel.website.toString());
+    final Uri url = Uri.parse(widget.satelliteModel.website.toString());
 
-    if (!await launchUrl(_url)) {
-      throw Exception('Could not launch $_url');
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
     }
   }
 
@@ -1557,7 +1556,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           );
         }
         catch(e){
-          print('error :$e');
+          if (kDebugMode) {
+            print('error :$e');
+          }
         }
 
         if (_lgService.balloonScreen == _lgService.logoScreen) {
@@ -1601,7 +1602,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
           await _lgService.sendTour(orbit, 'Orbit');
         }
         catch(e){
-          print(e);
+          if (kDebugMode) {
+            print(e);
+          }
         }
         setState(() {
           _viewingLG=true;
@@ -1610,7 +1613,9 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
       } on Exception catch (_) {
         showSnackbar(context, 'Connection failed!');
       } catch (_) {
-        print(_);
+        if (kDebugMode) {
+          print(_);
+        }
         showSnackbar(context, 'Connection failed!!');
       }
 

@@ -153,7 +153,7 @@ class _HelpState extends State<Help> {
                             const SizedBox(height: 10),
                             _buildDescriptionParagraph('◼️  After the setup is complete, go to the LG connection in Settings page, and fill in the credentials to connect to LG rig.'),
                             const SizedBox(height: 10),
-                            _buildDescriptionParagraph('◼️  Then, go to the home screen and tap on the satellite you want to visualize. You will be navigated to the Satellite Information screen, which contains all the information about that satellite. If TLE Information is available, you will see a \"View in LG\" button. Hit that button. You will be able to see the satellite\'s orbit in the LG rig. You will see something like this:'),
+                            _buildDescriptionParagraph('◼️  Then, go to the home screen and tap on the satellite you want to visualize. You will be navigated to the Satellite Information screen, which contains all the information about that satellite. If TLE Information is available, you will see a "View in LG" button. Hit that button. You will be able to see the satellite\'s orbit in the LG rig. You will see something like this:'),
                             const SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -167,9 +167,9 @@ class _HelpState extends State<Help> {
                               ],
                             ),
                             const SizedBox(height: 15),
-                            _buildDescriptionParagraph('◼️  Click on the \"Orbit\" button to go on an Orbit tour in the LG rig. The balloon can be hidden by using the \"Balloon visibility\" switch. The orbit period can be changed by using the \"Orbit period\" slider. You can also go on a Simulation tour by clicking on the \"Simulate\" button.'),
+                            _buildDescriptionParagraph('◼️  Click on the "Orbit" button to go on an Orbit tour in the LG rig. The balloon can be hidden by using the "Balloon visibility" switch. The orbit period can be changed by using the "Orbit period" slider. You can also go on a Simulation tour by clicking on the "Simulate" button.'),
                             const SizedBox(height: 10),
-                            _buildDescriptionParagraph('◼️  Go to the Settings page and click on \"LG tools\" to perform some LG commands.'),
+                            _buildDescriptionParagraph('◼️  Go to the Settings page and click on "LG tools" to perform some LG commands.'),
                             const SizedBox(height: 40),
                             Text(
                               'Instructions for Setting up Arduino-controlled pointer:',
@@ -211,7 +211,7 @@ class _HelpState extends State<Help> {
                                 )
                             ),
                             const SizedBox(height: 10),
-                            _buildDescriptionParagraph('◼️  After the setup is complete, select a satellite from the home screen and go to the Satellite Information screen. If the satellite is in range, you will see a \"View in 3D\" button. Hit that button. You will see something like this:'),
+                            _buildDescriptionParagraph('◼️  After the setup is complete, select a satellite from the home screen and go to the Satellite Information screen. If the satellite is in range, you will see a "View in 3D" button. Hit that button. You will see something like this:'),
                             const SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -225,9 +225,9 @@ class _HelpState extends State<Help> {
                               ],
                             ),
                             const SizedBox(height: 15),
-                            _buildDescriptionParagraph('◼️  Select your HC-05 device from the list of paired devices. Hit the \"Connect\" button to connect to the Bluetooth device.'),
+                            _buildDescriptionParagraph('◼️  Select your HC-05 device from the list of paired devices. Hit the "Connect" button to connect to the Bluetooth device.'),
                             const SizedBox(height: 10),
-                            _buildDescriptionParagraph('◼️  Calibrate your Arduino-controlled pointer to 0°N by going to the Compass Screen, when you click on \"Open Compass\".'),
+                            _buildDescriptionParagraph('◼️  Calibrate your Arduino-controlled pointer to 0°N by going to the Compass Screen, when you click on "Open Compass".'),
                             const SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -241,7 +241,7 @@ class _HelpState extends State<Help> {
                               ],
                             ),
                             const SizedBox(height: 15),
-                            _buildDescriptionParagraph('◼️  Click on \"View in 3D\" button. You can now see the direction of the satellite from the Arduino-controlled pointer. You can also see the servo angles by clicking on \"SHOW ANGLES\" button.'),
+                            _buildDescriptionParagraph('◼️  Click on "View in 3D" button. You can now see the direction of the satellite from the Arduino-controlled pointer. You can also see the servo angles by clicking on "SHOW ANGLES" button.'),
                             const SizedBox(height: 40),
                             Text(
                               'Troubleshooting:',

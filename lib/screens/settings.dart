@@ -7,6 +7,7 @@ import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart
 import 'package:steam_celestial_satellite_tracker_in_real_time/utils/snackbar.dart';
 
 import '../services/lg_service.dart';
+import '../utils/storage_keys.dart';
 import '../widgets/confirm_dialog.dart';
 import 'about.dart';
 
@@ -49,8 +50,8 @@ class _SettingsState extends State<Settings> {
   }
 
   Future<void> checkLGConnection() async{
-    if(_localStorageService.hasItem('lgConnected')){
-      if(_localStorageService.getItem('lgConnected')=="connected"){
+    if(_localStorageService.hasItem(StorageKeys.lgConnection)){
+      if(_localStorageService.getItem(StorageKeys.lgConnection)=="connected"){
         setState(() {
           lgConnected=true;
         });
@@ -99,7 +100,7 @@ class _SettingsState extends State<Settings> {
               ListTile(
                 onTap: (){
                   Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => About()));
+                        MaterialPageRoute(builder: (context) => const About()));
                   },
                   title: _buildTitle('About'),
                   trailing: const Icon(Icons.arrow_forward),

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dartssh2/dartssh2.dart';
 
 import '../models/ssh_model.dart';
+import '../utils/storage_keys.dart';
 import 'lg_settings_service.dart';
 import 'local_storage_service.dart';
 
@@ -36,16 +38,19 @@ class SSHService {
         keepAliveInterval: const Duration(seconds: 3600),
         onAuthenticated: () async {
             isAuthenticated=true;
-            _localStorageService.setItem('lgConnected', "connected");
+            _localStorageService.setItem(StorageKeys.lgConnection, "connected");
         }
       );
       // await Future.delayed(const Duration(seconds: 10));
     }catch(e){
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
   void init() {
+    _localStorageService.setItem(StorageKeys.lgConnection, "not");
     final settings = _settingsService.getSettings();
     setClient(SSHEntity(
       username: settings.username,
@@ -92,7 +97,6 @@ class SSHService {
       port: settings.port,
     ));
     Future.delayed(const Duration(seconds: 3));
-    print(isAuthenticated);
     try{
       bool uploading =true;
       final sftp = await _client?.sftp();
@@ -113,13 +117,14 @@ class SSHService {
       // }
       // await waitWhile(() => uploading);
     } catch(error){
-      print(error);
+      if (kDebugMode) {
+        print(error);
+      }
     }
   }
 
   Future waitWhile(bool Function() test, [Duration pollInterval = Duration.zero]){
     var completer = Completer();
-    print('inside');
     check(){
       if(!test()){
         completer.complete();
