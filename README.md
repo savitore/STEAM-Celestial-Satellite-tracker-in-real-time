@@ -3,6 +3,13 @@
 </p>
 <h1 align="center"> Steam Celestial Satellite tracker in real time</h1>
 
+<p align="center">
+  <img alt="" src="https://img.shields.io/github/license/savitore/Steam-Celestial-Satellite-tracker-in-real-time?color=red">
+  <img alt="" src="https://img.shields.io/github/languages/top/savitore/Steam-Celestial-Satellite-tracker-in-real-time?color=green">
+  <img alt="" src="https://img.shields.io/badge/Languages-8-important?color=yellow">
+  <img alt="" src="https://img.shields.io/github/repo-size/savitore/Steam-Celestial-Satellite-tracker-in-real-time?color=blue&label=Repo%20Size">
+</p>
+
 ### Summary
 
 - [About](#about)
