@@ -11,6 +11,8 @@ Arduino-controlled pointer and a Liquid Galaxy rig through a mobile application.
 
 The application offers a unique way to visualize satellite orbits using the Liquid Galaxy rig (Google Earth) and a real-world Arduino-controlled pointer. It also provides insights into satellites' movements and access to vital satellite information seamlessly within the app.
 
+Take a look at the app on the [Google Play Store](https://play.google.com/store/apps/details?id=com.savitore.steam_celestial_satellite_tracker_in_real_time&hl=en-IN).
+
 
  ### Main technologies and languages used
 
@@ -20,7 +22,7 @@ The application offers a unique way to visualize satellite orbits using the Liqu
 * C ++
 * Dart
 
-### Getting started
+## __Getting started__
 
 Before continuing, make sure to have installed in your machine [Git](https://git-scm.com/) , [Flutter](https://flutter.dev) and [Arduino IDE](https://www.arduino.cc/en/software).
 
@@ -38,10 +40,14 @@ With the project cloned, run it by using the following command:
 ```bash
 $ flutter run --no-sound-null-safety
 ```
-### Setting up the Arduino-controlled pointer
+## __Setting up the Arduino-controlled pointer__
 
 You can find the documentation for setting up the Arduino-controlled pointer by clicking [here.](https://docs.google.com/document/d/1NfXiyhhtKBtD2GL_H1Qew8CYwpoZ0U3u9v3ifMiTAcE/edit)
 
-### Connecting to the Liquid Galaxy
+## __Connecting to the Liquid Galaxy__
 
-### Setting up the LG rig
+## __Setting up the LG rig__
+
+## __License__
+
+This software is licensed under the [MIT license](https://opensource.org/licenses/MIT).
