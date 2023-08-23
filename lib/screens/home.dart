@@ -30,8 +30,7 @@ class _HomeState extends State<Home> {
 
   LocalStorageService get _localStorageService => GetIt.I<LocalStorageService>();
   TextEditingController _searchController = TextEditingController();
-  // late ScrollController _scrollController;
-  bool _showBackToTopButton = false, lgConnected=false;
+  bool lgConnected=false;
   FocusNode _searchFocusNode = FocusNode();
   String dropdownvalueCountries = 'ALL';
   String dropdownvalueStatus = 'ALL';
@@ -69,32 +68,13 @@ class _HomeState extends State<Home> {
     Timer.periodic(const Duration(seconds: 3), (timer) {
       checkLGConnection();
     });
-    // _scrollController = ScrollController()
-    //   ..addListener(() {
-    //     setState(() {
-    //       if (_scrollController.offset >= 300) {
-    //         _showBackToTopButton = true; // show the back-to-top button
-    //       } else {
-    //         _showBackToTopButton = false; // hide the back-to-top button
-    //       }
-    //     });
-    //   });
   }
 
   @override
   void dispose() {
     _searchFocusNode.dispose();
-    // _scrollController.dispose();
     super.dispose();
   }
-
-  // This function is triggered when the user presses the back-to-top button
-  // void _scrollToTop() {
-  //     _scrollController.animateTo(
-  //         _scrollController.position.minScrollExtent,
-  //         curve: Curves.easeInOut,
-  //         duration: const Duration(milliseconds: 500),);
-  // }
 
   //check if lg is connected
   void checkLGConnection() {
@@ -265,13 +245,6 @@ class _HomeState extends State<Home> {
                 ],
               ),
               bottomNavigationBar: bottomRow(context,state),
-              // floatingActionButton: _showBackToTopButton == false
-              //     ? null
-              //     : FloatingActionButton(
-              //   onPressed: _scrollToTop,
-              //   backgroundColor: ThemeColors.primaryColor,
-              //   child: const Icon(Icons.arrow_upward, color: Colors.white,),
-              // ),
             );
           }
           else if(state is FilteredSatelliteState){
@@ -348,13 +321,6 @@ class _HomeState extends State<Home> {
                 ],
               ),
               bottomNavigationBar: bottomRow(context,state),
-              // floatingActionButton: _showBackToTopButton == false
-              //     ? null
-              //     : FloatingActionButton(
-              //      onPressed: _scrollToTop,
-              //      backgroundColor: ThemeColors.primaryColor,
-              //      child: const Icon(Icons.arrow_upward, color: Colors.white,),
-              // ),
             );
           }
           return Scaffold(
