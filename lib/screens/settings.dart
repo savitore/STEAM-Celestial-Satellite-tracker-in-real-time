@@ -27,6 +27,7 @@ class _SettingsState extends State<Settings> {
   LocalStorageService get _localStorageService => GetIt.I<LocalStorageService>();
   final ScrollController _scrollController = ScrollController();
   bool _showTextInAppBar = false;
+  late String dropDownValue;
 
   @override
   void initState() {
@@ -56,6 +57,11 @@ class _SettingsState extends State<Settings> {
           lgConnected=true;
         });
       }
+      else{
+        setState(() {
+          lgConnected=false;
+        });
+      }
     }
   }
 
@@ -81,6 +87,13 @@ class _SettingsState extends State<Settings> {
         foregroundColor: ThemeColors.textPrimary,
         leading: IconButton(icon : const Icon(Icons.arrow_back), onPressed: () { Navigator.pop(context,"pop"); },),
         title: _showTextInAppBar ? const Text('Settings',style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold)) : const Text(''),
+        bottom: _showTextInAppBar ? PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: Colors.black12,
+            height: 1,
+          ),
+        ) : null,
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
@@ -183,8 +196,8 @@ class _SettingsState extends State<Settings> {
   }
 
   Widget showTools(){
-    ButtonStyle style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.secondaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)));
-    ButtonStyle _style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.secondaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10),side: BorderSide(color: ThemeColors.secondaryColor)));
+    ButtonStyle style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.secondaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)));
+    ButtonStyle _style = ElevatedButton.styleFrom(backgroundColor: ThemeColors.backgroundColor,foregroundColor: ThemeColors.secondaryColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),side: BorderSide(color: ThemeColors.secondaryColor)));
     return Padding(
       padding: const EdgeInsets.only(right: 10,left: 5,top: 10),
       child: Column(

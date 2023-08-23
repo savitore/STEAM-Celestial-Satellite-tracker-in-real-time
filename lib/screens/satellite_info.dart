@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:get_it/get_it.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/satellite_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/models/tle_model.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/compass.dart';
@@ -63,7 +62,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   // To track whether the device is still connected to Bluetooth
   bool get isConnected => _connection != null && _connection!.isConnected;
   BluetoothDevice? _device;
-  int? _deviceState;
   bool isDisconnecting = false,_btConnected=false,_btDataSent=false;
   bool _isButtonUnavailable = false, _isConnecting=false;
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
@@ -101,7 +99,7 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.pixels >= 35) {
+    if (_scrollController.position.pixels >= 40) {
       setState(() {
         _showTextInAppBar = true;
       });
@@ -143,11 +141,12 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(widget.satelliteModel.name.toString(),overflow: TextOverflow.visible,style: TextStyle(fontWeight: FontWeight.bold,color: ThemeColors.textPrimary,fontSize: 40),),
-                  const SizedBox(height: 20,),
+                  const SizedBox(height: 20),
                   _buildSatelliteStatus(),
                   const SizedBox(height: 20),
                   _buildSatelliteImage(),
                   _buildViewButtons(context),
+                  const SizedBox(height: 10),
                   _buildVisualisingInLG(),
                   _buildTitle('Satellite ID', widget.satelliteModel.satId.toString()),
                   _buildTitle('NORAD ID', widget.satelliteModel.noradCatId.toString()),
@@ -672,6 +671,12 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      Flexible(child: Icon(
+                        Icons.location_off_outlined,
+                        color: ThemeColors.primaryColor,
+                        size: 26,
+                      )),
+                      const SizedBox(width: 10),
                       Flexible(child: Text('Location permission is required to view in 3D',style: TextStyle(color: ThemeColors.primaryColor,fontSize: 18,overflow: TextOverflow.visible))),
                     ],
                   )
@@ -761,31 +766,31 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
     if(_bluetoothState == BluetoothState.STATE_ON){
       getPairedDevices(_setState);
     }
-    if(widget.location!="access"){
-      Padding(
-        padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Please grant location permission in order to view in 3D.',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 45,
-              child: ElevatedButton(
-                  onPressed: (){
-                    openAppSettings();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
-                  ),
-                  child: const Text('App Settings',style: TextStyle(fontSize: 20),)
-              ),
-            )
-          ],
-        ),
-      );
-    }
+    // if(widget.location!="access"){
+    //   Padding(
+    //     padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
+    //     child: Column(
+    //       mainAxisSize: MainAxisSize.min,
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         Text('Please grant location permission in order to view in 3D.',style: TextStyle(color: ThemeColors.textPrimary,fontSize: 20),overflow: TextOverflow.visible,),
+    //         const SizedBox(height: 20),
+    //         SizedBox(
+    //           height: 45,
+    //           child: ElevatedButton(
+    //               onPressed: (){
+    //                 openAppSettings();
+    //               },
+    //               style: ElevatedButton.styleFrom(
+    //                   backgroundColor: ThemeColors.primaryColor,foregroundColor: ThemeColors.backgroundColor,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
+    //               ),
+    //               child: const Text('App Settings',style: TextStyle(fontSize: 20),)
+    //           ),
+    //         )
+    //       ],
+    //     ),
+    //   );
+    // }
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child:
@@ -800,47 +805,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
             ],
           ),
           const SizedBox(height: 20),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.start,
-          //   children: <Widget>[
-          //     Expanded(
-          //       child: Text(
-          //         'Enable Bluetooth',
-          //         style: TextStyle(
-          //           color: ThemeColors.textPrimary,
-          //           fontSize: 22,
-          //         ),
-          //       ),
-          //     ),
-          //     Switch(
-          //       value: _bluetoothState.isEnabled,
-          //       onChanged: (bool value) {
-          //         future() async {
-          //           if (value) {
-          //             await FlutterBluetoothSerial.instance
-          //                 .requestEnable();
-          //           } else {
-          //             await FlutterBluetoothSerial.instance
-          //                 .requestDisable();
-          //           }
-          //
-          //           await getPairedDevices();
-          //           _isButtonUnavailable = false;
-          //
-          //           if (_btConnected) {
-          //             _disconnect();
-          //           }
-          //         }
-          //
-          //         future().then((_) {
-          //           _setState(() {});
-          //         });
-          //       },
-          //       activeColor: ThemeColors.primaryColor,
-          //     )
-          //   ],
-          // ),
-          // const SizedBox(height: 5,),
           Divider(
             thickness: 0.5,
             height: 5,
@@ -1374,7 +1338,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
         _bluetoothState = state;
       });
     });
-    _deviceState=0;
 
     // enableBluetooth();
 
@@ -1497,7 +1460,6 @@ class _SatelliteInfoState extends State<SatelliteInfo> {
   void _disconnect(StateSetter _setState) async {
     _setState(() {
       _isButtonUnavailable = true;
-      _deviceState = 0;
     });
 
     await _connection?.close();

@@ -104,6 +104,11 @@ class _HomeState extends State<Home> {
           lgConnected=true;
         });
       }
+      else{
+        setState(() {
+          lgConnected=false;
+        });
+      }
     }
   }
 
@@ -127,7 +132,7 @@ class _HomeState extends State<Home> {
                 foregroundColor: ThemeColors.textPrimary,
                 backgroundColor: ThemeColors.backgroundCardColor,
                 elevation: 0,
-                title: const Text('STEAM Celestial Satellite tracker',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 24),),
+                title: const Text("STEAM Celestial Satellite tracker",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 24),),
                 actions: [
                   IconButton(
                       onPressed: (){},
@@ -225,7 +230,7 @@ class _HomeState extends State<Home> {
                                             children: [
                                               divider(textWidth),
                                               Padding(
-                                                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                                padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                                                 child: Text('${satellites.length} SATELLITES',style: TextStyle(fontSize: 20,color: ThemeColors.textPrimary)),
                                               ),
                                               divider(textWidth),
@@ -496,7 +501,7 @@ class _HomeState extends State<Home> {
       foregroundColor: ThemeColors.textPrimary,
       backgroundColor: ThemeColors.backgroundCardColor,
       elevation: 0,
-      title: const Text('STEAM Celestial Satellite tracker',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 24),),
+      title: const Text("STEAM Celestial Satellite tracker",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 24),),
       actions: [
         TextButton(
           onPressed: null,
@@ -522,43 +527,36 @@ class _HomeState extends State<Home> {
         ),
         const SizedBox(width: 5)
       ],
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(66.0),
-        child: AppBar(
-          elevation: 0,
-          backgroundColor: ThemeColors.backgroundCardColor,
-          title: Padding(
-            padding: const EdgeInsets.only(bottom:15),
-            child: Card(
-              color: ThemeColors.backgroundColor,
-              elevation: 2,
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: TextField(
-                        focusNode: _searchFocusNode,
-                        controller: _searchController,
-                        onChanged: (val){
-                          context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed,dropdownvalueOperators,featured,launchNew,launchOld, range3d);
-                        },
-                        keyboardType: TextInputType.text,
-                        cursorColor: ThemeColors.primaryColor,
-                        style: TextStyle(color: ThemeColors.textPrimary),
-                        decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintStyle: TextStyle(color: ThemeColors.searchBarColor),
-                            hintText: 'Search satellites..',
-                            prefixIcon: Icon(Icons.search,color: ThemeColors.primaryColor),
-                        ),
-                      ),
-                    ),
-                  ],
+      bottom: AppBar(
+        elevation: 0,
+        backgroundColor: ThemeColors.backgroundCardColor,
+        title: Padding(
+          padding: const EdgeInsets.only(bottom:15),
+          child: Column(
+            children: [
+              const SizedBox(height: 10,),
+              Card(
+                color: ThemeColors.backgroundColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                elevation:2,
+                child: TextField(
+                  focusNode: _searchFocusNode,
+                  controller: _searchController,
+                  onChanged: (val){
+                    context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed,dropdownvalueOperators,featured,launchNew,launchOld, range3d);
+                  },
+                  keyboardType: TextInputType.text,
+                  cursorColor: ThemeColors.primaryColor,
+                  style: TextStyle(color: ThemeColors.textPrimary),
+                  decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(color: ThemeColors.searchBarColor),
+                      hintText: 'Search satellites..',
+                      prefixIcon: Icon(Icons.search,color: ThemeColors.primaryColor),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),

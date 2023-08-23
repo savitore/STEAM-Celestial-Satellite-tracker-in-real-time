@@ -47,8 +47,8 @@ class MyApp extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     setLogos();
-
     return const MaterialApp(
+      title: 'STEAM Celestial Satellite tracker',
       debugShowCheckedModeBanner: false,
       home: SplashScreenPage(),
     );

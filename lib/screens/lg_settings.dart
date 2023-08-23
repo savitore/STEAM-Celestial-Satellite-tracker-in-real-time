@@ -41,6 +41,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _localStorageService.setItem(StorageKeys.lgConnection, "not");
     _initNetworkState();
     _scrollController.addListener(_scrollListener);
   }
@@ -86,6 +87,13 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
             elevation: 0,
             backgroundColor: Colors.transparent,
             title: _showTextInAppBar ? const Text('LG Settings',style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold)) : const Text(''),
+            bottom: _showTextInAppBar ? PreferredSize(
+              preferredSize: const Size.fromHeight(1.0),
+              child: Container(
+                color: Colors.black12,
+                height: 1,
+              ),
+            ) : null,
           ),
           body: SingleChildScrollView(
             controller: _scrollController,

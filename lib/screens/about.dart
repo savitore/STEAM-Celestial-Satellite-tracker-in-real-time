@@ -136,6 +136,13 @@ class _AboutState extends State<About> {
               Navigator.pop(context);
             }),
         title: _showTextInAppBar ? const Text('About Page',style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold)) : const Text(''),
+        bottom: _showTextInAppBar ? PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: Colors.black12,
+            height: 1,
+          ),
+        ) : null,
       ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,

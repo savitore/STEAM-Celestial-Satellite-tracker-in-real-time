@@ -72,6 +72,13 @@ class _HelpState extends State<Help> {
               Navigator.pop(context);
             }),
         title: _showTextInAppBar ? const Text('Help Page',style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold)) : const Text(''),
+        bottom: _showTextInAppBar ? PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: Colors.black12,
+            height: 1,
+          ),
+        ) : null,
       ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
