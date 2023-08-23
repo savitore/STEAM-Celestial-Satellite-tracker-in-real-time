@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:share_plus/share_plus.dart';
 
 class ZoomedScreen extends StatelessWidget {
   final String image;
@@ -19,14 +18,6 @@ class ZoomedScreen extends StatelessWidget {
             },
             icon: const Icon(Icons.clear_rounded)
         ),
-        actions: [
-          IconButton(
-              onPressed: (){
-                Share.share(image);
-              },
-              icon: const Icon(Icons.more_horiz_rounded)
-          ),
-        ],
       ),
       body: GestureDetector(
         onVerticalDragStart: (details){
