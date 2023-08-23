@@ -17,6 +17,7 @@
 - [Setting up the Arduino Controlled pointer](#setting-up-the-arduino-controlled-pointer)
 - [Connecting to the Liquid Galaxy](#connecting-to-the-liquid-galaxy)
 - [Contributing](#contributing)
+- [Credits](#credits)
 - [License](#license)
 
 ## About
@@ -37,7 +38,7 @@ Take a look at the app on the [Google Play Store](https://play.google.com/store/
 * C ++
 * Dart
 
-## __Building from source__
+## Building from source
 
 ### Prerequisites
 
@@ -81,17 +82,17 @@ $ flutter run --no-sound-null-safety
 
 Once done, the APK file may be found into the `/build/app/outputs/flutter-apk/` directory, named `app-release.apk`.
 
-## __Setting up the Arduino-controlled pointer__
+## Setting up the Arduino-controlled pointer
 
 You can find the documentation for setting up the Arduino-controlled pointer by clicking [here.](https://docs.google.com/document/d/1NfXiyhhtKBtD2GL_H1Qew8CYwpoZ0U3u9v3ifMiTAcE/edit)
 
 Please note that the Arduino-controlled pointer is compatible only with Android devices that are running versions up to Android 11.
 
-## __Connecting to the Liquid Galaxy__
+## Connecting to the Liquid Galaxy
 
 If you have followed all the steps up to this point, your app should be running.
 
-With the app open, click on the gear icon (⚙️) located on the home page's top-right corner. When clicked, it will take you to the Settings page. On that page, select the LG Connection option.
+With the app open, click on the gear icon (⚙️) on the home page's top-right corner. When clicked, it will take you to the Settings page. On that page, select the LG Connection option.
 
 To establish a connection with your Liquid Galaxy, enter the Liquid Galaxy host name, password, IP address, SSH connection port (change it only if the system's default SSH port 22 was changed), and the number of screens.
 
@@ -105,6 +106,12 @@ You're welcome to report any issues, bugs, or feature requests through our issue
 
 If you're interested in contributing to this project, feel free to submit a pull request.
 
-## __License__
+## Credits
+
+This app was made possible with the help of mentor Otávio J. França Oliveira, organization admin Andreu Ibáñez Perales, and testers from Liquid Galaxy LAB: Mohamed Zazou, Navdeep Singh, and Imad Laichi. 
+
+Special thanks to Michell Algarra, the author of the SatNOGS project, and Sayed Nowroz, whose Arduino-controlled pointer served as inspiration.
+
+## License
 
 This software is licensed under the [MIT license](https://opensource.org/licenses/MIT).
