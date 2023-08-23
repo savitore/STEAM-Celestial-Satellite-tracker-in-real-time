@@ -17,6 +17,7 @@
 - [Setting up the Arduino Controlled pointer](#setting-up-the-arduino-controlled-pointer)
 - [Connecting to the Liquid Galaxy](#connecting-to-the-liquid-galaxy)
 - [Contributing](#contributing)
+- [Credits](#credits)
 - [License](#license)
 
 ## About
