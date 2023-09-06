@@ -55,7 +55,7 @@ Read [this](https://flutter.dev/docs/get-started/install) documentation to know 
 Then, clone the project:
 
 ```bash
-$ git clone https://github.com/STEAM-Celestial-Satellite-tracker-in-real-time.git
+$ git clone https://github.com/savitore/STEAM-Celestial-Satellite-tracker-in-real-time.git
 $ cd STEAM-Celestial-Satellite-tracker-in-real-time
 ```
 
