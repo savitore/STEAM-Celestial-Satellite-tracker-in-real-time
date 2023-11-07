@@ -1,0 +1,47 @@
+name: Flutter CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: 3.13.6
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Run tests
+      run: flutter test
+
+    - name: Build APK for Android
+      run: flutter build apk
+
+    - name: Build iOS App
+      run: flutter build ios
+
+    - name: Archive and upload Android artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-android
+        path: build/app/outputs/flutter-apk/app-release.apk
+
+    - name: Archive and upload iOS artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-ios
+        path: build/ios/Runner.app
