@@ -493,41 +493,70 @@ class _HomeState extends State<Home> {
         ),
         const SizedBox(width: 5)
       ],
-      bottom: AppBar(
-        elevation: 0,
-        backgroundColor: ThemeColors.backgroundCardColor,
-        title: Padding(
-          padding: const EdgeInsets.only(bottom:15),
-          child: Column(
+ bottom: AppBar(
+  elevation: 0,
+  backgroundColor: ThemeColors.backgroundCardColor,
+  title: Padding(
+    padding: const EdgeInsets.only(bottom:15),
+    child: Column(
+      children: [
+        const SizedBox(height: 10,),
+        Card(
+          color: ThemeColors.backgroundColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation:2,
+          child: Stack(
             children: [
-              const SizedBox(height: 10,),
-              Card(
-                color: ThemeColors.backgroundColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                elevation:2,
-                child: TextField(
-                  focusNode: _searchFocusNode,
-                  controller: _searchController,
-                  onChanged: (val){
-                    context.read<SatelliteCubit>().filterSearchData(val,dropdownvalueCountries,dropdownvalueStatus,decayed,launched,deployed,dropdownvalueOperators,featured,launchNew,launchOld, range3d);
-                  },
-                  keyboardType: TextInputType.text,
-                  cursorColor: ThemeColors.primaryColor,
-                  style: TextStyle(color: ThemeColors.textPrimary),
-                  decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintStyle: TextStyle(color: ThemeColors.searchBarColor),
-                      hintText: 'Search satellites..',
-                      prefixIcon: Icon(Icons.search,color: ThemeColors.primaryColor),
-                  ),
+              TextField(
+                focusNode: _searchFocusNode,
+                controller: _searchController,
+                onChanged: (val) {
+                  context.read<SatelliteCubit>().filterSearchData(
+                    val,
+                    dropdownvalueCountries,
+                    dropdownvalueStatus,
+                    decayed,
+                    launched,
+                    deployed,
+                    dropdownvalueOperators,
+                    featured,
+                    launchNew,
+                    launchOld,
+                    range3d,
+                  );
+                },
+                keyboardType: TextInputType.text,
+                cursorColor: ThemeColors.primaryColor,
+                style: TextStyle(color: ThemeColors.textPrimary),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(color: ThemeColors.searchBarColor),
+                  hintText: 'Search satellites..',
+                  prefixIcon: Icon(Icons.search, color: ThemeColors.primaryColor),
                 ),
               ),
-            ],
-          ),
-        ),
+              Visibility(
+                visible: _searchController.text.isNotEmpty,
+                child: Positioned(
+                  right: 8,
+                  top: 1,
+                  child: IconButton(
+                    icon: Icon(Icons.clear, color: ThemeColors.primaryColor),
+                    onPressed: () {
+                      _searchController.clear();
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+            ),
+           ),
+         ],
       ),
-    );
-  }
+    ),
+    ),
+  );
+}
 
   Widget divider(double textWidth){
     return Container(
