@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/screens/faq.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/help.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/screens/lg_settings.dart';
 import 'package:steam_celestial_satellite_tracker_in_real_time/services/local_storage_service.dart';
@@ -125,9 +126,18 @@ class _SettingsState extends State<Settings> {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => const Help()));
                 },
-                title: _buildTitle('Help'),
+               title: _buildTitle('Help'),
                 trailing: const Icon(Icons.arrow_forward),
                 leading: _buildIcon(Icons.help_center_outlined),
+              ),
+               ListTile(
+                onTap: (){
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => FAQScreen()));
+                },
+                title: _buildTitle('FAQ'),
+                trailing: const Icon(Icons.arrow_forward),
+                leading: _buildIcon(Icons.contact_mail),
               ),
               _divider(),
               const SizedBox(height: 10,),
