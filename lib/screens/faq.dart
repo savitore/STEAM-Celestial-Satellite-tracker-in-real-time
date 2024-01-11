@@ -78,14 +78,7 @@ class FAQItem extends StatelessWidget {
     return Card(
       elevation: 2,
       margin: EdgeInsets.symmetric(vertical: 8),
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0), 
-        side: BorderSide(
-          color: Colors.red, 
-          width: 0.5, 
-        ),
-      ),
+      color: Colors.white, 
       child: ExpansionTile(
         title: Text(
           question,
