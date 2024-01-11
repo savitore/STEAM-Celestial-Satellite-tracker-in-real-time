@@ -130,6 +130,7 @@ class _SettingsState extends State<Settings> {
                 trailing: const Icon(Icons.arrow_forward),
                 leading: _buildIcon(Icons.help_center_outlined),
               ),
+              _divider(),
                ListTile(
                 onTap: (){
                   Navigator.push(context,

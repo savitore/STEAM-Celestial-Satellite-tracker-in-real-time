@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:steam_celestial_satellite_tracker_in_real_time/utils/colors.dart';
 
 class FAQScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: ThemeColors.backgroundCardColor, 
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.black, 
+        foregroundColor: ThemeColors.textPrimary,
         elevation: 0,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_rounded,
-            color: Colors.black,
+            color: ThemeColors.textPrimary,
           ),
           onPressed: () {
             Navigator.pop(context);
@@ -27,31 +28,11 @@ class FAQScreen extends StatelessWidget {
           ),
         ),
       ),
- body: Column(
-        children: [
-          SizedBox(height: 40),
-          Expanded(
-            child: Container(
-              margin: EdgeInsets.fromLTRB(15, 15, 15, 60),
-              padding: EdgeInsets.all(30),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(40),
-                  topRight: Radius.circular(40),
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40),
-                ),
-                border: Border.all(
-                  color: Colors.red, 
-                  width: 2.0, 
-                ),
-              ),
-              child: SingleChildScrollView(
-                physics: AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-                child: Column(
-                  children: <Widget>[
-                    FAQItem(
+      body: Container(
+        padding: EdgeInsets.all(16),
+        child: ListView(
+          children: [
+            FAQItem(
                       question: 'How does the STEAM Celestial Satellite Tracker work?',
                       answer: 'The STEAM Celestial Satellite Tracker utilizes an Arduino-controlled pointer and Liquid Galaxy rig to visualize satellite orbits. The app provides real-time information about satellite movements and offers a unique way to interact with the satellite data.',
                     ),
@@ -79,45 +60,46 @@ class FAQScreen extends StatelessWidget {
                       question:  'How can I contribute to the development of the app?',
                       answer: 'We welcome contributions! Feel free to report issues, bugs, or submit feature requests through our issue tracker. If you are interested in contributing code, you can submit a pull request.'
                       ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class FAQItem extends StatefulWidget {
+class FAQItem extends StatelessWidget {
   final String question;
   final String answer;
+
   FAQItem({required this.question, required this.answer});
 
   @override
-  _FAQItemState createState() => _FAQItemState();
-}
-
-class _FAQItemState extends State<FAQItem> {
-  bool isExpanded = false;
-
-  @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      title: Text(widget.question),
-      trailing: Icon(isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down),
-      onExpansionChanged: (bool expanded) {
-        setState(() {
-          isExpanded = expanded;
-        });
-      },
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(widget.answer),
+    return Card(
+      elevation: 2,
+      margin: EdgeInsets.symmetric(vertical: 8),
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0), 
+        side: BorderSide(
+          color: Colors.red, 
+          width: 0.5, 
         ),
-      ],
+      ),
+      child: ExpansionTile(
+        title: Text(
+          question,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(answer),
+          ),
+        ],
+      ),
     );
   }
 }
