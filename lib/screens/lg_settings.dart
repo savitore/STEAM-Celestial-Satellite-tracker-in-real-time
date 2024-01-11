@@ -201,11 +201,11 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                                       });
                                     });
                                   },
-                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.white,shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50)))),
+                                  style: ElevatedButton.styleFrom(backgroundColor: ThemeColors.primaryColor,shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50)))),
                                     child: Row(
                                       children: [
                                         const SizedBox(width: 5,),
-                                        const Text('CONNECT',style: TextStyle(fontSize: 17.5),),
+                                        const Text('CONNECT', style: TextStyle(fontSize: 17.5, color: Colors.white,),),
                                         const SizedBox(width: 10,),
                                         _loading ?
                                         SizedBox(
@@ -213,7 +213,7 @@ class _LGSettingsState extends State<LGSettings> with TickerProviderStateMixin {
                                           height: 20,
                                           child: CircularProgressIndicator(strokeWidth: 3,color: ThemeColors.backgroundColor,),
                                         ) :
-                                        const Icon(Icons.cast_connected_outlined,size: 25,)
+                                        const Icon(Icons.cast_connected_outlined,size: 25, color: Colors.white,  )
                                       ],
                                     ),
                                 ),
