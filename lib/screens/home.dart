@@ -90,6 +90,8 @@ class _HomeState extends State<Home> {
     }
   }
 
+  bool pressedToRefreshThePage = false;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -189,6 +191,26 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),
+              floatingActionButton: ClipOval(
+                child: FloatingActionButton(
+                  backgroundColor: Color.fromARGB(70, 186, 175, 175),
+                  splashColor: Colors.black,
+                  heroTag: "refresh-3",
+                  onPressed: () async {
+                    setState(() {
+                      pressedToRefreshThePage = true;
+                    });
+                    refresh(context, state);
+                    await Future.delayed(const Duration(seconds: 10));
+                    setState(() {
+                      pressedToRefreshThePage = false;
+                    });
+                  },
+                  child: pressedToRefreshThePage
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.rotate_right_rounded),
+                ),
+              ),
             );
           } else if (state is SatelliteLoadedState) {
             List<SatelliteModel> satellites = state.satellites;
@@ -256,6 +278,26 @@ class _HomeState extends State<Home> {
                     ))
                   ]))
                 ],
+              ),
+              floatingActionButton: ClipOval(
+                child: FloatingActionButton(
+                  splashColor: Colors.black,
+                  backgroundColor: Color.fromARGB(70, 114, 101, 101),
+                  heroTag: "refresh-1",
+                  onPressed: () async {
+                    setState(() {
+                      pressedToRefreshThePage = true;
+                    });
+                    refresh(context, state);
+                    await Future.delayed(const Duration(seconds: 10));
+                    setState(() {
+                      pressedToRefreshThePage = false;
+                    });
+                  },
+                  child: pressedToRefreshThePage
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.rotate_right_rounded),
+                ),
               ),
               bottomNavigationBar: bottomRow(context, state),
             );
@@ -345,6 +387,26 @@ class _HomeState extends State<Home> {
                     ))
                   ]))
                 ],
+              ),
+              floatingActionButton: ClipOval(
+                child: FloatingActionButton(
+                  splashColor: Colors.black,
+                  backgroundColor: Color.fromARGB(70, 114, 101, 101),
+                  heroTag: "refresh-2",
+                  onPressed: () async {
+                    setState(() {
+                      pressedToRefreshThePage = true;
+                    });
+                    refresh(context, state);
+                    await Future.delayed(const Duration(seconds: 10));
+                    setState(() {
+                      pressedToRefreshThePage = false;
+                    });
+                  },
+                  child: pressedToRefreshThePage
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.rotate_right_rounded),
+                ),
               ),
               bottomNavigationBar: bottomRow(context, state),
             );
