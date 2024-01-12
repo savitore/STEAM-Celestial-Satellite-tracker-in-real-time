@@ -582,33 +582,54 @@ class _HomeState extends State<Home> {
                     borderRadius: BorderRadius.circular(20)),
                 elevation: 2,
                 child: TextField(
-                  focusNode: _searchFocusNode,
-                  controller: _searchController,
-                  onChanged: (val) {
-                    context.read<SatelliteCubit>().filterSearchData(
-                        val,
-                        dropdownvalueCountries,
-                        dropdownvalueStatus,
-                        decayed,
-                        launched,
-                        deployed,
-                        dropdownvalueOperators,
-                        featured,
-                        launchNew,
-                        launchOld,
-                        range3d);
-                  },
-                  keyboardType: TextInputType.text,
-                  cursorColor: ThemeColors.primaryColor,
-                  style: TextStyle(color: ThemeColors.textPrimary),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintStyle: TextStyle(color: ThemeColors.searchBarColor),
-                    hintText: 'Search satellites..',
-                    prefixIcon:
-                        Icon(Icons.search, color: ThemeColors.primaryColor),
-                  ),
-                ),
+  focusNode: _searchFocusNode,
+  controller: _searchController,
+  onChanged: (val) {
+    context.read<SatelliteCubit>().filterSearchData(
+        val,
+        dropdownvalueCountries,
+        dropdownvalueStatus,
+        decayed,
+        launched,
+        deployed,
+        dropdownvalueOperators,
+        featured,
+        launchNew,
+        launchOld,
+        range3d,
+    );
+  },
+  keyboardType: TextInputType.text,
+  cursorColor: ThemeColors.primaryColor,
+  style: TextStyle(color: ThemeColors.textPrimary),
+  decoration: InputDecoration(
+    border: InputBorder.none,
+    hintStyle: TextStyle(color: ThemeColors.searchBarColor),
+    hintText: 'Search satellites..',
+    prefixIcon: Icon(Icons.search, color: ThemeColors.primaryColor),
+    suffixIcon: _searchController.text.isNotEmpty
+        ? IconButton(
+            icon: Icon(Icons.clear, color: ThemeColors.primaryColor),
+            onPressed: () {
+              _searchController.clear();
+              context.read<SatelliteCubit>().filterSearchData(
+                  _searchController.text,
+                  dropdownvalueCountries,
+                  dropdownvalueStatus,
+                  decayed,
+                  launched,
+                  deployed,
+                  dropdownvalueOperators,
+                  featured,
+                  launchNew,
+                  launchOld,
+                  range3d);
+            },
+          )
+        : null,
+  ),
+),
+
               ),
             ],
           ),
@@ -616,7 +637,6 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-
   Widget divider(double textWidth) {
     return Container(
       width: (MediaQuery.of(context).size.width - textWidth - 60) * 0.5,
