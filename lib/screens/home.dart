@@ -129,86 +129,72 @@ class _HomeState extends State<Home> {
                       ))
                 ],
               ),
-              body: SingleChildScrollView(
-                physics: const NeverScrollableScrollPhysics(),
-                child: Column(
-                  children: [
-                    ShimmerEffect().shimmer(Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 5, 10, 10),
-                      child: Card(
-                        elevation: 2,
-                        child: Container(
-                          width: double.infinity,
-                          height: 50,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors
-                                  .grey), // Set the base color of the shimmer effect
-                        ),
-                      ),
-                    )),
-                    ShimmerEffect().shimmer(Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                      child: Row(
-                        children: [
-                          Container(
-                            width:
-                                MediaQuery.of(context).size.width * 0.5 - 130,
-                            height: 1,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Container(
-                            height: 10,
+              body: RefreshIndicator(
+                onRefresh: () async {
+                  refresh(context, state);
+                  await Future.delayed(const Duration(seconds: 5));
+                },
+                child: SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: Column(
+                    children: [
+                      ShimmerEffect().shimmer(Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 5, 10, 10),
+                        child: Card(
+                          elevation: 2,
+                          child: Container(
+                            width: double.infinity,
+                            height: 50,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                color: Colors.grey),
-                            width: 200,
+                                color: Colors
+                                    .grey), // Set the base color of the shimmer effect
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Container(
-                            width:
-                                MediaQuery.of(context).size.width * 0.5 - 130,
-                            height: 1,
-                            color: Colors.grey,
-                          ),
-                        ],
-                      ),
-                    )),
-                    shimmerList(),
-                    shimmerList(),
-                    shimmerList(),
-                    shimmerList(),
-                    shimmerList(),
-                    shimmerList(),
-                    shimmerList(),
-                    shimmerList(),
-                    shimmerList(),
-                  ],
-                ),
-              ),
-              floatingActionButton: ClipOval(
-                child: FloatingActionButton(
-                  backgroundColor: Color.fromARGB(70, 186, 175, 175),
-                  splashColor: Colors.black,
-                  heroTag: "refresh-3",
-                  onPressed: () async {
-                    setState(() {
-                      pressedToRefreshThePage = true;
-                    });
-                    refresh(context, state);
-                    await Future.delayed(const Duration(seconds: 10));
-                    setState(() {
-                      pressedToRefreshThePage = false;
-                    });
-                  },
-                  child: pressedToRefreshThePage
-                      ? const CircularProgressIndicator()
-                      : const Icon(Icons.rotate_right_rounded),
+                        ),
+                      )),
+                      ShimmerEffect().shimmer(Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                        child: Row(
+                          children: [
+                            Container(
+                              width:
+                                  MediaQuery.of(context).size.width * 0.5 - 130,
+                              height: 1,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Container(
+                              height: 10,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.grey),
+                              width: 200,
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Container(
+                              width:
+                                  MediaQuery.of(context).size.width * 0.5 - 130,
+                              height: 1,
+                              color: Colors.grey,
+                            ),
+                          ],
+                        ),
+                      )),
+                      shimmerList(),
+                      shimmerList(),
+                      shimmerList(),
+                      shimmerList(),
+                      shimmerList(),
+                      shimmerList(),
+                      shimmerList(),
+                      shimmerList(),
+                      shimmerList(),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -218,85 +204,71 @@ class _HomeState extends State<Home> {
                 TextStyle(fontSize: 20, color: ThemeColors.textPrimary));
             return Scaffold(
               backgroundColor: ThemeColors.backgroundCardColor,
-              body: CustomScrollView(
-                slivers: [
-                  sliverAppBar(context, state),
-                  SliverList(
-                      delegate: SliverChildListDelegate([
-                    SafeArea(
-                        child: SingleChildScrollView(
-                      physics: const ScrollPhysics(),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 20),
-                              child: Row(
-                                children: [
-                                  divider(textWidth),
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                                    child: Text(
-                                        '${satellites.length} SATELLITES',
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            color: ThemeColors.textPrimary)),
-                                  ),
-                                  divider(textWidth),
-                                ],
+              body: RefreshIndicator(
+                onRefresh: () async {
+                  refresh(context, state);
+                  await Future.delayed(const Duration(seconds: 5));
+                },
+                child: CustomScrollView(
+                  slivers: [
+                    sliverAppBar(context, state),
+                    SliverList(
+                        delegate: SliverChildListDelegate([
+                      SafeArea(
+                          child: SingleChildScrollView(
+                        physics: const ScrollPhysics(),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 20),
+                                child: Row(
+                                  children: [
+                                    divider(textWidth),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          20, 0, 20, 0),
+                                      child: Text(
+                                          '${satellites.length} SATELLITES',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              color: ThemeColors.textPrimary)),
+                                    ),
+                                    divider(textWidth),
+                                  ],
+                                ),
                               ),
-                            ),
-                            ListView.builder(
-                                primary: false,
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                itemCount: satellites.length,
-                                itemBuilder: (context, index) {
-                                  return InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  SatelliteInfo(
-                                                      satellites[index],
-                                                      location,
-                                                      latitude,
-                                                      longitude,
-                                                      altitude)));
-                                    },
-                                    child:
-                                        _buildList(context, satellites[index]),
-                                  );
-                                }),
-                          ],
+                              ListView.builder(
+                                  primary: false,
+                                  scrollDirection: Axis.vertical,
+                                  shrinkWrap: true,
+                                  itemCount: satellites.length,
+                                  itemBuilder: (context, index) {
+                                    return InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SatelliteInfo(
+                                                        satellites[index],
+                                                        location,
+                                                        latitude,
+                                                        longitude,
+                                                        altitude)));
+                                      },
+                                      child: _buildList(
+                                          context, satellites[index]),
+                                    );
+                                  }),
+                            ],
+                          ),
                         ),
-                      ),
-                    ))
-                  ]))
-                ],
-              ),
-              floatingActionButton: ClipOval(
-                child: FloatingActionButton(
-                  splashColor: Colors.black,
-                  backgroundColor: Color.fromARGB(70, 114, 101, 101),
-                  heroTag: "refresh-1",
-                  onPressed: () async {
-                    setState(() {
-                      pressedToRefreshThePage = true;
-                    });
-                    refresh(context, state);
-                    await Future.delayed(const Duration(seconds: 10));
-                    setState(() {
-                      pressedToRefreshThePage = false;
-                    });
-                  },
-                  child: pressedToRefreshThePage
-                      ? const CircularProgressIndicator()
-                      : const Icon(Icons.rotate_right_rounded),
+                      ))
+                    ]))
+                  ],
                 ),
               ),
               bottomNavigationBar: bottomRow(context, state),
@@ -308,104 +280,91 @@ class _HomeState extends State<Home> {
                 const TextStyle(fontSize: 20, color: Colors.black));
             return Scaffold(
               backgroundColor: ThemeColors.backgroundCardColor,
-              body: CustomScrollView(
-                slivers: [
-                  sliverAppBar(context, state),
-                  SliverList(
-                      delegate: SliverChildListDelegate([
-                    SafeArea(
-                        child: SingleChildScrollView(
-                      physics: const ScrollPhysics(),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 20),
-                              child: Row(
-                                children: [
-                                  divider(textWidth),
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                    child: Text(
-                                        '${searchedSatellites.length} SATELLITES',
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            color: ThemeColors.textPrimary)),
-                                  ),
-                                  divider(textWidth),
-                                ],
+              body: RefreshIndicator(
+                onRefresh: () async {
+                  refresh(context, state);
+                  await Future.delayed(const Duration(seconds: 5));
+                },
+                child: CustomScrollView(
+                  slivers: [
+                    sliverAppBar(context, state),
+                    SliverList(
+                        delegate: SliverChildListDelegate([
+                      SafeArea(
+                          child: SingleChildScrollView(
+                        physics: const ScrollPhysics(),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 20),
+                                child: Row(
+                                  children: [
+                                    divider(textWidth),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          10, 0, 10, 0),
+                                      child: Text(
+                                          '${searchedSatellites.length} SATELLITES',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              color: ThemeColors.textPrimary)),
+                                    ),
+                                    divider(textWidth),
+                                  ],
+                                ),
                               ),
-                            ),
-                            ListView.builder(
-                                primary: false,
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                itemCount: searchedSatellites.length,
-                                itemBuilder: (context, index) {
-                                  return InkWell(
-                                    onTap: () async {
-                                      final result = await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  SatelliteInfo(
-                                                      searchedSatellites[index],
-                                                      location,
-                                                      latitude,
-                                                      longitude,
-                                                      altitude)));
-                                      if (result == "range" &&
-                                          range3d &&
-                                          filter &&
-                                          mounted) {
-                                        context
-                                            .read<SatelliteCubit>()
-                                            .filterSearchData(
-                                                _searchController.text,
-                                                dropdownvalueCountries,
-                                                dropdownvalueStatus,
-                                                decayed,
-                                                launched,
-                                                deployed,
-                                                dropdownvalueOperators,
-                                                featured,
-                                                launchNew,
-                                                launchOld,
-                                                range3d);
-                                      }
-                                    },
-                                    child: _buildList(
-                                        context, searchedSatellites[index]),
-                                  );
-                                }),
-                          ],
+                              ListView.builder(
+                                  primary: false,
+                                  scrollDirection: Axis.vertical,
+                                  shrinkWrap: true,
+                                  itemCount: searchedSatellites.length,
+                                  itemBuilder: (context, index) {
+                                    return InkWell(
+                                      onTap: () async {
+                                        final result = await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SatelliteInfo(
+                                                        searchedSatellites[
+                                                            index],
+                                                        location,
+                                                        latitude,
+                                                        longitude,
+                                                        altitude)));
+                                        if (result == "range" &&
+                                            range3d &&
+                                            filter &&
+                                            mounted) {
+                                          context
+                                              .read<SatelliteCubit>()
+                                              .filterSearchData(
+                                                  _searchController.text,
+                                                  dropdownvalueCountries,
+                                                  dropdownvalueStatus,
+                                                  decayed,
+                                                  launched,
+                                                  deployed,
+                                                  dropdownvalueOperators,
+                                                  featured,
+                                                  launchNew,
+                                                  launchOld,
+                                                  range3d);
+                                        }
+                                      },
+                                      child: _buildList(
+                                          context, searchedSatellites[index]),
+                                    );
+                                  }),
+                            ],
+                          ),
                         ),
-                      ),
-                    ))
-                  ]))
-                ],
-              ),
-              floatingActionButton: ClipOval(
-                child: FloatingActionButton(
-                  splashColor: Colors.black,
-                  backgroundColor: Color.fromARGB(70, 114, 101, 101),
-                  heroTag: "refresh-2",
-                  onPressed: () async {
-                    setState(() {
-                      pressedToRefreshThePage = true;
-                    });
-                    refresh(context, state);
-                    await Future.delayed(const Duration(seconds: 10));
-                    setState(() {
-                      pressedToRefreshThePage = false;
-                    });
-                  },
-                  child: pressedToRefreshThePage
-                      ? const CircularProgressIndicator()
-                      : const Icon(Icons.rotate_right_rounded),
+                      ))
+                    ]))
+                  ],
                 ),
               ),
               bottomNavigationBar: bottomRow(context, state),
@@ -413,33 +372,40 @@ class _HomeState extends State<Home> {
           }
           return Scaffold(
             backgroundColor: ThemeColors.backgroundColor,
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "An error occurred!",
-                    overflow: TextOverflow.visible,
-                    style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<SatelliteCubit>().fetchData();
-                      context
-                          .read<SatelliteCubit>()
-                          .emit(SatelliteLoadingState());
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: ThemeColors.primaryColor),
-                    child: const Text(
-                      'TRY AGAIN',
-                      style: TextStyle(color: Colors.white),
+            body: RefreshIndicator(
+              onRefresh: () async {
+                refresh(context, state);
+                await Future.delayed(const Duration(seconds: 5));
+              },
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "An error occurred!",
+                      overflow: TextOverflow.visible,
+                      style:
+                          TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
                     ),
-                  )
-                ],
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<SatelliteCubit>().fetchData();
+                        context
+                            .read<SatelliteCubit>()
+                            .emit(SatelliteLoadingState());
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: ThemeColors.primaryColor),
+                      child: const Text(
+                        'TRY AGAIN',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           );
@@ -699,7 +665,7 @@ class _HomeState extends State<Home> {
     itemsOperators.add('ALL');
     List<String>? items = prefs.getStringList('operators');
     for (int i = 0; i < items!.length; i++) {
-      itemsOperators.add(items![i]);
+      itemsOperators.add(items[i]);
     }
   }
 
