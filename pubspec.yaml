@@ -50,6 +50,7 @@ dependencies:
   geolocator: ^10.0.0
   flutter_compass: ^0.7.0
   country_flags: ^2.1.0
+  google_fonts: ^6.1.0
 
 dev_dependencies:
   flutter_test:
