@@ -1137,111 +1137,114 @@ class _HomeState extends State<Home> {
       color: ThemeColors.backgroundColor,
       elevation: 5,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          InkWell(
-              onTap: () {
-                showModalBottomSheet(
-                  isDismissible: true,
-                  enableDrag: false,
-                  backgroundColor: ThemeColors.backgroundColor,
-                  context: context,
-                  builder: (_context) => StatefulBuilder(
-                      builder: (BuildContext _context, StateSetter _setState) {
-                    return buildSort(context, _setState);
-                  }),
-                  isScrollControlled: true,
-                );
-              },
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.5 - 0.25,
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.sort_rounded,
-                      color: Colors.black54,
-                      size: 25,
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    const Text(
-                      'SORT',
-                      style: TextStyle(color: Colors.black54, fontSize: 20),
-                    ),
-                    sort
-                        ? Padding(
-                            padding:
-                                const EdgeInsets.only(bottom: 12.0, left: 5),
-                            child: Container(
-                              width: 6.5,
-                              height: 6.5,
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: ThemeColors.primaryColor),
-                            ),
-                          )
-                        : const SizedBox()
-                  ],
-                ),
-              )),
-          Container(
-            width: 0.5,
-            height: 20,
-            color: Colors.black54,
+  mainAxisAlignment: MainAxisAlignment.spaceAround,
+  children: [
+    InkWell(
+      onTap: () {
+        showModalBottomSheet(
+          isDismissible: true,
+          enableDrag: false,
+          backgroundColor: ThemeColors.backgroundColor,
+          context: context,
+          builder: (_context) => StatefulBuilder(
+            builder: (BuildContext _context, StateSetter _setState) {
+              return buildSort(context, _setState);
+            },
           ),
-          InkWell(
-              onTap: () {
-                showModalBottomSheet(
-                  isDismissible: true,
-                  enableDrag: false,
-                  backgroundColor: ThemeColors.backgroundColor,
-                  context: context,
-                  builder: (_context) => StatefulBuilder(
-                      builder: (BuildContext _context, StateSetter _setState) {
-                    return buildFilter(context, _setState);
-                  }),
-                  isScrollControlled: true,
-                );
-              },
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.5 - 0.25,
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.filter_list,
-                      color: Colors.black54,
-                      size: 25,
+          isScrollControlled: true,
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.sort_rounded,
+              color: Colors.black54,
+              size: 25,
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            const Text(
+              'SORT',
+              style: TextStyle(color: Colors.black54, fontSize: 20),
+            ),
+            sort
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0, left: 5),
+                    child: Container(
+                      width: 6.5,
+                      height: 6.5,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: ThemeColors.primaryColor,
+                      ),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    const Text(
-                      'FILTER',
-                      style: TextStyle(color: Colors.black54, fontSize: 20),
-                    ),
-                    filter
-                        ? Padding(
-                            padding:
-                                const EdgeInsets.only(bottom: 12.0, left: 5),
-                            child: Container(
-                              width: 6.5,
-                              height: 6.5,
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: ThemeColors.primaryColor),
-                            ),
-                          )
-                        : const SizedBox()
-                  ],
-                ),
-              )),
-        ],
+                  )
+                : const SizedBox()
+          ],
+        ),
       ),
+    ),
+    Container(
+      width: 0.5,
+      height: 20,
+      color: Colors.black54,
+    ),
+    InkWell(
+      onTap: () {
+        showModalBottomSheet(
+          isDismissible: true,
+          enableDrag: false,
+          backgroundColor: ThemeColors.backgroundColor,
+          context: context,
+          builder: (_context) => StatefulBuilder(
+            builder: (BuildContext _context, StateSetter _setState) {
+              return buildFilter(context, _setState);
+            },
+          ),
+          isScrollControlled: true,
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.filter_list,
+              color: Colors.black54,
+              size: 25,
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            const Text(
+              'FILTER',
+              style: TextStyle(color: Colors.black54, fontSize: 20),
+            ),
+            filter
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0, left: 5),
+                    child: Container(
+                      width: 6.5,
+                      height: 6.5,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: ThemeColors.primaryColor,
+                      ),
+                    ),
+                  )
+                : const SizedBox()
+          ],
+        ),
+      ),
+    ),
+  ],
+),
+
     );
   }
 
