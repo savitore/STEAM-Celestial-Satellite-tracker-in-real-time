@@ -173,6 +173,15 @@ class _AboutState extends State<About> {
                       child: const Image(
                           image: AssetImage('assets/logo.png')),
                     ),
+                    const SizedBox(height: 10),
+                         Text(
+                          'Version: 1.0.1',
+                         style: TextStyle(
+                           color: ThemeColors.textPrimary,
+                           fontSize: 16,
+                           fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 32),
                     RichText(
                         textAlign: TextAlign.center,
