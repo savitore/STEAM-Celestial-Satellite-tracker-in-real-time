@@ -212,18 +212,27 @@ class _HomeState extends State<Home> {
                             Padding(
                               padding: const EdgeInsets.only(bottom: 20),
                               child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  divider(textWidth),
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                                    child: Text(
-                                        '${satellites.length} SATELLITES',
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            color: ThemeColors.textPrimary)),
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      divider(),
+                                      Container(
+                                        color: ThemeColors.backgroundCardColor,
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              10, 0, 10, 0),
+                                          child: Text(
+                                              '${satellites.length} SATELLITES',
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  color:
+                                                      ThemeColors.textPrimary)),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  divider(textWidth),
                                 ],
                               ),
                             ),
@@ -282,18 +291,27 @@ class _HomeState extends State<Home> {
                             Padding(
                               padding: const EdgeInsets.only(bottom: 20),
                               child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  divider(textWidth),
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                    child: Text(
-                                        '${searchedSatellites.length} SATELLITES',
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            color: ThemeColors.textPrimary)),
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      divider(),
+                                      Container(
+                                        color: ThemeColors.backgroundCardColor,
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              10, 0, 10, 0),
+                                          child: Text(
+                                              '${searchedSatellites.length} SATELLITES',
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  color:
+                                                      ThemeColors.textPrimary)),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  divider(textWidth),
                                 ],
                               ),
                             ),
@@ -617,9 +635,9 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget divider(double textWidth) {
+  Widget divider() {
     return Container(
-      width: (MediaQuery.of(context).size.width - textWidth - 60) * 0.5,
+      width: MediaQuery.of(context).size.width * 0.9,
       height: 0.5,
       color: ThemeColors.textPrimary,
     );
@@ -1129,7 +1147,6 @@ class _HomeState extends State<Home> {
                 );
               },
               child: Container(
-                width: MediaQuery.of(context).size.width * 0.5 - 0.25,
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1182,7 +1199,6 @@ class _HomeState extends State<Home> {
                 );
               },
               child: Container(
-                width: MediaQuery.of(context).size.width * 0.5 - 0.25,
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
